@@ -59,8 +59,7 @@ class tkinterApp(tk.Tk):
          # Will create a folder at the User's home folder for this programs data
         self.setup_savedata()
   
-        self.add_frames([StartPage, DownloadPage,\
-                OptionsPage, FormatPage, ExcelPage, DonePage])
+        self.add_frames([StartPage, OptionsPage, FormatPage, ExcelPage, DonePage])
 
         self.show_frame(StartPage)
         
@@ -84,7 +83,7 @@ class tkinterApp(tk.Tk):
     def setup_savedata(self):
         global home_folder_path
         abs_home = os.path.abspath(os.path.expanduser("~"))
-        home_folder_path = abs_home + "/ViolationTool/"
+        home_folder_path = abs_home + "/ViolationToolv2/"
 
         # Create all folders if they don't already exist
         if not os.path.exists(home_folder_path):
@@ -95,24 +94,6 @@ class tkinterApp(tk.Tk):
         for folder in folders:
             if not os.path.exists(home_folder_path + folder):
                 os.mkdir(home_folder_path + folder)
-
-                # The if statements ensure that if folders already exist, nothing is overwritten
-                # In other words only use default program data if this is the first time the program has been run
-                if folder == "dataframes/saved":
-                    dest = home_folder_path + "dataframes/saved/"
-                    src = util.resource_path("dataframes/saved/")
-                    for file in os.listdir(src):
-                        source = src + file
-                        destination = dest + file
-                        shutil.copy(source, destination)
-                
-                elif folder == "assets":
-                    dest = home_folder_path + "assets/"
-                    src = util.resource_path("assets/")
-                    for file in os.listdir(src):
-                        source = src + file
-                        destination = dest + file
-                        shutil.copy(source, destination)
         
 
 # Default page layout
@@ -149,11 +130,12 @@ class StartPage(tk.Frame):
         self.yes_btn = tk.Button(self, text="Yes", command=lambda:self.download_data(), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
         self.yes_btn.grid(column=1, row=4, pady=10)
 
-        self.no_btn = tk.Button(self, text="No", command=lambda:self.show_options(), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
+        self.no_btn = tk.Button(self, text="No", command=lambda:self.show_options(False), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
         self.no_btn.grid(column=3, row=4, pady=10)
 
-
+    # If yes is selected 
     def download_data(thisframe):
+        thisframe.instructions.config(text="Downloading data...")
         thisframe.instructions2.grid_forget()
         thisframe.yes_btn.grid_forget()
         thisframe.no_btn.grid_forget()
@@ -169,51 +151,18 @@ class StartPage(tk.Frame):
 
         thread(util.download).start()
 
-    def show_options(self):
+    # Advance page after download
+    def show_options(self, downloaded):
+        if downloaded:
+            with TkWait(self.parent, 3000):
+                self.instructions.config(text="Download finished")
+        
+        global df, home_folder_path
+        with open(home_folder_path + "dataframes/df.pkl", 'rb') as inp:
+            df = pickle.load(inp)
+
         self.controller.resize_optionspage()
         self.controller.show_frame(OptionsPage)
-
-    # Called after excel sheets are parsed and made into state_df
-    def advance_page(thisframe):
-        global home_folder_path, state_df
-        with open(home_folder_path + "dataframes/new/state_df.pkl", 'rb') as inp:
-            state_df = pickle.load(inp)
-            
-        thisframe.controller.show_frame(DownloadPage)
-
-# Webscraping page 
-class DownloadPage(tk.Frame):
-    def __init__(self, parent, controller):
-        PageLayout.__init__(self, parent)
-        self.controller = controller
-         
-        # Instructions and Start button
-        self.instructions = ttk.Label(self, text="Press start to begin webscraping", font=("Times", 15))
-        self.instructions.grid(column=1, row=1, columnspan=3, pady=10)
-
-        self.instructions2 = ttk.Label(self, text="Will take over an hour if doing a fresh scrape", font=("Times", 15))
-        self.instructions2.grid(column=1, row=2, columnspan=3, pady=10)
-
-        self.start_btn = tk.Button(self, command=lambda:self.scrape(), text="Start Webscraping", font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
-        self.start_btn.grid(column=2, row=3, pady=10)
-    
-
-        
-            
-
-    # Called after scraper is done
-    def advance_page(thisframe):
-        # Copy new dataframes into saved
-        global home_folder_path
-        dest = home_folder_path + "dataframes/saved/"
-        src = home_folder_path + "dataframes/new/"
-        for file in os.listdir(src):
-            source = src + file
-            destination = dest + file
-            shutil.copy(source, destination)
- 
-        thisframe.controller.resize_optionspage()
-        thisframe.controller.show_frame(OptionsPage)
 
 
 # Shows users options for the dataset
@@ -697,10 +646,8 @@ class ExcelPage(tk.Frame):
     def make_sheets(thisframe):
 
         outpath = askdirectory()
-        with open(util.resource_path("dataframes/saved/state_df.pkl"), 'rb') as inp:
-            state_df = pickle.load(inp)
-        with open(util.resource_path("dataframes/saved/fine_df.pkl"), 'rb') as inp:
-            fine_df = pickle.load(inp)    
+        with open(util.resource_path("dataframes/df.pkl"), 'rb') as inp:
+            df = pickle.load(inp)  
 
         # Create a thread to run make_sheets() so we can update the screen
         class thread(threading.Thread):
@@ -710,7 +657,7 @@ class ExcelPage(tk.Frame):
         
             def run(self):
                 global options, sdate, edate, territories, chosen_tags
-                self.func(thisframe, options, state_df, fine_df, sdate, edate, territories, chosen_tags, outpath)
+                self.func(thisframe, options, df, sdate, edate, territories, chosen_tags, outpath)
 
         thisframe.cancel_btn.grid_forget()
         thread(util.make_sheets).start()

@@ -9,13 +9,13 @@ various utility functions for back-end processes of gui.py.
 from tkinter import Label
 from tkinter.ttk import Progressbar
 from typing import Dict, List
-import pickle, sys, os, time, random
+import pickle, sys, os, time, random, info
 import pandas as pd
 from datetime import datetime
 
 # This is where all the save data lies
 abs_home = os.path.abspath(os.path.expanduser("~"))
-home_folder_path = abs_home + "/ViolationTool2/"
+home_folder_path = abs_home + "/ViolationToolv2/"
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -45,29 +45,28 @@ def download(frame):
        'provider_city', 'provider_address', 'survey_date', 'survey_type', 'deficiency_prefix', 'deficiency_category',
        'deficiency_tag_number', 'deficiency_description', 'scope_severity_code', 'deficiency_corrected', 
        'correction_date','fine_amount']]
-    hdf = hdf.set_index(['federal_provider_number', 'provider_name', 'provider_state',
-       'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
+    # Get tags and their descriptions and save it into a dictionary
+    tags = hdf[['deficiency_tag_number', 'deficiency_description']].drop_duplicates()
+    tags = dict(zip(tags['deficiency_tag_number'], tags['deficiency_description']))
+    with open(home_folder_path + "assets/tag_hash.pkl", 'wb') as outp:
+        pickle.dump(tags, outp, pickle.HIGHEST_PROTOCOL)
 
     with open(home_folder_path + "dataframes/df.pkl", 'wb') as outp:
-        pickle.dump(pdf, outp, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(hdf, outp, pickle.HIGHEST_PROTOCOL)
 
     # Save the date of this download
     today = datetime.now()
-    today = today.day + "/" + today.month + "/" + today.year
+    today = str(today.month) + "/" + str(today.day) + "/" + str(today.year)
     with open(home_folder_path + "assets/lastupdate.pkl", 'wb') as outp:
         pickle.dump(today, outp, pickle.HIGHEST_PROTOCOL)
 
     # Update screen
-    frame.show_options()
+    frame.show_options(True)
     
-# Combine the dataframes downloaded from CMS into one
-def combine_dfs(pdf, hdf):
-    pass
-
 
 # Makes the excel sheets based on options chosen by the user 
-def make_sheets(frame, options, state_df, fine_df, startdate, enddate, territories, tags, outpath):
+def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpath):
 
     # Update the screen
     frame.instructions.config(text="Making sheets...")
@@ -116,8 +115,8 @@ def make_sheets(frame, options, state_df, fine_df, startdate, enddate, territori
     print("Filtered Dates")
 
     # Merge rows where state, date, and organization are the same
-    state_df = match_violations(state_df, fine_df)
-    state_df = state_df.reset_index()
+    hdf = hdf.set_index(['federal_provider_number', 'provider_name', 'provider_state',
+       'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
     # Optional sheets
     dfs = {}
@@ -195,7 +194,8 @@ def make_sheets(frame, options, state_df, fine_df, startdate, enddate, territori
 
             elif option == "Top fined organizations per state" and options[option]:
 
-                state_orgs: Dict[String, Dict[String, List]] = {}
+                # Dict[String, Dict[String, List]]
+                state_orgs = {}
                 num = 3
                 # For each state get the most fined overall
                 state_orgs["Overall"] = {}
@@ -243,7 +243,8 @@ def make_sheets(frame, options, state_df, fine_df, startdate, enddate, territori
 
             elif option == "Most severe organizations per state" and options[option]:
 
-                state_orgs: Dict[String, Dict[String, List]] = {}
+                # Dict[String, Dict[String, List]]
+                state_orgs = {}
                 num = 3
                 # For each state get the most severe overall
                 state_orgs["Overall"] = {}
@@ -394,8 +395,8 @@ def match_violations(state_df, fine_df):
     return state_df
     
     
-# Converts states from full name into their two letter code
-def convert_states(territories: Dict[String, List[String]]) -> Dict[String, List[String]]:
+# Converts states from full name into their two letter code Dict[String, List[String]]) -> Dict[String, List[String]]
+def convert_states(territories):
     
     # Get two letter state code hash
     codes = info.get_state_codes()
