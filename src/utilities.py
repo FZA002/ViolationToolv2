@@ -1,3 +1,11 @@
+'''
+This file downloads data from https://data.cms.gov/provider-data.
+It downloads raw data in the form of multiple CSV files from mutliple
+pages, and turns them into pandas dataframes. Specifically, it grabs
+the latest Penalties and Health Deficiencies CSV's. It also contains
+various utility functions for back-end processes of gui.py.
+
+'''
 from tkinter import Label
 from tkinter.ttk import Progressbar
 from typing import Dict, List
@@ -20,7 +28,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 # Download csvs if user says yes
-def download(frame, date):
+def download(frame):
 
     # Url for Penalties and Health Deficiencies dataset queries
     p_urls = "https://data.cms.gov/provider-data/api/1/datastore/query/g6vv-u9sr/0/download?format=csv"
@@ -30,115 +38,34 @@ def download(frame, date):
     pdf = pd.read_csv(p_urls, encoding="iso_8859-1")
     hdf = pd.read_csv(hd_urls, encoding="iso_8859-1")
 
-    with open(home_folder_path + "dataframes/penalties_df.pkl", 'wb') as outp:
+    # Combine the dataframes
+    hdf['fine_amount'] = ""
+    hdf.update(pdf)
+    hdf = hdf[['federal_provider_number', 'provider_name', 'provider_state',
+       'provider_city', 'provider_address', 'survey_date', 'survey_type', 'deficiency_prefix', 'deficiency_category',
+       'deficiency_tag_number', 'deficiency_description', 'scope_severity_code', 'deficiency_corrected', 
+       'correction_date','fine_amount']]
+    hdf = hdf.set_index(['federal_provider_number', 'provider_name', 'provider_state',
+       'provider_city', 'provider_address', 'survey_date', 'survey_type'])
+
+
+    with open(home_folder_path + "dataframes/df.pkl", 'wb') as outp:
         pickle.dump(pdf, outp, pickle.HIGHEST_PROTOCOL)
-    with open(home_folder_path + "dataframes/healthdeficiencies_df.pkl", 'wb') as outp:
-        pickle.dump(hdf, outp, pickle.HIGHEST_PROTOCOL)
 
     # Save the date of this download
+    today = datetime.now()
+    today = today.day + "/" + today.month + "/" + today.year
     with open(home_folder_path + "assets/lastupdate.pkl", 'wb') as outp:
-        pickle.dump(date, outp, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(today, outp, pickle.HIGHEST_PROTOCOL)
 
     # Update screen
-    frame.instructions.config(text="Parsing Data")
-    time.sleep(5)
-    parse_data(frame, filenames)
-
-'''
-    Cases that took place on the same date at the same facility
-    are each counted as their own incident in the excel raw data.
-'''
-def parse_data(frame, filenames):
-    start_time = time.time() 
-    files = [file for file in filenames if file.endswith(".xlsx")]
-    numtoload = len(files)
-    frame.instructions.config(text="Total Workbooks to load: " + str(numtoload))
+    frame.show_options()
     
-    # Initialize Progress Bar
-    progress = Progressbar(frame, orient = "horizontal",
-        length = 300, mode = 'determinate')
-    progress.grid(column=1, row=2, columnspan=3, pady=10)
+# Combine the dataframes downloaded from CMS into one
+def combine_dfs(pdf, hdf):
+    pass
 
-    # Progress bar's label
-    x = 0
-    plabel = Label(frame, text=str(x) + " out of " + str(len(files)) + " workbooks parsed", font=("Times", 15))
-    plabel.grid(column=1, row=4, columnspan=3, pady=10)
-    
-    counter = 1
-    dfs = []
 
-    for file in files:
-
-        file = home_folder_path + "rawdata/" + file
-        start = time.time()
-
-        # Make excel file into a dataframe
-        df = pd.read_excel(file, usecols="A,E,G,H,I", names=["Organization", "State", "Date", "Tag", "Severity"])
-        df.insert(5, "Fine", 0)
-        df.insert(6, "Url", "")
-        
-        # Format columns 
-        col_list = ["State", "Organization", "Date", "Tag", "Severity", "Fine", "Url"]
-        df = df.reindex(columns=col_list)
-
-        dfs.append(df)
-
-        # Update labels and progress bar
-        
-        frame.instructions.config(text="Workbook " + str(counter) + " parsed in " + str(int(time.time() - start)) + " seconds")
-        x += 1
-        progress["value"] += (1/len(files))*100
-        plabel.config(text=str(x) + " out of " + str(len(files)) + " workbooks parsed", font=("Times", 15))
-        
-        counter += 1
-
-    # Once all excel files are dataframes
-    plabel.grid_forget()
-    progress.grid_forget()
-
-    # Merge dataframes and sort by state
-    frame.instructions.config(text="Merging data frames...")
-    result = pd.concat(dfs, ignore_index=True)
-    result = result.sort_values(by=["State"])
-    
-    # Fix indicies
-    result.reset_index(drop=True, inplace=True)
-
-    # Get rid of the rawdata afterwords
-    for file in filenames:
-        os.remove(home_folder_path + "rawdata/" + file)
-    os.remove(home_folder_path + "rawdata/" + "Raw_Data.zip")
-
-    frame.instructions.config(text="Parsed Raw Data in " + str(int(time.time() - start_time)) + " seconds")
-    time.sleep(2)
-    
-    with open(home_folder_path + "dataframes/new/state_df.pkl", 'wb') as outp:
-            pickle.dump(result, outp, pickle.HIGHEST_PROTOCOL)
-
-    frame.instructions.config(text="Saved as state_df.pkl in dataframes/new folder")
-    time.sleep(2)
-    frame.advance_page()
-
-# Trys connecting to a website with proxy, refreshes proxy if needed
-# Used to try and minimize number of proxies used and therefore API calls
-def get_proxy(params):
-    url = "https://api.webscrapingapi.com/v1"
-    while True:
-        # Random time interval to break up requests
-        time.sleep(random.random() * random.randrange(1, 10))
-        try:
-            page = requests.request("GET", url, params=params, timeout=9)
-            if page.status_code != 200:
-                print(page.status_code)
-                raise Exception()
-        except:
-            print("Connection to " + params["url"] + " failed, retrying with new proxy")
-            print(params["session"])
-            params["session"] = random.randint(1, 384179329732178238179)
-        else:
-            return (page, params)
-
-    
 # Makes the excel sheets based on options chosen by the user 
 def make_sheets(frame, options, state_df, fine_df, startdate, enddate, territories, tags, outpath):
 

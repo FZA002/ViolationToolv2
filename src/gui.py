@@ -1,24 +1,22 @@
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from tkinter.filedialog import askdirectory
-from bs4 import BeautifulSoup as bs
 from PIL import Image, ImageTk
-import pickle, threading, datetime, os, requests, re, shutil
-import nhi_functions as nhi
+import pickle, threading, datetime, os, shutil, info
+import utilities as util
 
 # Global variables
 home_folder_path = ""
-state_df = None
+df = None
 sdate = None
 edate = None
 options = None
-fresh_scrape = True
-apikey = ""
 territories = {}
 chosen_tags = []
 
+
 # Contains tags and their descriptions
-with open(nhi.resource_path("assets/tag_hash.pkl"), 'rb') as inp:
+with open(util.resource_path("assets/tag_hash.pkl"), 'rb') as inp:
     tag_hash = pickle.load(inp)
 
 class TkWait:
@@ -42,7 +40,7 @@ class tkinterApp(tk.Tk):
         # __init__ function for class Tk
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("NHI Scraper")
-        self.iconbitmap(nhi.resource_path("images/icon.ico"))
+        self.iconbitmap(util.resource_path("images/icon.ico"))
     
         # Prevents user from stretching screen
         self.resizable(width=False, height=False)
@@ -102,7 +100,7 @@ class tkinterApp(tk.Tk):
                 # In other words only use default program data if this is the first time the program has been run
                 if folder == "dataframes/saved":
                     dest = home_folder_path + "dataframes/saved/"
-                    src = nhi.resource_path("dataframes/saved/")
+                    src = util.resource_path("dataframes/saved/")
                     for file in os.listdir(src):
                         source = src + file
                         destination = dest + file
@@ -110,7 +108,7 @@ class tkinterApp(tk.Tk):
                 
                 elif folder == "assets":
                     dest = home_folder_path + "assets/"
-                    src = nhi.resource_path("assets/")
+                    src = util.resource_path("assets/")
                     for file in os.listdir(src):
                         source = src + file
                         destination = dest + file
@@ -123,7 +121,7 @@ class PageLayout(tk.Frame):
         tk.Frame.__init__(self, parent)
 
         # Logo
-        logo = Image.open(nhi.resource_path("images/logo.png"))
+        logo = Image.open(util.resource_path("images/logo.png"))
         logo = ImageTk.PhotoImage(logo)
         logo_label = ttk.Label(self, image=logo)
         logo_label.image = logo
@@ -137,7 +135,7 @@ class StartPage(tk.Frame):
         self.parent = parent
          
         # Instructions and Buttons
-        self.instructions = ttk.Label(self, text="Welcome! Do you want to re-download all data?", font=("Times", 15))
+        self.instructions = ttk.Label(self, text="Welcome! Do you want to download the most recent data?", font=("Times", 15))
         self.instructions.grid(column=1, row=1, columnspan=3, pady=10)
 
         instructions2 = "Your save data is from: {}"
@@ -147,39 +145,16 @@ class StartPage(tk.Frame):
 
         self.instructions2 =  ttk.Label(self, text=instructions2.format(lastlocalupdate), font=("Times", 15))
         self.instructions2.grid(column=1, row=2, columnspan=3, pady=10)
-
-        # Try and fetch the date of the last update to Nursing Home Inspect
-        instructions3 = "Last website update was: {}"
-        try:
-            req = requests.request("GET", "https://projects.propublica.org/nursing-homes/", timeout=9)
-            if req.status_code == 200:
-                soup = bs(req.content, "html.parser")
-                divs = soup.find("div", class_="home_about_data")
-                text = re.search("Download the raw data files, updated .+", divs.text).group()
-                text = re.search("updated .+", text).group()
-                text = text[8:-1]
-
-                if text == lastlocalupdate:
-                    lastsiteupdate = text + " (You're up to date!)"
-                else:
-                    lastsiteupdate = text + " (You're not up to date!)"
-                
-        except:
-            lastsiteupdate = "(Failed to fetch last update, check website)"
-       
-        self.instructions3 =  ttk.Label(self, text=instructions3.format(lastsiteupdate), font=("Times", 15))
-        self.instructions3.grid(column=1, row=3, columnspan=3, pady=10)
         
-        self.yes_btn = tk.Button(self, text="Yes", command=lambda:self.download_and_parse(text), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
+        self.yes_btn = tk.Button(self, text="Yes", command=lambda:self.download_data(), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
         self.yes_btn.grid(column=1, row=4, pady=10)
 
         self.no_btn = tk.Button(self, text="No", command=lambda:self.show_options(), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
         self.no_btn.grid(column=3, row=4, pady=10)
 
 
-    def download_and_parse(thisframe, text):
+    def download_data(thisframe):
         thisframe.instructions2.grid_forget()
-        thisframe.instructions3.grid_forget()
         thisframe.yes_btn.grid_forget()
         thisframe.no_btn.grid_forget()
 
@@ -190,12 +165,9 @@ class StartPage(tk.Frame):
                 self.func = func
         
             def run(self):
-                self.func(thisframe, text)
+                self.func(thisframe)
 
-        thread(nhi.download).start()
-
-        # For skipping download during testing
-        #thisframe.advance_page()
+        thread(util.download).start()
 
     def show_options(self):
         self.controller.resize_optionspage()
@@ -226,22 +198,8 @@ class DownloadPage(tk.Frame):
         self.start_btn.grid(column=2, row=3, pady=10)
     
 
-    def scrape(thisframe):
-        global state_df, apikey, fresh_scrape, home_folder_path
         
-        # If we skip download when testing:
-        #with open(home_folder_path + "dataframes/saved/state_df.pkl", 'rb') as inp:
-        #    state_df = pickle.load(inp)
-
-        class thread(threading.Thread):
-            def __init__(self, func):
-                threading.Thread.__init__(self)
-                self.func = func
-        
-            def run(self):
-                self.func(thisframe, fresh_scrape, state_df, apikey, home_folder_path)
-        
-        thread(scraper.scrape_fines).start()
+            
 
     # Called after scraper is done
     def advance_page(thisframe):
@@ -739,9 +697,9 @@ class ExcelPage(tk.Frame):
     def make_sheets(thisframe):
 
         outpath = askdirectory()
-        with open(nhi.resource_path("dataframes/saved/state_df.pkl"), 'rb') as inp:
+        with open(util.resource_path("dataframes/saved/state_df.pkl"), 'rb') as inp:
             state_df = pickle.load(inp)
-        with open(nhi.resource_path("dataframes/saved/fine_df.pkl"), 'rb') as inp:
+        with open(util.resource_path("dataframes/saved/fine_df.pkl"), 'rb') as inp:
             fine_df = pickle.load(inp)    
 
         # Create a thread to run make_sheets() so we can update the screen
@@ -755,7 +713,7 @@ class ExcelPage(tk.Frame):
                 self.func(thisframe, options, state_df, fine_df, sdate, edate, territories, chosen_tags, outpath)
 
         thisframe.cancel_btn.grid_forget()
-        thread(nhi.make_sheets).start()
+        thread(util.make_sheets).start()
 
     # Once sheets are made
     def finish(thisframe):
