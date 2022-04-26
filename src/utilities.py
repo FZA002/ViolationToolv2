@@ -344,7 +344,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
 
     # --- Write to an excel --- #
     # Merge rows where state, date, and organization are the same
-    df = df.set_index(['federal_provider_number', 'provider_name', 'provider_state',
+    df = df.set_index(['provider_state','provider_name', 'federal_provider_number', 
        'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
     # Excel workbook for each territory
@@ -352,9 +352,9 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
         # Makes the sheets more organized
         if not t_dfs[terr].empty:
             # Sort alphabetically by provider name
-            t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_name", "survey_date"])
+            t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "survey_date"])
             # This will group things together in the excel sheets
-            t_dfs[terr] = t_dfs[terr].set_index(["territory",'federal_provider_number', 'provider_name', 'provider_state',
+            t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
        'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
 
