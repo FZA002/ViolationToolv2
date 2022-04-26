@@ -246,7 +246,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 state_orgs["Overall"] = {}
                 for state in info.states_codes:
                     # Get subdf of a given state
-                    subdf = df.loc[df["State"] == state]
+                    subdf = df.loc[df['provider_state'] == state]
                     # Get a list of the most severe organizations across entire period
                     state_orgs["Overall"][state] = get_most_severe(subdf, num)
                     
@@ -259,7 +259,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     # Get most severe for each year
                     for state in info.states_codes:
                         # Get subdf of a given state
-                        subdf = df.loc[df["State"] == state]
+                        subdf = df.loc[df['provider_state'] == state]
                         subdf = get_inrange(subdf, yearstart, yearend)
                         # Get a list of the most severe organizations across a year
                         state_orgs[year][state] = get_most_severe(subdf, num)
@@ -492,6 +492,7 @@ def get_most_severe(df, num):
     for name in facilities:
         curdf = df.loc[df['provider_name'] == name]
         # Convert the severity column to numeric and sum it
+        '''
         def convert(x):
             sum = 0
             lst = x.strip('][').replace("'", "").split(",") 
@@ -499,8 +500,8 @@ def get_most_severe(df, num):
                 sum += info.severity_ranks[severity]
 
             return sum
-
-        sum = curdf['scope_severity_code'].apply(lambda x: convert(x)).sum()
+        '''
+        sum = curdf['scope_severity_code'].apply(lambda x: info.severity_ranks[x]).sum()
         if sum != 0:
             sums.append((name, sum))
 
