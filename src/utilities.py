@@ -197,7 +197,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 state_orgs["Overall"] = {}
                 for state in info.states_codes:
                     # Get subdf of a given state
-                    subdf = df.loc[df["State"] == state]
+                    subdf = df.loc[df['provider_state'] == state]
                     # Get a list of the most fined organizations across entire period
                     state_orgs["Overall"][state] = get_most_fined(subdf, num)
                     
@@ -210,7 +210,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     # Get top fined for each year
                     for state in info.states_codes:
                         # Get subdf of a given state
-                        subdf = df.loc[df["State"] == state]
+                        subdf = df.loc[df['provider_state'] == state]
                         subdf = get_inrange(subdf, yearstart, yearend)
                         # Get a list of the most fined organizations across a year
                         state_orgs[year][state] = get_most_fined(subdf, num)
@@ -453,15 +453,9 @@ def get_inrange(df, start, end):
 
     return new 
 
-# Counts the number of violations in a dataframe by checking number of tags
+# Counts the number of violations in a dataframe by counting the rows
 def count_violations_df(df):
-    # Turn the tag column into a pandas series of lists
-    vios = 0
-    col = df['deficiency_tag_number'].apply(lambda x: x.strip('][').replace("'", "").split(",")) 
-    for lst in col:
-        vios += len(lst)
-
-    return vios
+    return len(df)
 
 # Returns a sorted list of tuples where each tuple contains an organization and total fines for a period    
 def get_most_fined(df, num):
