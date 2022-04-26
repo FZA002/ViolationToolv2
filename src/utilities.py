@@ -108,7 +108,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
         print("Used Default Tags")
     else:
         df = df.loc[df['deficiency_tag_number'].isin(tags)] 
-        print("Filtered Tags")
+        print("Filtered Tags, length: {}".format(len(df)))
 
     # Get dates in range for state df
     df = get_inrange(df, startdate, enddate)
@@ -291,12 +291,13 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 # Initialize indicies
                 for state in info.states_codes:
                     # Get row for each state, add total for a state first
-                    subdf = df.loc[df["State"] == state]
+                    subdf = df.loc[df['provider_state'] == state]
                     row = ['${:,.2f}'.format(subdf['fine_amount'].sum())]
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, startdate, enddate)
-                        df = get_inrange(subdf, yearstart, yearend)
-                        row += ['${:,.2f}'.format(df['fine_amount'].sum())]
+                        subdf2 = get_inrange(subdf, yearstart, yearend)
+                        print("{} {} {}".format(state, year, len(subdf2)))
+                        row += ['${:,.2f}'.format(subdf2['fine_amount'].sum())]
                     
                     dfs["State Fines"].loc[state] = row
                 
@@ -306,7 +307,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 # Initialize indicies
                 for state in info.states_codes:
                     # Get row for each state, add total for a state first
-                    subdf = df.loc[df["State"] == state]
+                    subdf = df.loc[df['provider_state'] == state]
                     row = [count_violations_df(subdf)]
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, startdate, enddate)
@@ -492,15 +493,6 @@ def get_most_severe(df, num):
     for name in facilities:
         curdf = df.loc[df['provider_name'] == name]
         # Convert the severity column to numeric and sum it
-        '''
-        def convert(x):
-            sum = 0
-            lst = x.strip('][').replace("'", "").split(",") 
-            for severity in lst:
-                sum += info.severity_ranks[severity]
-
-            return sum
-        '''
         sum = curdf['scope_severity_code'].apply(lambda x: info.severity_ranks[x]).sum()
         if sum != 0:
             sums.append((name, sum))
