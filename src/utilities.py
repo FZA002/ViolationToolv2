@@ -296,7 +296,6 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, startdate, enddate)
                         subdf2 = get_inrange(subdf, yearstart, yearend)
-                        print("{} {} {}".format(state, year, len(subdf2)))
                         row += ['${:,.2f}'.format(subdf2['fine_amount'].sum())]
                     
                     dfs["State Fines"].loc[state] = row
@@ -311,8 +310,8 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     row = [count_violations_df(subdf)]
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, startdate, enddate)
-                        df = get_inrange(subdf, yearstart, yearend)
-                        row += [count_violations_df(df)]
+                        subdf2 = get_inrange(subdf, yearstart, yearend)
+                        row += [count_violations_df(subdf2)]
                     
                     dfs["State Violations"].loc[state] = row
 
