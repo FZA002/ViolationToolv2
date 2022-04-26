@@ -646,7 +646,7 @@ class ExcelPage(tk.Frame):
     def make_sheets(thisframe):
 
         outpath = askdirectory()
-        with open(util.resource_path("dataframes/df.pkl"), 'rb') as inp:
+        with open(home_folder_path + "dataframes/df.pkl", 'rb') as inp:
             df = pickle.load(inp)  
 
         # Create a thread to run make_sheets() so we can update the screen
