@@ -90,7 +90,7 @@ class tkinterApp(tk.Tk):
             os.mkdir(home_folder_path)
         
         # Make all necessary folders
-        folders = ["assets", "rawdata", "scraper_pages", "dataframes", "dataframes/saved", "dataframes/new"]
+        folders = ["assets", "rawdata", "dataframes"]
         for folder in folders:
             if not os.path.exists(home_folder_path + folder):
                 os.mkdir(home_folder_path + folder)

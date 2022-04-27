@@ -123,7 +123,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
     dfs["State Fines"] = pd.DataFrame(columns=(["Total"] + years))
     dfs["State Violations"] = pd.DataFrame(columns=(["Total"] + years))
     dfs["All Territories"] = pd.DataFrame()
-    dfs["All"] = pd.DataFrame()
+    dfs["All US States"] = pd.DataFrame()
 
     # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
     t_dfs = sort_by_territories(df, territories)
@@ -336,13 +336,13 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
 
 
             elif option == "All Violations" and options[option]:
-                dfs["All"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
-                dfs["All"] = dfs["All"].set_index(['provider_state','provider_name', 'federal_provider_number', 
+                dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
+                dfs["All US States"] = dfs["All US States"].set_index(['provider_state','provider_name', 'federal_provider_number', 
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
                 # Set fine column as currency
-                dfs["All"]['fine_amount'] = dfs["All"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
-                dfs["All"]['fine_amount'] = dfs["All"]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
+                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
+                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
 
 
     # --- Write to excel --- #
