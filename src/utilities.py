@@ -326,26 +326,26 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
 
                 # Set indicies properly
                 dfs["All Territories"] = dfs["All Territories"].drop(["index"], axis=1)
-                dfs["All Territories"] = dfs["All Territories"].set_index(["territory", "State", "Organization", "Date"])
+                dfs["All Territories"] = dfs["All Territories"].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
+                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
                 # Set fine column as currency
-                dfs["All Territories"]['fine_amount'] = dfs["All Territories"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
+                dfs["All Territories"]['fine_amount'] = dfs["All Territories"]['fine_amount'].apply(lambda x: 0 if x == "" else x)
                 dfs["All Territories"]['fine_amount'] = pd.to_numeric(dfs["All Territories"]['fine_amount'], errors="coerce")
                 dfs["All Territories"]['fine_amount'] =  dfs["All Territories"]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
 
 
             elif option == "All Violations" and options[option]:
-                dfs["All"] = df.set_index(["State", "Organization", "Date"])
+                dfs["All"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
+                dfs["All"] = dfs["All"].set_index(['provider_state','provider_name', 'federal_provider_number', 
+                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
                 # Set fine column as currency
                 dfs["All"]['fine_amount'] = dfs["All"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
-                dfs["All"]['fine_amount'] =   dfs["All"]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
+                dfs["All"]['fine_amount'] = dfs["All"]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
 
 
-    # --- Write to an excel --- #
-    # Merge rows where state, date, and organization are the same
-    df = df.set_index(['provider_state','provider_name', 'federal_provider_number', 
-       'provider_city', 'provider_address', 'survey_date', 'survey_type'])
+    # --- Write to excel --- #
 
     # Excel workbook for each territory
     for terr in t_dfs.keys():
