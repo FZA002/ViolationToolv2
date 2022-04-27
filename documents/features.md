@@ -5,6 +5,7 @@ Features to add:
     
     Filter by category
     Fine per tag
+    Create charts?
 
 
     

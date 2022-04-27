@@ -77,7 +77,7 @@ class tkinterApp(tk.Tk):
 
     # Window size for options page
     def resize_optionspage(self):
-        self.geometry("500x500")
+        self.geometry("500x600")
 
     # Creates a folder for this program's data
     def setup_savedata(self):
@@ -217,7 +217,7 @@ class OptionsPage(tk.Frame):
         self.controller.show_frame(TagsPage)
 
     def show_format(self):
-        self.controller.geometry("500x560")
+        self.controller.resize_optionspage()
         self.controller.add_frames([FormatPage])
         self.controller.show_frame(FormatPage)
 
@@ -531,9 +531,10 @@ class FormatPage(tk.Frame):
         self.instructions2.grid(column=1, row=3, columnspan=3, pady=10)
 
         # Holds buttons
-        self.options = {"US Fines":False, "US Violations":False, \
-                            "Top fined organizations per state":False, "Most severe organizations per state":False, \
-                            "Sum of fines per state per year":False, "Sum of violations per state per year":False,\
+        self.options = {"US Fines":False, "US Violations":False,
+                            "Top fined organizations per state":False, "Most severe organizations per state":False,
+                            "Sum of fines per state per year":False, "Sum of violations per state per year":False,
+                            "Sum of fines per tag per year":False, "Sum of violations per tag per year":False,
                             "Create sheet with all territories combined":False, "All Violations":False}
 
         # Frame to hold the buttons and list to access them directly
@@ -564,6 +565,14 @@ class FormatPage(tk.Frame):
         i += 1
 
         self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per state (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per state per year")))
+        self.boxes[i].grid()
+        i += 1
+
+        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of fines per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of fines per tag per year")))
+        self.boxes[i].grid()
+        i += 1
+
+        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per tag per year")))
         self.boxes[i].grid()
         i += 1
 

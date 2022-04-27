@@ -6,10 +6,7 @@ the latest Penalties and Health Deficiencies CSV's. It also contains
 various utility functions for back-end processes of gui.py.
 
 '''
-from tkinter import Label
-from tkinter.ttk import Progressbar
-from typing import Dict, List
-import pickle, sys, os, time, random, info
+import pickle, sys, os, time, info
 import pandas as pd
 from datetime import datetime
 
@@ -122,6 +119,8 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
     dfs["Most Severe"] = pd.DataFrame()
     dfs["State Fines"] = pd.DataFrame(columns=(["Total"] + years))
     dfs["State Violations"] = pd.DataFrame(columns=(["Total"] + years))
+    dfs["Tag Fines"] = pd.DataFrame(columns=(["Total"] + years))
+    dfs["Tag Violations"] = pd.DataFrame(columns=(["Total"] + years))
     dfs["All Territories"] = pd.DataFrame()
     dfs["All US States"] = pd.DataFrame()
 
@@ -316,6 +315,36 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     dfs["State Violations"].loc[state] = row
 
 
+            elif option == "Sum of fines per tag per year" and options[option]:
+
+                # Initialize indicies
+                for tag in sorted(tags):
+                    # Get row for each state, add total for a state first
+                    subdf = df.loc[df['deficiency_tag_number'] == tag]
+                    row = ['${:,.2f}'.format(subdf['fine_amount'].sum())]
+                    for year in years:
+                        yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                        subdf2 = get_inrange(subdf, yearstart, yearend)
+                        row += ['${:,.2f}'.format(subdf2['fine_amount'].sum())]
+                    
+                    dfs["Tag Fines"].loc[tag] = row
+                
+
+            elif option == "Sum of violations per tag per year" and options[option]:
+
+                # Initialize indicies
+                for tag in sorted(tags):
+                    # Get row for each state, add total for a state first
+                    subdf = df.loc[df['deficiency_tag_number'] == tag]
+                    row = [count_violations_df(subdf)]
+                    for year in years:
+                        yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                        subdf2 = get_inrange(subdf, yearstart, yearend)
+                        row += [count_violations_df(subdf2)]
+                    
+                    dfs["Tag Violations"].loc[tag] = row
+            
+
             elif option == "Create sheet with all territories combined" and options[option]:
                 # Get a dict of dfs by territory
                 tdfs = sort_by_territories(df, territories)
@@ -386,20 +415,6 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
         time.sleep(3)
         frame.finish()
 
-# Match up incidents with corresponding fines
-def match_violations(state_df, fine_df):
-
-    # Combine rows where state, org and date are the same but make a list of the tags and severities in order
-    state_df = state_df.groupby(['State', 'Organization', 'Date']).agg({'Tag':lambda x: ','.join(x.astype(str)),\
-        'Severity':lambda x: ','.join(x.astype(str)), 'Fine':'first', 'Url':'first'})
-    
-    # Format the fine_df, get rid of dupes, use it to update the state_df
-    fine_df = fine_df.set_index(['State', 'Organization', 'Date'])
-    fine_df = fine_df[~fine_df.index.duplicated()]
-    state_df.update(fine_df)
-    
-    return state_df
-    
     
 # Converts states from full name into their two letter code Dict[String, List[String]]) -> Dict[String, List[String]]
 def convert_states(territories):
@@ -517,29 +532,3 @@ def get_year_range(year, years, startdate, enddate):
         yearend = datetime.strptime(str(year)+"-12-31", "%Y-%m-%d")
 
     return (yearstart, yearend)
-
-
-# Get violations that include chosen tags
-def get_tag_range(df, tags):
-    newdf = df
-    newdf['deficiency_tag_number'] = df['deficiency_tag_number'].apply(lambda x: x.strip('][').replace("'", "").split(","))
-    newdf['scope_severity_code'] = df['scope_severity_code'].apply(lambda x: x.strip('][').replace("'", "").split(","))
-    newdf = newdf.reset_index()
-
-    for i, row in newdf.iterrows():
-        # Map each tag to its severity so that we know which severities to keep
-        pairs = list(map(lambda x,y: (x,y), row['deficiency_tag_number'], row['scope_severity_code']))
-        
-        # If there are no tags in a row that are ones chosen by the user, drop the row
-        matches = [pair for pair in pairs if pair[0] in tags]
-        if len(matches) == 0:
-            newdf = newdf.drop(index=i)
-        else:
-            # Update the dataframe to only keep the correct tags and matches
-            newdf.at[i, 'deficiency_tag_number'] = str([pair[0] for pair in matches])
-            newdf.at[i, 'scope_severity_code'] = str([pair[1] for pair in matches])
-
-    return newdf
-
-
-
