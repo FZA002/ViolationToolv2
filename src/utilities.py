@@ -132,7 +132,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
         # Convert fine column to currency
         t_dfs[terr]['fine_amount'] = t_dfs[terr]['fine_amount'].apply(lambda x: 0 if x == "" else x)
         t_dfs[terr]['fine_amount'] = pd.to_numeric(t_dfs[terr]['fine_amount'], errors="coerce")
-        t_dfs[terr]['fine_amount'] =  t_dfs[terr]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
+        #t_dfs[terr]['fine_amount'] =  t_dfs[terr]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
 
     
     # Convert fine column to numeric
@@ -162,11 +162,13 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     yearstart, yearend = get_year_range(year, years, startdate, enddate)
 
                     # Get the year's sum and format it as currency
-                    dfs["US"].at["Fines", year] = '${:,.2f}'.format(get_inrange(df, yearstart, yearend)['fine_amount'].sum())
+                    dfs["US"].at["Fines", year] = get_inrange(df, yearstart, yearend)['fine_amount'].sum()
+                    #'${:,.2f}'.format(
 
                 # Change columns type back, add data to hash
                 df['survey_date'] = oldcol
-                dfs["US"].at["Fines", "Total"] = '${:,.2f}'.format(sum)
+                dfs["US"].at["Fines", "Total"] = sum
+                #'${:,.2f}'.format(
                     
                         
             elif option == "US Violations" and options[option]:
@@ -293,11 +295,13 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 for state in info.states_codes:
                     # Get row for each state, add total for a state first
                     subdf = df.loc[df['provider_state'] == state]
-                    row = ['${:,.2f}'.format(subdf['fine_amount'].sum())]
+                    row = [subdf['fine_amount'].sum()]
+                    #'${:,.2f}'.format(
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, startdate, enddate)
                         subdf2 = get_inrange(subdf, yearstart, yearend)
-                        row += ['${:,.2f}'.format(subdf2['fine_amount'].sum())]
+                        row += [subdf2['fine_amount'].sum()]
+                        #'${:,.2f}'.format(
                     
                     dfs["State Fines"].loc[state] = row
                 
@@ -323,11 +327,13 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 for tag in sorted(tags):
                     # Get row for each state, add total for a state first
                     subdf = df.loc[df['deficiency_tag_number'] == tag]
-                    row = ['${:,.2f}'.format(subdf['fine_amount'].sum())]
+                    row = [subdf['fine_amount'].sum()]
+                    #'${:,.2f}'.format(
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, startdate, enddate)
                         subdf2 = get_inrange(subdf, yearstart, yearend)
-                        row += ['${:,.2f}'.format(subdf2['fine_amount'].sum())]
+                        row += [subdf2['fine_amount'].sum()]
+                        #'${:,.2f}'.format(
                     
                     dfs["Tag Fines"].loc[tag] = row
                 
@@ -349,10 +355,12 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
 
             elif option == "Include only corrected violations" and options[option]:
                 dfs["Corrected"] = df.loc[~pd.isna(df['correction_date'])]
+                dfs["Corrected"] = dfs["Corrected"].reset_index().drop("index", axis=1)
             
-            
+
             elif option == "Include only uncorrected violations" and options[option]:
                 dfs["Uncorrected"] = df.loc[pd.isna(df['correction_date'])]
+                dfs["Uncorrected"] = dfs["Uncorrected"].reset_index().drop("index", axis=1)
 
 
             elif option == "Create sheet with all territories combined" and options[option]:
@@ -371,7 +379,8 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 # Set fine column as currency
                 dfs["All Territories"]['fine_amount'] = dfs["All Territories"]['fine_amount'].apply(lambda x: 0 if x == "" else x)
                 dfs["All Territories"]['fine_amount'] = pd.to_numeric(dfs["All Territories"]['fine_amount'], errors="coerce")
-                dfs["All Territories"]['fine_amount'] =  dfs["All Territories"]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
+                dfs["All Territories"]['fine_amount'] =  dfs["All Territories"]['fine_amount'].apply(lambda x: float(x))
+                #'${:,.2f}'.format(
 
 
             elif option == "All Violations" and options[option]:
@@ -381,7 +390,8 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
 
                 # Set fine column as currency
                 dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
-                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
+                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: float(x))
+                #'${:,.2f}'.format(
 
 
     # --- Write to excel --- #
@@ -498,13 +508,14 @@ def get_most_fined(df, num):
 
     # Add place holders if not enough data
     if len(sums) < num:
-        sums += [("NA", "$0")] * (num - len(sums))
+        sums += [("NA", 0)] * (num - len(sums))
     
     # Format the sums to currenices
     for i, sum in enumerate(sums):
         if sum[0] != "NA":
             temp = list(sum)
-            temp[1] = '${:,.2f}'.format(temp[1])
+            temp[1] = temp[1]
+            #'${:,.2f}'.format(
             sums[i] = tuple(temp)
 
     return sums[:num]
