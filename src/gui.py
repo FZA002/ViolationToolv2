@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 from tkinter.filedialog import askdirectory
 from PIL import Image, ImageTk
-import pickle, threading, datetime, os, shutil, info
+import pickle, threading, datetime, os, info
 import utilities as util
 
 # Global variables
@@ -245,8 +245,11 @@ class TerritoriesPage(tk.Frame):
         self.nextbtn = tk.Button(self, command=lambda:self.set_terr(), text="Next", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
         self.nextbtn.grid(column=2, row=4, pady=30)
 
+        self.allbtn = tk.Button(self, command=lambda:self.use_all(), text="Use Default Territories", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        self.allbtn.grid(column=2, row=5, pady=3)
+
         self.cancel_btn = tk.Button(self, command=lambda:self.cancel(), text="Cancel", font="Times", bg="#000099", fg="#00ace6", height=1, width=5)
-        self.cancel_btn.grid(column=2, row=5, pady=3)
+        self.cancel_btn.grid(column=2, row=6, pady=3)
 
         # Hides the cancel button once user types anything into the boxes
         def hide_cancel_button(_):
@@ -255,6 +258,13 @@ class TerritoriesPage(tk.Frame):
 
         # Used for populating territories
         self.count = 0 
+
+
+    # When use default is pressed
+    def use_all(self):
+        global territories; territories = info.territories
+        self.controller.show_frame(OptionsPage)
+
 
     # When cancel is pressed
     def cancel(self):
@@ -390,10 +400,13 @@ class DateRangePage(tk.Frame):
                 etext = self.end.get("1.0","end-1c")
                 stime = datetime.datetime.strptime(stext, '%m/%d/%Y')
                 etime = datetime.datetime.strptime(etext, '%m/%d/%Y')
+                today = datetime.datetime.today()
 
                 # If user gives start date later than end date
                 if stime > etime:
                     self.instructions.config(text="Start date must be less than or equal to end date!")
+                elif stime > today or etime > today:
+                    self.instructions.config(text="Dates cannot be in the future!")
                 else:
                     global sdate; sdate = stime
                     global edate; edate = etime
