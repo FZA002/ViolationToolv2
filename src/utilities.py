@@ -121,6 +121,8 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
     dfs["State Violations"] = pd.DataFrame(columns=(["Total"] + years))
     dfs["Tag Fines"] = pd.DataFrame(columns=(["Total"] + years))
     dfs["Tag Violations"] = pd.DataFrame(columns=(["Total"] + years))
+    dfs["Corrected"] = pd.DataFrame()
+    dfs["Uncorrected/Unsure"] = pd.DataFrame()
     dfs["All Territories"] = pd.DataFrame()
     dfs["All US States"] = pd.DataFrame()
 
@@ -344,6 +346,14 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     
                     dfs["Tag Violations"].loc[tag] = row
             
+
+            elif option == "Include only corrected violations" and options[option]:
+                dfs["Corrected"] = df.loc[~pd.isna(df['correction_date'])]
+            
+            
+            elif option == "Include only uncorrected violations" and options[option]:
+                dfs["Uncorrected"] = df.loc[pd.isna(df['correction_date'])]
+
 
             elif option == "Create sheet with all territories combined" and options[option]:
                 # Get a dict of dfs by territory

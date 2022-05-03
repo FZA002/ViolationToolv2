@@ -5,33 +5,33 @@ information relative to the data being processed by the Violation Tool.
 import pickle, utilities as util
 
 severities = {
-    "A" : "Isolated - No actual harm with potential for minimal harm",
-    "B" : "Pattern - No actual harm with potential for minimal harm",
-    "C" : "Widespread - No actual harm with potential for minimal harm",
-    "D" : "Isolated - No actual harm with potential for more than minimal harm that is not immediate jeopardy",
-    "E" : "Pattern - No actual harm with potential for more than minimal harm that is not immediate jeopardy",
-    "F" : "Widespread - No actual harm with potential for more than minimal harm that is not immediate jeopardy",
-    "G" : "Isolated - Actual harm that is not immediate",
-    "H" : "Pattern - Actual harm that is not immediate",
-    "I" : "Widespread - Actual harm that is not immediate",
-    "J" : "Isolated - Immediate jeopardy to resident health or safety",
-    "K" : "Pattern - Immediate jeopardy to resident health or safety",
-    "L" : "Widespread - Immediate jeopardy to resident health or safety"
+    "A - 0" : "Isolated - No actual harm with potential for minimal harm",
+    "B - 0" : "Pattern - No actual harm with potential for minimal harm",
+    "C - 0" : "Widespread - No actual harm with potential for minimal harm",
+    "D - 4" : "Isolated - No actual harm with potential for more than minimal harm that is not immediate jeopardy",
+    "E - 8" : "Pattern - No actual harm with potential for more than minimal harm that is not immediate jeopardy",
+    "F - 16" : "Widespread - No actual harm with potential for more than minimal harm that is not immediate jeopardy",
+    "G - 20" : "Isolated - Actual harm that is not immediate",
+    "H - 35" : "Pattern - Actual harm that is not immediate",
+    "I - 45" : "Widespread - Actual harm that is not immediate",
+    "J - 50" : "Isolated - Immediate jeopardy to resident health or safety",
+    "K - 100" : "Pattern - Immediate jeopardy to resident health or safety",
+    "L - 150" : "Widespread - Immediate jeopardy to resident health or safety"
 }
 
 severity_ranks = {
-    "A" : 1,
-    "B" : 2,
-    "C" : 3,
+    "A" : 0,
+    "B" : 0,
+    "C" : 0,
     "D" : 4,
-    "E" : 5,
-    "F" : 6,
-    "G" : 7,
-    "H" : 8,
-    "I" : 9,
-    "J" : 10,
-    "K" : 11,
-    "L" : 12
+    "E" : 8,
+    "F" : 16,
+    "G" : 20,
+    "H" : 35,
+    "I" : 45,
+    "J" : 50,
+    "K" : 100,
+    "L" : 150
 }
 
 territories = {

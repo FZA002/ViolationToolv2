@@ -545,51 +545,51 @@ class FormatPage(tk.Frame):
         i = 0
         
         # Buttons
-        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="US Fines (Total, yearly)", anchor="w", command=lambda:self.add_option("US Fines", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="US Fines (Total, yearly)", anchor="w", command=lambda:self.add_option("US Fines")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="US Violations (Total, yearly)", anchor="w", command=lambda:self.add_option("US Violations", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="US Violations (Total, yearly)", anchor="w", command=lambda:self.add_option("US Violations")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Top fined organizations (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Top fined organizations per state", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Top fined organizations (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Top fined organizations per state")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Most severe organizations (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Most severe organizations per state", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Most severe organizations (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Most severe organizations per state")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of fines per state (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of fines per state per year", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of fines per state (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of fines per state per year")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per state (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per state per year", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per state (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per state per year")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of fines per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of fines per tag per year", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of fines per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of fines per tag per year")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per tag per year", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per tag per year")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Include only corrected violations", width=35, anchor="w", command=lambda:self.add_option("Include only corrected violations", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet for only corrected violations", width=35, anchor="w", command=lambda:self.add_option("Include only corrected violations")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Include only uncorrected violations", width=35, anchor="w", command=lambda:self.add_option("Include only uncorrected violations", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet for only uncorrected violations", width=35, anchor="w", command=lambda:self.add_option("Include only uncorrected violations")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet with all territories combined", width=35, anchor="w", command=lambda:self.add_option("Create sheet with all territories combined", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet with all territories combined", width=35, anchor="w", command=lambda:self.add_option("Create sheet with all territories combined")))
         self.boxes[i].grid()
         i += 1
 
-        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet for all violations without territories", width=35, anchor="w", command=lambda:self.add_option("All Violations", i)))
+        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet for all violations without territories", width=35, anchor="w", command=lambda:self.add_option("All Violations")))
         self.boxes[i].grid()
         i += 1
 
@@ -617,18 +617,7 @@ class FormatPage(tk.Frame):
         FormatPage.destroy(self)
 
     # Add a chosen option to a list
-    def add_option(self, opt, button_index):
-        # Never let both of these options be true at the same time
-        if not self.options["Include only corrected violations"] and self.options["Include only uncorrected violations"]:
-            self.options["Include only uncorrected violations"] = False
-            self.boxes[button_index+1].deselect()
-            
-            print(self.options)
-        elif not self.options["Include only uncorrected violations"] and self.options["Include only corrected violations"]:
-            self.options["Include only corrected violations"] = False
-            self.boxes[button_index-1].deselect()
-            print(self.options)
-
+    def add_option(self, opt):
         self.options[opt] = not self.options[opt]
 
     # Select all button functionality
