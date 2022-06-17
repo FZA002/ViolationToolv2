@@ -548,7 +548,6 @@ class FormatPage(tk.Frame):
                             "Top fined organizations per state":False, "Most severe organizations per state":False,
                             "Sum of fines per state per year":False, "Sum of violations per state per year":False,
                             "Sum of fines per tag per year":False, "Sum of violations per tag per year":False,
-                            "Include only corrected violations":False, "Include only uncorrected violations":False,
                             "Create sheet with all territories combined":False, "All Violations":False}
 
         # Frame to hold the buttons and list to access them directly
@@ -587,14 +586,6 @@ class FormatPage(tk.Frame):
         i += 1
 
         self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per tag per year")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet for only corrected violations", width=35, anchor="w", command=lambda:self.add_option("Include only corrected violations")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet for only uncorrected violations", width=35, anchor="w", command=lambda:self.add_option("Include only uncorrected violations")))
         self.boxes[i].grid()
         i += 1
 

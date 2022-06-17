@@ -24,8 +24,12 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-# Download csvs if user says yes
+
 def download(frame):
+    '''
+    Downloads CSV's from cms.gov and saves them as pandas dataframes. Also saves the date that this method
+    was executed so it can be displayed on the program's start page. 
+    '''
 
     # Url for Penalties and Health Deficiencies dataset queries
     p_urls = "https://data.cms.gov/provider-data/api/1/datastore/query/g6vv-u9sr/0/download?format=csv"
@@ -46,9 +50,10 @@ def download(frame):
     # Get tags and their descriptions and save it into a dictionary
     tags = hdf[['deficiency_tag_number', 'deficiency_description']].drop_duplicates()
     tags = dict(zip(tags['deficiency_tag_number'], tags['deficiency_description']))
+
+    # Save the new dataframes
     with open(home_folder_path + "assets/tag_hash.pkl", 'wb') as outp:
         pickle.dump(tags, outp, pickle.HIGHEST_PROTOCOL)
-
     with open(home_folder_path + "dataframes/df.pkl", 'wb') as outp:
         pickle.dump(hdf, outp, pickle.HIGHEST_PROTOCOL)
 
@@ -58,12 +63,14 @@ def download(frame):
     with open(home_folder_path + "assets/lastupdate.pkl", 'wb') as outp:
         pickle.dump(today, outp, pickle.HIGHEST_PROTOCOL)
 
-    # Update screen
+    # Update screen, show options page
     frame.show_options(True)
     
 
-# Makes the excel sheets based on options chosen by the user 
 def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpath):
+    '''
+    Makes the excel sheets based on options chosen by the user. Saves them to a folder chosen by the user.
+    '''
 
     # Update the screen
     frame.instructions.config(text="Making sheets...")
@@ -121,8 +128,6 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
     dfs["State Violations"] = pd.DataFrame(columns=(["Total"] + years))
     dfs["Tag Fines"] = pd.DataFrame(columns=(["Total"] + years))
     dfs["Tag Violations"] = pd.DataFrame(columns=(["Total"] + years))
-    dfs["Corrected"] = pd.DataFrame()
-    dfs["Uncorrected/Unsure"] = pd.DataFrame()
     dfs["All Territories"] = pd.DataFrame()
     dfs["All US States"] = pd.DataFrame()
 
@@ -352,16 +357,6 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     
                     dfs["Tag Violations"].loc[tag] = row
             
-
-            elif option == "Include only corrected violations" and options[option]:
-                dfs["Corrected"] = df.loc[~pd.isna(df['correction_date'])]
-                dfs["Corrected"] = dfs["Corrected"].reset_index().drop("index", axis=1)
-            
-
-            elif option == "Include only uncorrected violations" and options[option]:
-                dfs["Uncorrected"] = df.loc[pd.isna(df['correction_date'])]
-                dfs["Uncorrected"] = dfs["Uncorrected"].reset_index().drop("index", axis=1)
-
 
             elif option == "Create sheet with all territories combined" and options[option]:
                 # Get a dict of dfs by territory

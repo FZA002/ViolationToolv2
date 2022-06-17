@@ -1,24 +1,31 @@
 Features to add:
     More Options:
-        Data for a city
         ~Include only un/corrected deficiencies -> reset indicies~
         ~Use default territories~
-        Don't let date be greater than today
+        ~Don't let date be greater than today~
 
 ~Change currencies to numbers for easier summing in excel~
-    
-Filter by category : 'Resident Rights Deficiencies', 'Infection Control Deficiencies',
-       'Resident Assessment and Care Planning Deficiencies',
-       'Quality of Life and Care Deficiencies',
-       'Nutrition and Dietary Deficiencies', 'Environmental Deficiencies',
-       'Nursing and Physician Services Deficiencies',
-       'Pharmacy Service Deficiencies',
-       'Freedom from Abuse, Neglect, and Exploitation Deficiencies',
-       'Administration Deficiencies'
-
-       *If I did this, category filter would have higher priority over filtering on tag*
 ~Fine per tag~
-Create charts?
 
+Create charts?
+Data for a city, big page for a given organization
+Types of orgs -> assisted, rehab, nursing, etc
+Research docker integration
+
+
+'Nursing homes including rehab services, and Provider Data Catalog comes from these key sources from:
+https://data.cms.gov/provider-data/topics/nursing-homes/data-sources'
+'These are the official datasets used on Medicare.gov provided by the Centers for Medicare & Medicaid Services. These datasets allow you to compare the average level of a nursing home's performance in certain areas of care for Medicare-certified skilled nursing facilities and nursing homes nationwide from:
+https://data.cms.gov/provider-data/topics/nursing-homes'
+
+
+
+Check out:
+    State census date
+    datasets of interest
+    moda *
+
+
+Provider Information from cms.data.gov
 
     
