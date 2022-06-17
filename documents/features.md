@@ -1,5 +1,5 @@
 As of 6/17/22:
-    Research ~Dialysis~, Home Health, Hospice, Inpatient Rehab, Long Term Care, Nursing Homes'
+    Research ~Dialysis~, ~Home Health~, ~Hospice~, ~Inpatient Rehab, Long Term Care,~~ Nursing Homes~
 
     To get csv in pandas:
         df = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/<ID>/0/download?format=csv", encoding="iso_8859-1")
@@ -42,6 +42,40 @@ As of 6/17/22:
        'how_often_patients_got_better_at_taking_their_drugs_correct_b296',
        'how_often_physicianrecommended_actions_to_address_medicatio_7009',
        'how_much_medicare_spends_on_an_episode_of_care_by_agencies__7b36'
+
+       Home Health Care - Measure Date Range
+       hdf = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/c886-nwpj/0/download?format=csv", encoding="iso_8859-1")
+
+       Relevant Columns: All
+
+    Long Term Care Hospitals:
+
+        Long Term Care Hospitals - Provider Data:
+        * Measure codes are variables related to some kind of measure for a facility. Only some are relevant.
+        Relevant Measure Codes: 
+            L_020_01_OBS_RATE - Percentage of patients whose medications were reviewed and who
+received follow-up care when medication issues were identified
+        
+        hdf = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/fp6g-2gsn/0/download?format=csv", encoding="iso_8859-1")
+        Start and end dates are for reporting period
+
+        Relevant Columns:
+        'facility_name','state',
+       'phone_number', 'measure_code', 'score', 'footnote',
+       'start_date', 'end_date'
+
+
+        Long Term Care Hospitals - General Info: 
+        Only need ownership type
+
+         hdf = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/azum-44iv/0/download?format=csv", encoding="iso_8859-1")
+
+         Relevant columns:
+         'facility_name', 'city', 'state',
+       'phone_number', 'ownership_type'
+    
+
+       
 
 
 
