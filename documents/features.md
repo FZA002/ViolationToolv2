@@ -5,7 +5,7 @@ As of 6/17/22:
         import pandas as pd
         df = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/<ID>/0/download?format=csv", encoding="iso_8859-1")
 
-    Home health:
+    # Home health:
         Home health care:
 
         import pandas as pd
@@ -54,7 +54,7 @@ As of 6/17/22:
 
        Relevant Columns: All
 
-    Long Term Care Hospitals:
+    #Long Term Care Hospitals:
 
         Long Term Care Hospitals - Provider Data:
         * Measure codes are variables related to some kind of measure for a facility. Only some are relevant.
