@@ -8,5 +8,7 @@ hhs = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/tee5
 
 The date range data will be suplementary data to the other two
 mdr = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/c886-nwpj/0/download?format=csv", encoding="iso_8859-1")
-    - I will have to make date ranges and use them when filtering
+    - I will have to make date ranges and use them when filtering~
     - I will have to match the measures to the other data frames, probably manually
+
+Will not let the user filter on dates, but will provide them with which measures have a date range as a forced sheet in the optional page

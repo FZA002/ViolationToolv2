@@ -1,15 +1,8 @@
 import pandas as pd
-# Home health quality
-#hhq = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/6jpm-sxkc/0/download?format=csv", encoding="iso_8859-1")
-# Home health state by state
-#hhs = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/tee5-ixt5/0/download?format=csv", encoding="iso_8859-1")
-# Measure date range
-#mdr = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/c886-nwpj/0/download?format=csv", encoding="iso_8859-1")
-
 
 def download_data():
     ''' Downloads data related to Home Health Care organizations and returns the dataframes to be saved
-       by the main download method in utilities.py '''
+       by the main download method in utilities.py as a dictionary. '''
 
     # Download data for home health care for organizations and states as a csv, turn it into a dataframe
     # with only relevant columns
@@ -99,20 +92,14 @@ def download_data():
 
     # Download the date ranges for certain columns in the above dataframes
     mdr = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/c886-nwpj/0/download?format=csv", encoding="iso_8859-1")
-    relevant = ["Average Medicare spending associated with an agency's home health episodes compared with all home health episodes nationally - agency score",
-       "Average Medicare spending associated with an agency's home health episodes compared with all home health episodes nationally - count",
-       'How often patients got better at taking their drugs correctly by mouth',
-       "How often the home health team began their patients' care in a timely manner",
-       'How often the home health team made sure that their patients have received a flu shot for the current flu season',
-       'How often the home health team taught patients (or their family caregivers) about their drugs']
-    mdr = mdr[mdr['measure_name'].isin(relevant) == True]
-    mdr.reset_index(drop=True, inplace=True)
+
+    return {"mdr":mdr, 'hhs':hhs, 'hhq':hhq}
     
-    # Rename the measure_name values
-    mdr['measure_name'] = ["Average Medicare spending associated with an agency's home health episodes compared with all home health episodes nationally - agency score",
-    "Average Medicare spending associated with an agency's home health episodes compared with all home health episodes nationally - count",
-    'how_often_patients_got_better_at_taking_their_drugs_correctly_by_mouth',
-    'how_often_the_home_health_team_began_their_patients_care_in_a_timely_manner',
-    'how_often_the_home_health_team_determined_whether_patients_received_a_flu_shot_for_the_current_season',
-    'how_often_the_home_health_team_taught_patients_or_their_family_about_their_drugs']
+
+# frames = download_data()
+# hhq, hhs, mdr = frames['hhq'], frames['hhs'], frames['mdr']
+# print(hhq.head(), hhs.head(), mdr.head())
+
+
+
         
