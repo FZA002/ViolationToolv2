@@ -82,8 +82,10 @@ received follow-up care when medication issues were identified
          Relevant columns:
          'facility_name', 'address_line_1',
        'address_line_2', 'city', 'state',
-       'phone_number', 'ownership_type'
+       'phone_number', 'ownership_type', 'total_number_of_beds'
     
+
+    Thinking that for LTCH I will just include all of the measure codes and include the data dictionary
 
 
 Current columns:

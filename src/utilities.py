@@ -6,7 +6,7 @@ the latest Penalties and Health Deficiencies CSV's. It also contains
 various utility functions for back-end processes of gui.py.
 
 '''
-import pickle, sys, os, time, info
+import pickle, sys, os, time, info, home_health_care, long_term_care
 import pandas as pd
 from datetime import datetime
 
@@ -36,10 +36,14 @@ def download(frame):
     hd_urls = "https://data.cms.gov/provider-data/api/1/datastore/query/r5ix-sfxw/0/download?format=csv"
 
     # Make the dataframes and save them
-    pdf = pd.read_csv(p_urls, encoding="iso_8859-1")
-    hdf = pd.read_csv(hd_urls, encoding="iso_8859-1")
+    pdf = pd.read_csv(p_urls, encoding="iso_8859-1") # Penalites
+    hdf = pd.read_csv(hd_urls, encoding="iso_8859-1") # Health Deficiencies
+    frames = home_health_care.download_data()
+    hhq, hhs, mdr = frames['hhq'], frames['hhs'], frames['mdr'] # Home Health Care
+    frames = long_term_care.download_data()
+    ldf, odf= frames['ldf'], frames['odf']
 
-    # Combine the dataframes
+    # Combine the nursing home dataframes
     hdf['fine_amount'] = ""
     hdf.update(pdf)
     hdf = hdf[['federal_provider_number', 'provider_name', 'provider_state',
@@ -56,7 +60,14 @@ def download(frame):
         pickle.dump(tags, outp, pickle.HIGHEST_PROTOCOL)
     with open(home_folder_path + "dataframes/df.pkl", 'wb') as outp:
         pickle.dump(hdf, outp, pickle.HIGHEST_PROTOCOL)
-
+    with open(home_folder_path + "dataframes/hhc_df.pkl", 'wb') as outp:
+        pickle.dump(hhq, outp, pickle.HIGHEST_PROTOCOL)
+    with open(home_folder_path + "dataframes/hhc_state_by_state_df.pkl", 'wb') as outp:
+        pickle.dump(hhs, outp, pickle.HIGHEST_PROTOCOL)
+    with open(home_folder_path + "dataframes/hhc_date_range_df.pkl", 'wb') as outp:
+        pickle.dump(mdr, outp, pickle.HIGHEST_PROTOCOL)
+    
+    
     # Save the date of this download
     today = datetime.now()
     today = str(today.month) + "/" + str(today.day) + "/" + str(today.year)
