@@ -94,11 +94,6 @@ def download_data():
     mdr = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/c886-nwpj/0/download?format=csv", encoding="iso_8859-1")
 
     return {"mdr":mdr, 'hhs':hhs, 'hhq':hhq}
-    
-
-# frames = download_data()
-# hhq, hhs, mdr = frames['hhq'], frames['hhs'], frames['mdr']
-# print(hhq.head(), hhs.head(), mdr.head())
 
 
 

@@ -40,8 +40,7 @@ def download(frame):
     hdf = pd.read_csv(hd_urls, encoding="iso_8859-1") # Health Deficiencies
     frames = home_health_care.download_data()
     hhq, hhs, mdr = frames['hhq'], frames['hhs'], frames['mdr'] # Home Health Care
-    frames = long_term_care.download_data()
-    ldf, odf= frames['ldf'], frames['odf']
+    ldf = long_term_care.download_data()
 
     # Combine the nursing home dataframes
     hdf['fine_amount'] = ""
@@ -66,6 +65,8 @@ def download(frame):
         pickle.dump(hhs, outp, pickle.HIGHEST_PROTOCOL)
     with open(home_folder_path + "dataframes/hhc_date_range_df.pkl", 'wb') as outp:
         pickle.dump(mdr, outp, pickle.HIGHEST_PROTOCOL)
+    with open(home_folder_path + "dataframes/ltch_df.pkl", 'wb') as outp:
+        pickle.dump(ldf, outp, pickle.HIGHEST_PROTOCOL)
     
     
     # Save the date of this download

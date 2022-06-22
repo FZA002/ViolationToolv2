@@ -19,25 +19,10 @@ def download_data():
 
     # Download hlong term care hopsitals data related to ownership type and number of beds  
     odf = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/azum-44iv/0/download?format=csv", encoding="iso_8859-1")
-    odf = odf[['state', 'facility_name', 'city', 'address_line_1','address_line_2',
-       'phone_number', 'ownership_type', 'total_number_of_beds']]
+    odf = odf.rename(columns={'facility_name':'provider_name'}) # Rename the columns
+    ldf = ldf.merge(odf[['provider_name', 'ownership_type', 'total_number_of_beds']], on='provider_name') # Combine the dataframes here
 
-    # Rename the columns
-    odf = odf.rename(columns={
-        'state':'provider_state',
-        'facility_name':'provider_name',
-        'city':'provider_city'
-    })
-
-    # Combine the dataframes here
-    ldf['ownership_type'] = odf[odf['ownership_type'] if ldf['provider_name'] == odf['provider_name'] else None]
-
-    return {"ldf":ldf, 'odf':odf}
-    
-
-# frames = download_data()
-# ldf, odf= frames['ldf'], frames['odf']
-# print(ldf.head(), odf.head())
+    return ldf
 
 
 
