@@ -2,8 +2,12 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 from tkinter.filedialog import askdirectory
 from PIL import Image, ImageTk
-import pickle, threading, datetime, os, info
-import utilities as util
+import pickle, threading, datetime, os, sys
+import nursing_home_gui, home_health_gui, long_term_care_gui
+# Get imports from parent directory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import info, utilities as util
+
 
 # Global variables
 home_folder_path = ""
@@ -16,7 +20,7 @@ chosen_tags = []
 
 
 # Contains tags and their descriptions
-with open(util.resource_path("assets/tag_hash.pkl"), 'rb') as inp:
+with open(util.resource_path("../assets/tag_hash.pkl"), 'rb') as inp:
     tag_hash = pickle.load(inp)
 
 class TkWait:
@@ -40,7 +44,7 @@ class tkinterApp(tk.Tk):
         # __init__ function for class Tk
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("NHI Scraper")
-        self.iconbitmap(util.resource_path("images/icon.ico"))
+        self.iconbitmap(util.resource_path("../images/icon.ico"))
     
         # Prevents user from stretching screen
         self.resizable(width=False, height=False)
@@ -59,7 +63,7 @@ class tkinterApp(tk.Tk):
          # Will create a folder at the User's home folder for this programs data
         self.setup_savedata()
   
-        self.add_frames([StartPage, OptionsPage, FormatPage, ExcelPage, DonePage])
+        self.add_frames([StartPage, MainOptionsPage, FormatPage, DonePage])
 
         self.show_frame(StartPage)
         
@@ -102,7 +106,7 @@ class PageLayout(tk.Frame):
         tk.Frame.__init__(self, parent)
 
         # Logo
-        logo = Image.open(util.resource_path("images/logo.png"))
+        logo = Image.open(util.resource_path("../images/logo.png"))
         logo = ImageTk.PhotoImage(logo)
         logo_label = ttk.Label(self, image=logo)
         logo_label.image = logo
@@ -162,11 +166,11 @@ class StartPage(tk.Frame):
             df = pickle.load(inp)
 
         self.controller.resize_optionspage()
-        self.controller.show_frame(OptionsPage)
+        self.controller.show_frame(MainOptionsPage)
 
 
 # Shows users options for the dataset
-class OptionsPage(tk.Frame):
+class MainOptionsPage(tk.Frame):
     def __init__(self, parent, controller):
         PageLayout.__init__(self, parent)
         self.controller = controller
@@ -189,13 +193,25 @@ class OptionsPage(tk.Frame):
         self.date_btn.grid(column=2, row=option_count, pady=15)
         option_count += 1
 
-        self.tag_btn = tk.Button(self, command=lambda:self.show_tags(), text="Choose Tags to Include", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.tag_btn.grid(column=2, row=option_count, pady=15)
-        option_count += 1 
+        # self.tag_btn = tk.Button(self, command=lambda:self.show_tags(), text="Choose Tags to Include", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        # self.tag_btn.grid(column=2, row=option_count, pady=15)
+        # option_count += 1
 
-        self.excel_btn = tk.Button(self, command=lambda:self.show_format(), text="Format Excel Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.excel_btn.grid(column=2, row=option_count, pady=15)
-        option_count += 1 
+        self.tag_btn = tk.Button(self, command=lambda:self.show_nursing_home_data(), text="Format Nursing Home Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        self.tag_btn.grid(column=2, row=option_count, pady=15)
+        option_count += 1
+
+        self.tag_btn = tk.Button(self, command=lambda:self.show_home_health_data(), text="Format Home Health Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        self.tag_btn.grid(column=2, row=option_count, pady=15)
+        option_count += 1
+         
+        self.tag_btn = tk.Button(self, command=lambda:self.show_long_term_care_data(), text="Format Long Term Care Hospital Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        self.tag_btn.grid(column=2, row=option_count, pady=15)
+        option_count += 1
+
+        # self.excel_btn = tk.Button(self, command=lambda:self.show_format(), text="Format Excel Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        # self.excel_btn.grid(column=2, row=option_count, pady=15)
+        # option_count += 1 
 
         self.make_btn = tk.Button(self, command=lambda:self.show_excel(), text="Make Excel Files", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
         self.make_btn.grid(column=2, row=option_count, pady=15)
@@ -211,18 +227,24 @@ class OptionsPage(tk.Frame):
         self.controller.geometry("500x600")
         self.controller.show_frame(DateRangePage)
     
-    def show_tags(self):
-        self.controller.add_frames([TagsPage])
+    def show_nursing_home_data(self):
+        self.controller.add_frames([nursing_home_gui.OptionsPage])
         self.controller.geometry("500x520")
-        self.controller.show_frame(TagsPage)
+        self.controller.show_frame(nursing_home_gui.OptionsPage)
 
-    def show_format(self):
+    def show_home_health_data(self):
         self.controller.resize_optionspage()
-        self.controller.add_frames([FormatPage])
-        self.controller.show_frame(FormatPage)
+        self.controller.add_frames([home_health_gui.OptionsPage])
+        self.controller.show_frame(home_health_gui.OptionsPage)
+
+    def show_long_term_care_data(self):
+        self.controller.resize_optionspage()
+        self.controller.add_frames([long_term_care_gui.OptionsPage])
+        self.controller.show_frame(long_term_care_gui.OptionsPage)
 
     def show_excel(self):
         self.controller.geometry("500x370")
+        self.controller.add_frames([ExcelPage])
         self.controller.show_frame(ExcelPage)
 
 
@@ -263,12 +285,12 @@ class TerritoriesPage(tk.Frame):
     # When use default is pressed
     def use_all(self):
         global territories; territories = info.territories
-        self.controller.show_frame(OptionsPage)
+        self.controller.show_frame(MainOptionsPage)
 
 
     # When cancel is pressed
     def cancel(self):
-        self.controller.show_frame(OptionsPage)
+        self.controller.show_frame(MainOptionsPage)
 
     # Lets the user add territories
     def set_terr(self):
@@ -331,7 +353,7 @@ class TerritoriesPage(tk.Frame):
                 elif self.count == len(self.tlist):
                     print(territories)
                     last = True
-                    self.controller.show_frame(OptionsPage)
+                    self.controller.show_frame(MainOptionsPage)
                     TerritoriesPage.destroy(self)
 
 
@@ -384,14 +406,14 @@ class DateRangePage(tk.Frame):
     # When cancel is pressed
     def cancel(self):
         self.controller.resize_optionspage()
-        self.controller.show_frame(OptionsPage)
+        self.controller.show_frame(MainOptionsPage)
 
     # Sets start and end dates to None, this will make sure that min and max dates used when excel sheets are made
     def all_dates(self):
         global sdate, edate
         sdate, edate = None, None
         self.controller.resize_optionspage()
-        self.controller.show_frame(OptionsPage)
+        self.controller.show_frame(MainOptionsPage)
 
     # Checks to see if dates are in correct format and within range -> need to add earliest date
     def check_range(self):
@@ -411,7 +433,7 @@ class DateRangePage(tk.Frame):
                     global sdate; sdate = stime
                     global edate; edate = etime
                     self.controller.resize_optionspage()
-                    self.controller.show_frame(OptionsPage)
+                    self.controller.show_frame(MainOptionsPage)
                     DateRangePage.destroy()
 
             except:
@@ -456,7 +478,7 @@ class TagsPage(tk.Frame):
     # When cancel is pressed
     def cancel(self):
         self.controller.resize_optionspage()
-        self.controller.show_frame(OptionsPage)
+        self.controller.show_frame(MainOptionsPage)
 
     # Lets the user add the tags
     def set_tags(self):
@@ -526,7 +548,7 @@ class TagsPage(tk.Frame):
             self.instructions4.grid(column=1, row=4, columnspan=3, pady=10)
 
         self.controller.resize_optionspage()
-        self.controller.show_frame(OptionsPage)
+        self.controller.show_frame(MainOptionsPage)
         TagsPage.destroy(self)
 
 
@@ -614,7 +636,7 @@ class FormatPage(tk.Frame):
     def finish(self):
         global options; options = self.options
         self.controller.resize_optionspage()
-        self.controller.show_frame(OptionsPage)
+        self.controller.show_frame(MainOptionsPage)
         for button in self.boxes:
             button.destroy()
         self.fm.destroy()
@@ -662,7 +684,7 @@ class ExcelPage(tk.Frame):
     # Lets a user go back to OptionsPage
     def cancel(thisframe):
         thisframe.controller.resize_optionspage()
-        thisframe.controller.show_frame(OptionsPage)
+        thisframe.controller.show_frame(MainOptionsPage)
 
     # Uses threads to make excel sheets -> need to first break data up by territory
     def make_sheets(thisframe):
