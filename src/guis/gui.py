@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from tkinter.filedialog import askdirectory
+from typing import List
 from PIL import Image, ImageTk
 import pickle, threading, datetime, os, sys
 import nursing_home_gui, home_health_gui, long_term_care_gui
@@ -10,18 +11,13 @@ import info, utilities as util
 
 
 # Global variables
-home_folder_path = ""
-df = None
-sdate = None
-edate = None
-options = None
+
+df, options = None, None
 territories = {}
 chosen_tags = []
 
 
-# Contains tags and their descriptions
-with open(util.resource_path("../assets/tag_hash.pkl"), 'rb') as inp:
-    tag_hash = pickle.load(inp)
+
 
 class TkWait:
     def __init__(self, master, milliseconds):
@@ -40,6 +36,11 @@ class tkinterApp(tk.Tk):
      
     # __init__ function for class tkinterApp
     def __init__(self, *args, **kwargs):
+
+        self.home_folder_path = ""
+        # Contains tags and their descriptions
+        with open(util.resource_path("../assets/tag_hash.pkl"), 'rb') as inp:
+            self.tag_hash = pickle.load(inp)
          
         # __init__ function for class Tk
         tk.Tk.__init__(self, *args, **kwargs)
@@ -62,10 +63,13 @@ class tkinterApp(tk.Tk):
 
          # Will create a folder at the User's home folder for this programs data
         self.setup_savedata()
-  
         self.add_frames([StartPage, MainOptionsPage, FormatPage, DonePage])
-
         self.show_frame(StartPage)
+
+        self.startdate: datetime = None
+        self.enddate: datetime = None
+        self.tags: List[str] = []
+        self.territories: dict[str, list[str]] = {}
         
     # Shows frame that was passed in as a parameter
     def show_frame(self, cont):
@@ -85,20 +89,34 @@ class tkinterApp(tk.Tk):
 
     # Creates a folder for this program's data
     def setup_savedata(self):
-        global home_folder_path
+        #global home_folder_path
         abs_home = os.path.abspath(os.path.expanduser("~"))
-        home_folder_path = abs_home + "/ViolationToolv2/"
+        self.home_folder_path = abs_home + "/ViolationToolv2/"
+        print("First: " + self.home_folder_path)
 
         # Create all folders if they don't already exist
-        if not os.path.exists(home_folder_path):
-            os.mkdir(home_folder_path)
+        if not os.path.exists(self.home_folder_path):
+            os.mkdir(self.home_folder_path)
         
         # Make all necessary folders
         folders = ["assets", "rawdata", "dataframes"]
         for folder in folders:
-            if not os.path.exists(home_folder_path + folder):
-                os.mkdir(home_folder_path + folder)
-        
+            if not os.path.exists(self.home_folder_path + folder):
+                os.mkdir(self.home_folder_path + folder)
+
+    def add_tags(self, tags: List[str]):
+        ''' Save tags that are chosen by the user for nursing homes. '''
+        self.tags = tags
+    
+    def add_dates(self, startdate: datetime, enddate: datetime):
+        ''' Save filter dates that are chosen by the user. '''
+        self.startdate = startdate
+        self.enddate = enddate
+
+    def set_territories(self, territories: dict[str, list[str]]):
+        ''' Save territories that are defined by the user. '''
+        self.territories = territories
+
 
 # Default page layout
 class PageLayout(tk.Frame):
@@ -124,8 +142,8 @@ class StartPage(tk.Frame):
         self.instructions.grid(column=1, row=1, columnspan=3, pady=10)
 
         instructions2 = "Your save data is from: {}"
-        global home_folder_path
-        with open(home_folder_path + "assets/lastupdate.pkl", "rb") as inp:
+        #global home_folder_path
+        with open(controller.home_folder_path + "assets/lastupdate.pkl", "rb") as inp:
             lastlocalupdate = pickle.load(inp)
 
         self.instructions2 =  ttk.Label(self, text=instructions2.format(lastlocalupdate), font=("Times", 15))
@@ -134,7 +152,7 @@ class StartPage(tk.Frame):
         self.yes_btn = tk.Button(self, text="Yes", command=lambda:self.download_data(), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
         self.yes_btn.grid(column=1, row=4, pady=10)
 
-        self.no_btn = tk.Button(self, text="No", command=lambda:self.show_options(False), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
+        self.no_btn = tk.Button(self, text="No", command=lambda:self.show_options(False, controller), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
         self.no_btn.grid(column=3, row=4, pady=10)
 
     # If yes is selected 
@@ -156,13 +174,13 @@ class StartPage(tk.Frame):
         thread(util.download).start()
 
     # Advance page after download
-    def show_options(self, downloaded):
+    def show_options(self, downloaded, controller):
         if downloaded:
             with TkWait(self.parent, 3000):
                 self.instructions.config(text="Download finished")
         
-        global df, home_folder_path
-        with open(home_folder_path + "dataframes/df.pkl", 'rb') as inp:
+        global df
+        with open(controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
             df = pickle.load(inp)
 
         self.controller.resize_optionspage()
@@ -252,7 +270,7 @@ class MainOptionsPage(tk.Frame):
 class TerritoriesPage(tk.Frame):
     def __init__(self, parent, controller):
         PageLayout.__init__(self, parent)
-        self.controller = controller
+        self.controller: tkinterApp = controller
 
         # Instructions, Territory box and Next button 
         self.instructions = ttk.Label(self, text="Enter territory names, each on their own line", font=("Times", 15))
@@ -284,9 +302,8 @@ class TerritoriesPage(tk.Frame):
 
     # When use default is pressed
     def use_all(self):
-        global territories; territories = info.territories
+        self.controller.set_territories(info.territories)
         self.controller.show_frame(MainOptionsPage)
-
 
     # When cancel is pressed
     def cancel(self):
@@ -298,7 +315,7 @@ class TerritoriesPage(tk.Frame):
         lines = [x for x in lines if x != '']
         if len(lines) != 0:
             # Makes dict to hold territories and their states
-            global territories; territories = {key: [] for key in lines}
+            self.controller.set_territories({key: [] for key in lines})
             self.tlist = lines
 
             # Update screen
@@ -309,7 +326,6 @@ class TerritoriesPage(tk.Frame):
 
     # Lets the user add states
     def add_states(self):
-        global territories
         bad, last = False, False
         self.instructions2.config(text="Use full state names, with first letter capitalized".format(self.tlist[0]))
         # First territory
@@ -341,7 +357,7 @@ class TerritoriesPage(tk.Frame):
             if not bad:
                 # Update territory hash
                 terr = self.tlist[self.count-1]
-                territories[terr] = states
+                self.controller.territories[terr] = states
                 # Update screen
                 if self.count < len(self.tlist):
                     terr = self.tlist[self.count]
@@ -351,7 +367,7 @@ class TerritoriesPage(tk.Frame):
                     self.nextbtn.config(text="Finish")
                 # Last screen
                 elif self.count == len(self.tlist):
-                    print(territories)
+                    print(self.controller.territories)
                     last = True
                     self.controller.show_frame(MainOptionsPage)
                     TerritoriesPage.destroy(self)
@@ -367,7 +383,7 @@ class TerritoriesPage(tk.Frame):
 class DateRangePage(tk.Frame):
     def __init__(self, parent, controller):
         PageLayout.__init__(self, parent)
-        self.controller = controller   
+        self.controller: tkinterApp = controller   
 
         # Instructions, Dates, Buttons
         self.instructions = ttk.Label(self, text="Choose range of dates to include in excel file", font=("Times", 15))
@@ -410,8 +426,7 @@ class DateRangePage(tk.Frame):
 
     # Sets start and end dates to None, this will make sure that min and max dates used when excel sheets are made
     def all_dates(self):
-        global sdate, edate
-        sdate, edate = None, None
+        self.controller.add_dates(None, None)
         self.controller.resize_optionspage()
         self.controller.show_frame(MainOptionsPage)
 
@@ -430,126 +445,13 @@ class DateRangePage(tk.Frame):
                 elif stime > today or etime > today:
                     self.instructions.config(text="Dates cannot be in the future!")
                 else:
-                    global sdate; sdate = stime
-                    global edate; edate = etime
+                    self.controller.add_dates(stime, etime)
                     self.controller.resize_optionspage()
                     self.controller.show_frame(MainOptionsPage)
                     DateRangePage.destroy()
 
             except:
                 self.instructions.config(text="Check date formats and retry")
-
-
-# Choose which tags to include
-class TagsPage(tk.Frame):
-    def __init__(self, parent, controller):
-        PageLayout.__init__(self, parent)
-        self.controller = controller
-        self.parent = parent
-
-        # Instructions, Tags box, buttons
-        self.instructions = ttk.Label(self, text="Enter tags to include in excel sheets, each on their own line", font=("Times", 15))
-        self.instructions.grid(column=1, row=1, columnspan=3, pady=10)
-
-        self.instructions2 = ttk.Label(self, text="Only include last 3 numbers (ex: F757 -> 757)", font=("Times", 15))
-        self.instructions2.grid(column=1, row=2, columnspan=3, pady=10)
-
-        self.box = scrolledtext.ScrolledText(self, undo=True, width=40, height=10)
-        self.box.grid(column=2, row=3, pady=10)
-        
-        self.all_btn = tk.Button(self, command=lambda:self.set_all_tags(), text="Include All Tags", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.all_btn.grid(column=2, row=4, pady=15)
-
-        self.fin_btn = tk.Button(self, command=lambda:self.set_tags(), text="Finish", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.fin_btn.grid(column=2, row=5, pady=10)
-
-        self.cancel_btn = tk.Button(self, command=lambda:self.cancel(), text="Cancel", font="Times", bg="#000099", fg="#00ace6", height=1, width=5)
-        self.cancel_btn.grid(column=2, row=6, pady=3)
-
-        # Hides the cancel button once user types anything into the box 
-        def hide_cancel_button(_):
-            self.cancel_btn.grid_forget()
-            self.controller.resize_optionspage()
-        self.box.bind('<Key>', hide_cancel_button)
-
-        # For storing invalid tags
-        self.rejected_tags = []
-
-    # When cancel is pressed
-    def cancel(self):
-        self.controller.resize_optionspage()
-        self.controller.show_frame(MainOptionsPage)
-
-    # Lets the user add the tags
-    def set_tags(self):
-        notags = True
-        lines = self.box.get("1.0","end-1c").splitlines()
-        lines = [x.strip() for x in lines if x != '']
-        
-        if len(lines) != 0:
-            # List to hold the tags
-            global chosen_tags; chosen_tags = []
-            for tag in lines:
-                try:
-                    tag = int(tag)
-                    if tag in tag_hash.keys():
-                        chosen_tags += [tag]
-                        notags = False
-                    else:
-                        self.rejected_tags += [tag]
-                except:        
-                    self.rejected_tags += [tag]
-                
-        if notags:
-            self.instructions.config(text="Please enter at least one valid tag")
-            self.instructions2.grid_forget()
-        else:
-            self.show_tags()
-    
-    # For setting all tags
-    def set_all_tags(self):
-        global chosen_tags; chosen_tags = list(tag_hash.keys())
-        self.show_tags()
-
-    # Shows tags accepted and rejected
-    def show_tags(self):
-        # Hide elements
-        self.all_btn.grid_forget()
-        self.fin_btn.grid_forget()
-        self.box.grid_forget()
-        self.cancel_btn.grid_forget()
-        self.instructions2.grid_forget()
-        self.controller.geometry("500x600")
-
-        # Make a string of accepted tags that will fit within the screen without stretching it
-        valid_tags = ""
-        invalid_tags = ""
-        global chosen_tags
-        for i in range(len(chosen_tags)):
-            if i % 15 == 0:
-                valid_tags += "\n"
-            
-            valid_tags += str(chosen_tags[i]) + " "
-
-        for i in range(len(self.rejected_tags)):
-            if i % 15 == 0:
-                invalid_tags += "\n"
-            
-            invalid_tags += str(self.rejected_tags[i]) + " "
-
-        # Makes the screen wait for 3 seconds going back to OptionsPage
-        with TkWait(self.parent, 3000):
-            self.instructions.config(text="Tags Accepted: ")
-            self.instructions2.config(text=valid_tags)
-            self.instructions2.grid(column=1, row=2, columnspan=3, pady=2)
-            self.instructions3 = ttk.Label(self, text="Tags Rejected: ", font=("Times", 15))
-            self.instructions3.grid(column=1, row=3, columnspan=3, pady=10)
-            self.instructions4 = ttk.Label(self, text=invalid_tags, font=("Times", 15))
-            self.instructions4.grid(column=1, row=4, columnspan=3, pady=10)
-
-        self.controller.resize_optionspage()
-        self.controller.show_frame(MainOptionsPage)
-        TagsPage.destroy(self)
 
 
 # Format excel sheets
@@ -666,7 +568,7 @@ class FormatPage(tk.Frame):
 class ExcelPage(tk.Frame):
     def __init__(thisframe, parent, controller):
         PageLayout.__init__(thisframe, parent)
-        thisframe.controller = controller
+        thisframe.controller: tkinterApp = controller
 
         # Instructions and Make sheets button
         thisframe.instructions = ttk.Label(thisframe, text="Press button to choose where to save excel sheets", font=("Times", 15))
@@ -675,7 +577,7 @@ class ExcelPage(tk.Frame):
         thisframe.instructions2 = ttk.Label(thisframe, text="Sheet creation will start", font=("Times", 15))
         thisframe.instructions2.grid(column=1, row=3, columnspan=3, pady=10)
     
-        thisframe.sheet_btn = tk.Button(thisframe, command=lambda:thisframe.make_sheets(), text="Make Sheets", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        thisframe.sheet_btn = tk.Button(thisframe, command=lambda:thisframe.make_sheets(controller), text="Make Sheets", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
         thisframe.sheet_btn.grid(column=2, row=4, pady=40)
 
         thisframe.cancel_btn = tk.Button(thisframe, command=lambda:thisframe.cancel(), text="Go Back", font="Times", bg="#000099", fg="#00ace6", height=1, width=5)
@@ -687,10 +589,11 @@ class ExcelPage(tk.Frame):
         thisframe.controller.show_frame(MainOptionsPage)
 
     # Uses threads to make excel sheets -> need to first break data up by territory
-    def make_sheets(thisframe):
+    def make_sheets(thisframe, controller):
 
         outpath = askdirectory()
-        with open(home_folder_path + "dataframes/df.pkl", 'rb') as inp:
+        print(controller.home_folder_path)
+        with open(controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
             df = pickle.load(inp)  
 
         # Create a thread to run make_sheets() so we can update the screen
@@ -700,8 +603,8 @@ class ExcelPage(tk.Frame):
                 self.func = func
         
             def run(self):
-                global options, sdate, edate, territories, chosen_tags
-                self.func(thisframe, options, df, sdate, edate, territories, chosen_tags, outpath)
+                global options
+                self.func(thisframe, options, df, outpath)
 
         thisframe.cancel_btn.grid_forget()
         thread(util.make_sheets).start()

@@ -6,7 +6,7 @@ the latest Penalties and Health Deficiencies CSV's. It also contains
 various utility functions for back-end processes of gui.py.
 
 '''
-import pickle, sys, os, time, info, home_health_care, long_term_care
+import pickle, sys, os, time, info, home_health_care, long_term_care, guis.gui as gui
 import pandas as pd
 from datetime import datetime
 
@@ -79,7 +79,7 @@ def download(frame):
     frame.show_options(True)
     
 
-def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpath):
+def make_sheets(frame: gui.ExcelPage, options, df, outpath):
     '''
     Makes the excel sheets based on options chosen by the user. Saves them to a folder chosen by the user.
     '''
@@ -97,42 +97,42 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
     # Setting defaults for missing user choices
 
     # Get years in range that user chose, or set a default range
-    if None in {startdate, enddate}:
+    if None in {frame.controller.startdate, frame.controller.enddate}:
 
         # Conversion to date time objects for min and max
         oldcol = df['survey_date']
         df['survey_date'] =  pd.to_datetime(df['survey_date'], format='%Y-%m-%d')
 
-        startdate = df['survey_date'].min()
-        enddate = df['survey_date'].max()
+        frame.controller.startdate = df['survey_date'].min()
+        frame.controller.enddate = df['survey_date'].max()
 
         # Convert date column back to string 
         df['survey_date'] = oldcol
         print("Used Default Dates")
 
     # Check to see if territories were chosen and use default if not
-    if len(territories) == 0:
-        territories = info.territories
+    if len(frame.controller.territories) == 0:
+        frame.controller.territories = info.territories
         print("Used Default Territories")
     # Convert states to their two letter code
-    territories = convert_states(territories)
+    frame.controller.territories = convert_states(frame.controller.territories)
     print("Converted States to Two-Letter Codes")
 
     # Check to see if tags were chosen and if not use all
-    if len(tags) == 0:
-        tags = list(tag_hash.keys())
+    if len(frame.controller.tags) == 0:
+        frame.controller.tags = list(tag_hash.keys())
         print("Used Default Tags")
     else:
-        df = df.loc[df['deficiency_tag_number'].isin(tags)] 
+        df = df.loc[df['deficiency_tag_number'].isin(frame.controller.tags)] 
         print("Filtered Tags, length: {}".format(len(df)))
 
     # Get dates in range for state df
-    df = get_inrange(df, startdate, enddate)
+    df = get_inrange(df, frame.controller.startdate, frame.controller.enddate)
     print("Filtered Dates")
 
     # Optional sheets
     dfs = {}
-    years = list(range(startdate.year, enddate.year+1))
+    years = list(range(frame.controller.startdate.year, frame.controller.enddate.year+1))
     dfs["US"] = pd.DataFrame(columns=(["Total"] + years))
     dfs["Most Fined"] = pd.DataFrame()
     dfs["Most Severe"] = pd.DataFrame()
@@ -144,7 +144,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
     dfs["All US States"] = pd.DataFrame()
 
     # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
-    t_dfs = sort_by_territories(df, territories)
+    t_dfs = sort_by_territories(df, frame.controller.territories)
     for terr in t_dfs.keys():
         # Convert fine column to currency
         t_dfs[terr]['fine_amount'] = t_dfs[terr]['fine_amount'].apply(lambda x: 0 if x == "" else x)
@@ -176,7 +176,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 # Sum for each year
                 for year in years:
                     # Make sure we are within the users date range  
-                    yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                    yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
 
                     # Get the year's sum and format it as currency
                     dfs["US"].at["Fines", year] = get_inrange(df, yearstart, yearend)['fine_amount'].sum()
@@ -199,7 +199,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 # Sum for each year
                 for year in years:
                     # Make sure we are within the users date range  
-                    yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                    yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
 
                     # Get the year's sum
                     dfs["US"].at["Violations", year] = count_violations_df(get_inrange(df, yearstart, yearend)) 
@@ -225,7 +225,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 for year in years:
                     state_orgs[year] = {}
                     # Make sure we are within the users date range  
-                    yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                    yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
 
                     # Get top fined for each year
                     for state in info.states_codes:
@@ -274,7 +274,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                 for year in years:
                     state_orgs[year] = {}
                     # Make sure we are within the users date range  
-                    yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                    yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
 
                     # Get most severe for each year
                     for state in info.states_codes:
@@ -315,7 +315,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     row = [subdf['fine_amount'].sum()]
                     #'${:,.2f}'.format(
                     for year in years:
-                        yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                        yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
                         subdf2 = get_inrange(subdf, yearstart, yearend)
                         row += [subdf2['fine_amount'].sum()]
                         #'${:,.2f}'.format(
@@ -331,7 +331,7 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
                     subdf = df.loc[df['provider_state'] == state]
                     row = [count_violations_df(subdf)]
                     for year in years:
-                        yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                        yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
                         subdf2 = get_inrange(subdf, yearstart, yearend)
                         row += [count_violations_df(subdf2)]
                     
@@ -341,13 +341,13 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
             elif option == "Sum of fines per tag per year" and options[option]:
 
                 # Initialize indicies
-                for tag in sorted(tags):
+                for tag in sorted(frame.controller.tags):
                     # Get row for each state, add total for a state first
                     subdf = df.loc[df['deficiency_tag_number'] == tag]
                     row = [subdf['fine_amount'].sum()]
                     #'${:,.2f}'.format(
                     for year in years:
-                        yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                        yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
                         subdf2 = get_inrange(subdf, yearstart, yearend)
                         row += [subdf2['fine_amount'].sum()]
                         #'${:,.2f}'.format(
@@ -358,12 +358,12 @@ def make_sheets(frame, options, df, startdate, enddate, territories, tags, outpa
             elif option == "Sum of violations per tag per year" and options[option]:
 
                 # Initialize indicies
-                for tag in sorted(tags):
+                for tag in sorted(frame.controller.tags):
                     # Get row for each state, add total for a state first
                     subdf = df.loc[df['deficiency_tag_number'] == tag]
                     row = [count_violations_df(subdf)]
                     for year in years:
-                        yearstart, yearend = get_year_range(year, years, startdate, enddate)
+                        yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
                         subdf2 = get_inrange(subdf, yearstart, yearend)
                         row += [count_violations_df(subdf2)]
                     

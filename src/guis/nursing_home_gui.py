@@ -92,6 +92,7 @@ class TagsPage(tk.Frame):
         notags = True
         lines = self.box.get("1.0","end-1c").splitlines()
         lines = [x.strip() for x in lines if x != '']
+        print(f"User input: {lines}")
         
         if len(lines) != 0:
             # List to hold the tags
@@ -99,7 +100,7 @@ class TagsPage(tk.Frame):
             for tag in lines:
                 try:
                     tag = int(tag)
-                    if tag in gui.tag_hash.keys():
+                    if tag in self.controller.tag_hash.keys():
                         chosen_tags += [tag]
                         notags = False
                     else:
@@ -115,7 +116,7 @@ class TagsPage(tk.Frame):
     
     # For setting all tags
     def set_all_tags(self):
-        global chosen_tags; chosen_tags = list(gui.tag_hash.keys())
+        global chosen_tags; chosen_tags = list(self.controller.tag_hash.keys())
         self.show_tags()
 
     # Shows tags accepted and rejected

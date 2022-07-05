@@ -46,7 +46,7 @@ class FormatPage(tk.Frame):
 
         # Instructions
         self.instructions = ttk.Label(self, text="Choose which data to include", font=("Times", 15))
-        self.instructions.grid(column=1, row=2, columnspan=3, pady=10)\
+        self.instructions.grid(column=1, row=2, columnspan=3, pady=10)
         
         self.instructions2 = ttk.Label(self, text="Will include dates and tags chosen or defaults if none are selected", font=("Times", 15))
         self.instructions2.grid(column=1, row=3, columnspan=3, pady=10)
