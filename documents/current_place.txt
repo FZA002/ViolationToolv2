@@ -1,0 +1,5 @@
+7/5/22
+Going to work on reimplementing nursing home filtering
+    (FIXED)BUG: Added territory and date filters, then went to add tag filter and was getting that I didn't have valid tags but I did
+    BUG: Added tag, dae, territory filters but used default anyways
+    Fixed this for territory, still have to test for tag and date
