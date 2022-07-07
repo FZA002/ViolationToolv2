@@ -62,7 +62,7 @@ class tkinterApp(tk.Tk):
 
          # Will create a folder at the User's home folder for this programs data
         self.setup_savedata()
-        self.add_frames([StartPage, MainOptionsPage, FormatPage, DonePage])
+        self.add_frames([StartPage, MainOptionsPage, FormatPage])
         self.show_frame(StartPage)
 
         self.startdate: datetime = None
@@ -630,6 +630,7 @@ class ExcelPage(tk.Frame):
     
     def finish(thisframe):
         ''' Once sheets are made. '''
+        thisframe.controller.add_frames([DonePage]) # Not sure why I have to re-add this...
         thisframe.controller.show_frame(DonePage)
 
 
@@ -649,7 +650,7 @@ class DonePage(tk.Frame):
 
     def exit(self):
         ''' Quit the app. '''
-        app.quit()
+        self.controller.quit()
     
 
 if __name__ == '__main__':
