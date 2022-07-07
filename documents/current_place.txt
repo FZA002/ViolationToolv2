@@ -3,3 +3,14 @@ Going to work on reimplementing nursing home filtering
     (FIXED)BUG: Added territory and date filters, then went to add tag filter and was getting that I didn't have valid tags but I did
     BUG: Added tag, dae, territory filters but used default anyways
     Fixed this for territory, still have to test for tag and date
+
+7/7/22
+Start wih testing date filter, then nursing home tag filter
+    Ran download, then date filter with nothing else. Passed
+    Tag filter with nothing else. Took a long ass time. Aborted
+    Tag filter with Date and Territory filter. Passed
+
+Going to test current state of formatting Nursing Homes.
+    Works, but seems to be out of whack. I lied. It works fine.
+
+Want to work on getting the other types working next.

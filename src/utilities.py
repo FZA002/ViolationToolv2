@@ -317,7 +317,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                         #'${:,.2f}'.format(
                     
                     dfs["State Fines"].loc[state] = row
-                    print("Made sum of fines per state per year sheet for Nursing Homes")
+                print("Made sum of fines per state per year sheet for Nursing Homes")
                 
 
             elif option == "Sum of violations per state per year" and options[option]:
@@ -333,7 +333,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                         row += [count_violations_df(subdf2)]
                     
                     dfs["State Violations"].loc[state] = row
-                    print("Made sum of violations per state per year sheet for Nursing Homes")
+                print("Made sum of violations per state per year sheet for Nursing Homes")
 
 
             elif option == "Sum of fines per tag per year" and options[option]:
@@ -351,7 +351,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                         #'${:,.2f}'.format(
                     
                     dfs["Tag Fines"].loc[tag] = row
-                    print("Made sum of fines per tag per year sheet for Nursing Homes")
+                print("Made sum of fines per tag per year sheet for Nursing Homes")
                 
 
             elif option == "Sum of violations per tag per year" and options[option]:
@@ -367,7 +367,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                         row += [count_violations_df(subdf2)]
                     
                     dfs["Tag Violations"].loc[tag] = row
-                    print("Made sum of violations per state per year sheet for Nursing Homes")
+                print("Made sum of violations per state per year sheet for Nursing Homes")
             
 
             elif option == "Create sheet with all territories combined" and options[option]:
@@ -414,7 +414,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
        'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
 
-        t_dfs[terr].to_excel(outpath + "/" + terr + ".xlsx", sheet_name=terr+"_NursingHomes")
+        t_dfs[terr].to_excel(f"{outpath}/{terr}_NursingHomes.xlsx", sheet_name=f"{terr}_NursingHomes")
         print(f"Made {terr}_NursingHomes.xlsx")
 
     start_row = 1
