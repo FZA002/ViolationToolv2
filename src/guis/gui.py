@@ -16,10 +16,8 @@ df, options = None, None
 territories = {}
 chosen_tags = []
 
-
-
-
 class TkWait:
+    ''' Used to let program wait while also updating the UI. '''
     def __init__(self, master, milliseconds):
         self.duration = milliseconds
         self.master = master
@@ -33,6 +31,7 @@ class TkWait:
         self.master.wait_variable(self.resume)
   
 class tkinterApp(tk.Tk):
+    ''' The main program class. '''
      
     # __init__ function for class tkinterApp
     def __init__(self, *args, **kwargs):
@@ -71,24 +70,28 @@ class tkinterApp(tk.Tk):
         self.tags: List[str] = []
         self.territories: dict[str, list[str]] = {}
         
-    # Shows frame that was passed in as a parameter
+
     def show_frame(self, cont):
+        ''' Shows frame that was passed in as a parameter. '''
         frame = self.frames[cont]
         frame.tkraise()        
 
-    # Add a frame to the dict of pages 
+    
     def add_frames(self, frames):
+        ''' Add a frame to the dict of pages. '''
         for F in frames:
             frame = F(self.container, self)
             self.frames[F] = frame
             frame.grid(row = 0, column = 0, sticky ="nsew")
 
-    # Window size for options page
+
     def resize_optionspage(self):
+        ''' Window size for options page. '''
         self.geometry("500x650")
 
-    # Creates a folder for this program's data
+    
     def setup_savedata(self):
+        ''' Creates a folder for this program's data. '''
         #global home_folder_path
         abs_home = os.path.abspath(os.path.expanduser("~"))
         self.home_folder_path = abs_home + "/ViolationToolv2/"
@@ -118,8 +121,9 @@ class tkinterApp(tk.Tk):
         self.territories = territories
 
 
-# Default page layout
+
 class PageLayout(tk.Frame):
+    ''' Default page layout. '''
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
@@ -130,8 +134,9 @@ class PageLayout(tk.Frame):
         logo_label.image = logo
         logo_label.grid(column=1, row=0, columnspan=3)
 
-# Start Page
+
 class StartPage(tk.Frame):
+    ''' The first page that a user sees. Asks if they want to download fresh data. '''
     def __init__(thisframe, parent, controller):
         PageLayout.__init__(thisframe, parent)
         thisframe.controller = controller
@@ -142,7 +147,6 @@ class StartPage(tk.Frame):
         thisframe.instructions.grid(column=1, row=1, columnspan=3, pady=10)
 
         instructions2 = "Your save data is from: {}"
-        #global home_folder_path
         with open(controller.home_folder_path + "assets/lastupdate.pkl", "rb") as inp:
             lastlocalupdate = pickle.load(inp)
 
@@ -155,15 +159,16 @@ class StartPage(tk.Frame):
         thisframe.no_btn = tk.Button(thisframe, text="No", command=lambda:thisframe.show_options(False), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
         thisframe.no_btn.grid(column=3, row=4, pady=10)
 
-    # If yes is selected 
+
     def download_data(thisframe):
+        ''' Creates a thread that calls util.download, so that UI can be updated while fresh data is downloaded. '''
         thisframe.instructions.config(text="Downloading data...")
         thisframe.instructions2.grid_forget()
         thisframe.yes_btn.grid_forget()
         thisframe.no_btn.grid_forget()
 
-        # Create a custom thread class so that we can update the screen during download
         class thread(threading.Thread):
+            ''' Create a custom thread class so that we can update the screen during download. '''
             def __init__(self, func):
                 threading.Thread.__init__(self)
                 self.func = func
@@ -173,8 +178,8 @@ class StartPage(tk.Frame):
 
         thread(util.download).start()
 
-    # Advance page after download
     def show_options(thisframe, downloaded):
+        ''' Advance page after download. '''
         if downloaded:
             with TkWait(thisframe.parent, 3000):
                 thisframe.instructions.config(text="Download finished")
@@ -187,8 +192,8 @@ class StartPage(tk.Frame):
         thisframe.controller.show_frame(MainOptionsPage)
 
 
-# Shows users options for the dataset
 class MainOptionsPage(tk.Frame):
+    ''' Shows users options for the datasets. '''
     def __init__(self, parent, controller):
         PageLayout.__init__(self, parent)
         self.controller = controller
@@ -266,8 +271,9 @@ class MainOptionsPage(tk.Frame):
         self.controller.show_frame(ExcelPage)
 
 
-# Page where states in each territory is set
+
 class TerritoriesPage(tk.Frame):
+    ''' Page where states in each territory are set. '''
     def __init__(self, parent, controller):
         PageLayout.__init__(self, parent)
         self.controller: tkinterApp = controller
@@ -291,8 +297,8 @@ class TerritoriesPage(tk.Frame):
         self.cancel_btn = tk.Button(self, command=lambda:self.cancel(), text="Cancel", font="Times", bg="#000099", fg="#00ace6", height=1, width=5)
         self.cancel_btn.grid(column=2, row=6, pady=3)
 
-        # Hides the cancel button once user types anything into the boxes
         def hide_cancel_button(_):
+            ''' Hides the cancel button once user types anything into the boxes. '''
             self.cancel_btn.grid_forget()
         self.box.bind('<Key>', hide_cancel_button)
 
@@ -300,17 +306,19 @@ class TerritoriesPage(tk.Frame):
         self.count = 0 
 
 
-    # When use default is pressed
     def use_all(self):
+        ''' When use default is pressed. '''
         self.controller.set_territories(info.territories)
         self.controller.show_frame(MainOptionsPage)
 
-    # When cancel is pressed
+
     def cancel(self):
+        ''' When cancel is pressed. '''
         self.controller.show_frame(MainOptionsPage)
 
-    # Lets the user add territories
+    
     def set_terr(self):
+        ''' Lets the user add territories. '''
         lines = self.box.get("1.0","end-1c").splitlines()
         lines = [x for x in lines if x != '']
         if len(lines) != 0:
@@ -324,8 +332,9 @@ class TerritoriesPage(tk.Frame):
         else:
             self.instructions.config(text="Please enter at least one territory")
 
-    # Lets the user add states
+
     def add_states(self):
+        ''' Lets the user add states. '''
         bad, last = False, False
         self.instructions2.config(text="Use full state names, with first letter capitalized".format(self.tlist[0]))
         # First territory
@@ -379,8 +388,9 @@ class TerritoriesPage(tk.Frame):
             self.count += 1
 
 
-# Page where date range for cases is set
+
 class DateRangePage(tk.Frame):
+    ''' Page where date range for cases is set. '''
     def __init__(self, parent, controller):
         PageLayout.__init__(self, parent)
         self.controller: tkinterApp = controller   
@@ -413,49 +423,53 @@ class DateRangePage(tk.Frame):
         self.cancel_btn = tk.Button(self, command=lambda:self.cancel(), text="Cancel", font="Times", bg="#000099", fg="#00ace6", height=1, width=5)
         self.cancel_btn.grid(column=2, row=10, pady=3)
 
-        # Hides the cancel button once user types anything into the boxes
+        
         def hide_cancel_button(_):
+            ''' Hides the cancel button once user types anything into the boxes. '''
             self.cancel_btn.grid_forget()
         self.start.bind('<Key>', hide_cancel_button)
         self.end.bind('<Key>', hide_cancel_button)
        
-    # When cancel is pressed
+
     def cancel(self):
+        ''' When cancel is pressed. '''
         self.controller.resize_optionspage()
         self.controller.show_frame(MainOptionsPage)
 
-    # Sets start and end dates to None, this will make sure that min and max dates used when excel sheets are made
+
     def all_dates(self):
+        ''' Sets start and end dates to None, this will make sure that min and max dates used when excel sheets are made. '''
         self.controller.add_dates(None, None)
         self.controller.resize_optionspage()
         self.controller.show_frame(MainOptionsPage)
 
-    # Checks to see if dates are in correct format and within range -> need to add earliest date
+    
     def check_range(self):
-            try:
-                stext = self.start.get("1.0","end-1c")
-                etext = self.end.get("1.0","end-1c")
-                stime = datetime.datetime.strptime(stext, '%m/%d/%Y')
-                etime = datetime.datetime.strptime(etext, '%m/%d/%Y')
-                today = datetime.datetime.today()
+        ''' Checks to see if dates are in correct format and within range -> need to add earliest date. '''
+        try:
+            stext = self.start.get("1.0","end-1c")
+            etext = self.end.get("1.0","end-1c")
+            stime = datetime.datetime.strptime(stext, '%m/%d/%Y')
+            etime = datetime.datetime.strptime(etext, '%m/%d/%Y')
+            today = datetime.datetime.today()
 
-                # If user gives start date later than end date
-                if stime > etime:
-                    self.instructions.config(text="Start date must be less than or equal to end date!")
-                elif stime > today or etime > today:
-                    self.instructions.config(text="Dates cannot be in the future!")
-                else:
-                    self.controller.add_dates(stime, etime)
-                    self.controller.resize_optionspage()
-                    self.controller.show_frame(MainOptionsPage)
-                    DateRangePage.destroy()
+            # If user gives start date later than end date
+            if stime > etime:
+                self.instructions.config(text="Start date must be less than or equal to end date!")
+            elif stime > today or etime > today:
+                self.instructions.config(text="Dates cannot be in the future!")
+            else:
+                self.controller.add_dates(stime, etime)
+                self.controller.resize_optionspage()
+                self.controller.show_frame(MainOptionsPage)
+                DateRangePage.destroy()
 
-            except:
-                self.instructions.config(text="Check date formats and retry")
+        except:
+            self.instructions.config(text="Check date formats and retry")
 
 
-# Format excel sheets
 class FormatPage(tk.Frame):
+    ''' Format excel sheets. '''
     def __init__(self, parent, controller):
         PageLayout.__init__(self, parent)
         self.controller = controller
@@ -534,8 +548,8 @@ class FormatPage(tk.Frame):
             box.deselect()
 
 
-    # Once user is done selecting options
     def finish(self):
+        ''' Once user is done selecting options. '''
         global options; options = self.options
         self.controller.resize_optionspage()
         self.controller.show_frame(MainOptionsPage)
@@ -544,12 +558,14 @@ class FormatPage(tk.Frame):
         self.fm.destroy()
         FormatPage.destroy(self)
 
-    # Add a chosen option to a list
+
     def add_option(self, opt):
+        ''' Add a chosen option to a list. '''
         self.options[opt] = not self.options[opt]
 
-    # Select all button functionality
+
     def select_all(self):
+        ''' Select all button functionality. '''
         if self.all:    
             self.options = {k: False for k, _ in self.options.items()}
             for box in self.boxes:
@@ -564,8 +580,9 @@ class FormatPage(tk.Frame):
             self.all_btn.config(text="Unselect All")   
 
 
-# Page where excel sheet is made
+
 class ExcelPage(tk.Frame):
+    ''' Page where excel sheet is made. '''
     def __init__(thisframe, parent, controller):
         PageLayout.__init__(thisframe, parent)
         thisframe.controller: tkinterApp = controller
@@ -583,14 +600,15 @@ class ExcelPage(tk.Frame):
         thisframe.cancel_btn = tk.Button(thisframe, command=lambda:thisframe.cancel(), text="Go Back", font="Times", bg="#000099", fg="#00ace6", height=1, width=5)
         thisframe.cancel_btn.grid(column=2, row=5, pady=3)
 
-    # Lets a user go back to OptionsPage
+
     def cancel(thisframe):
+        ''' Lets a user go back to OptionsPage. '''
         thisframe.controller.resize_optionspage()
         thisframe.controller.show_frame(MainOptionsPage)
 
-    # Uses threads to make excel sheets -> need to first break data up by territory
-    def make_sheets(thisframe, controller):
 
+    def make_sheets(thisframe, controller):
+        ''' Uses threads to make excel sheets -> need to first break data up by territory. '''
         outpath = askdirectory()
         print(f"Home folder path: {controller.home_folder_path}")
         with open(controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
@@ -609,13 +627,15 @@ class ExcelPage(tk.Frame):
         thisframe.cancel_btn.grid_forget()
         thread(util.make_nursing_home_sheets).start()
 
-    # Once sheets are made
+    
     def finish(thisframe):
+        ''' Once sheets are made. '''
         thisframe.controller.show_frame(DonePage)
 
 
-# After excel sheets are made
+
 class DonePage(tk.Frame):
+    ''' After excel sheets are made. '''
     def __init__(self, parent, controller):
         PageLayout.__init__(self, parent)
         self.controller = controller
@@ -628,6 +648,7 @@ class DonePage(tk.Frame):
         self.sheet_btn.grid(column=2, row=3, pady=40)
 
     def exit(self):
+        ''' Quit the app. '''
         app.quit()
     
 
