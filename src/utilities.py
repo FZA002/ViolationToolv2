@@ -15,7 +15,7 @@ abs_home = os.path.abspath(os.path.expanduser("~"))
 home_folder_path = abs_home + "/ViolationToolv2/"
 
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
+    ''' Get absolute path to resource, works for dev and for PyInstaller '''
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
@@ -26,10 +26,8 @@ def resource_path(relative_path):
 
 
 def download(frame):
-    '''
-    Downloads CSV's from cms.gov and saves them as pandas dataframes. Also saves the date that this method
-    was executed so it can be displayed on the program's start page. 
-    '''
+    ''' Downloads CSV's from cms.gov and saves them as pandas dataframes. Also saves the date that this method
+        was executed so it can be displayed on the program's start page. '''
 
     # Url for Penalties and Health Deficiencies dataset queries
     p_urls = "https://data.cms.gov/provider-data/api/1/datastore/query/g6vv-u9sr/0/download?format=csv"
@@ -79,10 +77,8 @@ def download(frame):
     frame.show_options(True)
     
 
-def make_sheets(frame: gui.ExcelPage, options, df, outpath):
-    '''
-    Makes the excel sheets based on options chosen by the user. Saves them to a folder chosen by the user.
-    '''
+def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
+    ''' Makes the excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
 
     # Update the screen
     frame.instructions.config(text="Making sheets...")
@@ -149,12 +145,11 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
         # Convert fine column to currency
         t_dfs[terr]['fine_amount'] = t_dfs[terr]['fine_amount'].apply(lambda x: 0 if x == "" else x)
         t_dfs[terr]['fine_amount'] = pd.to_numeric(t_dfs[terr]['fine_amount'], errors="coerce")
-        #t_dfs[terr]['fine_amount'] =  t_dfs[terr]['fine_amount'].apply(lambda x: '${:,.2f}'.format(float(x)))
-
     
     # Convert fine column to numeric
     df['fine_amount'] = df['fine_amount'].apply(lambda x: 0 if x == "" else x)
     df['fine_amount'] = pd.to_numeric(df['fine_amount'], errors="coerce")
+    print("Made Territory Dataframes")
 
     # Sort through options
     if options != None:
@@ -180,12 +175,11 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
 
                     # Get the year's sum and format it as currency
                     dfs["US"].at["Fines", year] = get_inrange(df, yearstart, yearend)['fine_amount'].sum()
-                    #'${:,.2f}'.format(
 
                 # Change columns type back, add data to hash
                 df['survey_date'] = oldcol
                 dfs["US"].at["Fines", "Total"] = sum
-                #'${:,.2f}'.format(
+                print("Made US Fines sheet for Nursing Homes")
                     
                         
             elif option == "US Violations" and options[option]:
@@ -206,6 +200,7 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
 
                 # Add data to hash of dfs
                 dfs["US"].at["Violations", "Total"] = sum
+                print("Made US Violations sheet for Nursing Homes")
 
 
             elif option == "Top fined organizations per state" and options[option]:
@@ -255,6 +250,7 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
 
                 # Finally, make the state the vertical index and make fines currency
                 dfs["Most Fined"] = dfs["Most Fined"].set_index(["State"])
+                print("Made Top fined organizations per state sheet for Nursing Homes")
             
 
             elif option == "Most severe organizations per state" and options[option]:
@@ -304,7 +300,7 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
 
                 # Finally, make the state the vertical index and make fines currency
                 dfs["Most Severe"] = dfs["Most Severe"].set_index(["State"])
-
+                print("Made Most severe organizations per state sheet for Nursing Homes")
 
             elif option == "Sum of fines per state per year" and options[option]:
 
@@ -321,6 +317,7 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
                         #'${:,.2f}'.format(
                     
                     dfs["State Fines"].loc[state] = row
+                    print("Made sum of fines per state per year sheet for Nursing Homes")
                 
 
             elif option == "Sum of violations per state per year" and options[option]:
@@ -336,6 +333,7 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
                         row += [count_violations_df(subdf2)]
                     
                     dfs["State Violations"].loc[state] = row
+                    print("Made sum of violations per state per year sheet for Nursing Homes")
 
 
             elif option == "Sum of fines per tag per year" and options[option]:
@@ -353,6 +351,7 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
                         #'${:,.2f}'.format(
                     
                     dfs["Tag Fines"].loc[tag] = row
+                    print("Made sum of fines per tag per year sheet for Nursing Homes")
                 
 
             elif option == "Sum of violations per tag per year" and options[option]:
@@ -368,11 +367,12 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
                         row += [count_violations_df(subdf2)]
                     
                     dfs["Tag Violations"].loc[tag] = row
+                    print("Made sum of violations per state per year sheet for Nursing Homes")
             
 
             elif option == "Create sheet with all territories combined" and options[option]:
                 # Get a dict of dfs by territory
-                tdfs = sort_by_territories(df, territories)
+                tdfs = sort_by_territories(df, frame.controller.territories)
                 combined = pd.DataFrame()
                 for terr in tdfs.keys():
                     combined = pd.concat([combined, tdfs[terr]])
@@ -387,7 +387,7 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
                 dfs["All Territories"]['fine_amount'] = dfs["All Territories"]['fine_amount'].apply(lambda x: 0 if x == "" else x)
                 dfs["All Territories"]['fine_amount'] = pd.to_numeric(dfs["All Territories"]['fine_amount'], errors="coerce")
                 dfs["All Territories"]['fine_amount'] =  dfs["All Territories"]['fine_amount'].apply(lambda x: float(x))
-                #'${:,.2f}'.format(
+                print("Made all territories combined sheet for Nursing Homes")
 
 
             elif option == "All Violations" and options[option]:
@@ -398,7 +398,7 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
                 # Set fine column as currency
                 dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
                 dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: float(x))
-                #'${:,.2f}'.format(
+                print("Made all violations sheet for Nursing Homes")
 
 
     # --- Write to excel --- #
@@ -414,37 +414,32 @@ def make_sheets(frame: gui.ExcelPage, options, df, outpath):
        'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
 
-        t_dfs[terr].to_excel(outpath + "/" + terr + ".xlsx", sheet_name=terr)
+        t_dfs[terr].to_excel(outpath + "/" + terr + ".xlsx", sheet_name=terr+"_NursingHomes")
+        print(f"Made {terr}_NursingHomes.xlsx")
 
     start_row = 1
-    with pd.ExcelWriter(outpath + '/OptionalData.xlsx') as writer:
+    with pd.ExcelWriter(outpath + '/OptionalData_NursingHomes.xlsx') as writer:
 
         # Excel sheet for each set of options
         for dfname in dfs.keys():
             if not dfs[dfname].empty:
                 dfs[dfname].to_excel(writer, sheet_name=dfname)
                 start_row += len(dfs[dfname])
-                print(dfname)
+                print(f"Made {dfname} Excel Workbook")
 
-        # Excel sheet for description of tags and severities
-        items1 = list(tag_hash.items())
-        items2 = list(info.severities.items())
-        df1 = pd.DataFrame(items1, columns=["Tag", "Description"])
-        df1 = df1.sort_values(by="Tag")
-        df1 = df1.reset_index().drop("index", axis=1)
-        df2 = pd.DataFrame(items2, columns=["Rank", "Description"])        
-        df1.to_excel(writer, sheet_name="Descriptions", startrow=1, startcol=0)
-        df2.to_excel(writer, sheet_name="Descriptions", startrow=len(df1.index)+5, startcol=0)
+        # Makes Excel Sheet in OptionalData_NursingHomes.xlsx that has descriptions of different metrcs
+        make_nursing_homes_optional_workbook(tag_hash, writer)
 
         writer.save()
-        
         frame.instructions.config(text="Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+        print("Sheets made in " + str(int(time.time() - start_time)) + " seconds")
         time.sleep(3)
         frame.finish()
 
     
-# Converts states from full name into their two letter code Dict[String, List[String]]) -> Dict[String, List[String]]
+
 def convert_states(territories):
+    ''' Converts states from full name into their two letter code Dict[String, List[String]]) -> Dict[String, List[String]] '''
     
     # Get two letter state code hash
     codes = info.get_state_codes()
@@ -464,9 +459,10 @@ def convert_states(territories):
     
     return territories
 
-# Sort violations by territories for when we make an excel sheet
-# Also want to update territory values as we go through the dataframe
+
 def sort_by_territories(state_df, territories):
+    ''' Sort violations by territories for when we make an excel sheet. Also want to update
+        territory values as we go through the dataframe. '''
     tdict = {}
     territorynames = list(territories.keys())
 
@@ -482,8 +478,9 @@ def sort_by_territories(state_df, territories):
 
     return tdict
 
-# Gets a subframe where only violations with dates in a certain range are included
+
 def get_inrange(df, start, end):
+    ''' Gets a subframe where only violations with dates in a certain range are included. '''
     # Conversion to date time objects for comparison
     oldcol = df['survey_date']
     df['survey_date'] =  pd.to_datetime(df['survey_date'], format='%Y-%m-%d')
@@ -495,12 +492,14 @@ def get_inrange(df, start, end):
 
     return new 
 
-# Counts the number of violations in a dataframe by counting the rows
+
 def count_violations_df(df):
+    ''' Counts the number of violations in a dataframe by counting the rows. '''
     return len(df)
 
-# Returns a sorted list of tuples where each tuple contains an organization and total fines for a period    
+
 def get_most_fined(df, num):
+    ''' Returns a sorted list of tuples where each tuple contains an organization and total fines for a period. '''
     sums = []
     # Get the facility names
     facilities = df['provider_name'].unique()
@@ -527,8 +526,9 @@ def get_most_fined(df, num):
 
     return sums[:num]
 
-# Returns a sorted list of tuples where each tuple contains an organization and total violations for a period    
+
 def get_most_severe(df, num):
+    ''' Returns a sorted list of tuples where each tuple contains an organization and total violations for a period. '''
     sums = []
     # Get the facility names
     facilities = df['provider_name'].unique()
@@ -547,8 +547,9 @@ def get_most_severe(df, num):
 
     return sums[:num]
 
-# Get proper bounds for a date range
+
 def get_year_range(year, years, startdate, enddate):
+    ''' Get proper bounds for a date range. '''
     if year == years[0]:
         yearstart = startdate
         yearend = datetime.strptime(str(year)+"-12-31", "%Y-%m-%d")
@@ -560,3 +561,14 @@ def get_year_range(year, years, startdate, enddate):
         yearend = datetime.strptime(str(year)+"-12-31", "%Y-%m-%d")
 
     return (yearstart, yearend)
+
+def make_nursing_homes_optional_workbook(tag_hash, writer):
+    ''' Creates the optional data's Description sheet for nursing homes. '''
+    items1 = list(tag_hash.items())
+    items2 = list(info.severities.items())
+    df1 = pd.DataFrame(items1, columns=["Tag", "Description"])
+    df1 = df1.sort_values(by="Tag")
+    df1 = df1.reset_index().drop("index", axis=1)
+    df2 = pd.DataFrame(items2, columns=["Rank", "Description"])        
+    df1.to_excel(writer, sheet_name="Descriptions", startrow=1, startcol=0)
+    df2.to_excel(writer, sheet_name="Descriptions", startrow=len(df1.index)+5, startcol=0)

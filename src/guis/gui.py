@@ -92,7 +92,7 @@ class tkinterApp(tk.Tk):
         #global home_folder_path
         abs_home = os.path.abspath(os.path.expanduser("~"))
         self.home_folder_path = abs_home + "/ViolationToolv2/"
-        print("First: " + self.home_folder_path)
+        # print("First: " + self.home_folder_path)
 
         # Create all folders if they don't already exist
         if not os.path.exists(self.home_folder_path):
@@ -132,28 +132,28 @@ class PageLayout(tk.Frame):
 
 # Start Page
 class StartPage(tk.Frame):
-    def __init__(self, parent, controller):
-        PageLayout.__init__(self, parent)
-        self.controller = controller
-        self.parent = parent
+    def __init__(thisframe, parent, controller):
+        PageLayout.__init__(thisframe, parent)
+        thisframe.controller = controller
+        thisframe.parent = parent
          
         # Instructions and Buttons
-        self.instructions = ttk.Label(self, text="Welcome! Do you want to download the most recent data?", font=("Times", 15))
-        self.instructions.grid(column=1, row=1, columnspan=3, pady=10)
+        thisframe.instructions = ttk.Label(thisframe, text="Welcome! Do you want to download the most recent data?", font=("Times", 15))
+        thisframe.instructions.grid(column=1, row=1, columnspan=3, pady=10)
 
         instructions2 = "Your save data is from: {}"
         #global home_folder_path
         with open(controller.home_folder_path + "assets/lastupdate.pkl", "rb") as inp:
             lastlocalupdate = pickle.load(inp)
 
-        self.instructions2 =  ttk.Label(self, text=instructions2.format(lastlocalupdate), font=("Times", 15))
-        self.instructions2.grid(column=1, row=2, columnspan=3, pady=10)
+        thisframe.instructions2 =  ttk.Label(thisframe, text=instructions2.format(lastlocalupdate), font=("Times", 15))
+        thisframe.instructions2.grid(column=1, row=2, columnspan=3, pady=10)
         
-        self.yes_btn = tk.Button(self, text="Yes", command=lambda:self.download_data(), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
-        self.yes_btn.grid(column=1, row=4, pady=10)
+        thisframe.yes_btn = tk.Button(thisframe, text="Yes", command=lambda:thisframe.download_data(), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
+        thisframe.yes_btn.grid(column=1, row=4, pady=10)
 
-        self.no_btn = tk.Button(self, text="No", command=lambda:self.show_options(False, controller), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
-        self.no_btn.grid(column=3, row=4, pady=10)
+        thisframe.no_btn = tk.Button(thisframe, text="No", command=lambda:thisframe.show_options(False), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
+        thisframe.no_btn.grid(column=3, row=4, pady=10)
 
     # If yes is selected 
     def download_data(thisframe):
@@ -174,17 +174,17 @@ class StartPage(tk.Frame):
         thread(util.download).start()
 
     # Advance page after download
-    def show_options(self, downloaded, controller):
+    def show_options(thisframe, downloaded):
         if downloaded:
-            with TkWait(self.parent, 3000):
-                self.instructions.config(text="Download finished")
+            with TkWait(thisframe.parent, 3000):
+                thisframe.instructions.config(text="Download finished")
         
         global df
-        with open(controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
+        with open(thisframe.controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
             df = pickle.load(inp)
 
-        self.controller.resize_optionspage()
-        self.controller.show_frame(MainOptionsPage)
+        thisframe.controller.resize_optionspage()
+        thisframe.controller.show_frame(MainOptionsPage)
 
 
 # Shows users options for the dataset
@@ -367,7 +367,7 @@ class TerritoriesPage(tk.Frame):
                     self.nextbtn.config(text="Finish")
                 # Last screen
                 elif self.count == len(self.tlist):
-                    print(self.controller.territories)
+                    print(f"Chosen Territories: {self.controller.territories}")
                     last = True
                     self.controller.show_frame(MainOptionsPage)
                     TerritoriesPage.destroy(self)
@@ -592,7 +592,7 @@ class ExcelPage(tk.Frame):
     def make_sheets(thisframe, controller):
 
         outpath = askdirectory()
-        print(controller.home_folder_path)
+        print(f"Home folder path: {controller.home_folder_path}")
         with open(controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
             df = pickle.load(inp)  
 
@@ -607,7 +607,7 @@ class ExcelPage(tk.Frame):
                 self.func(thisframe, options, df, outpath)
 
         thisframe.cancel_btn.grid_forget()
-        thread(util.make_sheets).start()
+        thread(util.make_nursing_home_sheets).start()
 
     # Once sheets are made
     def finish(thisframe):
