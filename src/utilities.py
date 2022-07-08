@@ -14,6 +14,8 @@ from datetime import datetime
 abs_home = os.path.abspath(os.path.expanduser("~"))
 home_folder_path = abs_home + "/ViolationToolv2/"
 
+TESTING = True
+
 def resource_path(relative_path):
     ''' Get absolute path to resource, works for dev and for PyInstaller '''
     try:
@@ -78,12 +80,13 @@ def download(frame):
     
 def make_sheets(frame: gui.ExcelPage, nursing_home_df, home_health_df, long_term_care_df, outpath):
     ''' Calls all functions that make excel sheets. '''
-    #make_nursing_home_sheets(frame, nursing_home_df, outpath)
+    make_nursing_home_sheets(frame, nursing_home_df, outpath)
     make_home_health_sheets(frame, home_health_df, outpath)
 
 def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     ''' Makes the nursing home excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
-
+    if TESTING:
+        print("------- USING TEST VALUES FOR NURSING HOME -------")
     # Update the screen
     frame.instructions.config(text="Making Nursing Home sheets...")
     frame.instructions2.grid_forget()
@@ -99,6 +102,11 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     # Get years in range that user chose, or set a default range
     if None in {frame.controller.startdate, frame.controller.enddate}:
 
+
+        if TESTING:
+            frame.controller.startdate = datetime.strptime("01/10/2020", '%m/%d/%Y')
+            frame.controller.enddate = datetime.strptime("01/10/2020", '%m/%d/%Y')
+
         # Conversion to date time objects for min and max
         oldcol = df['survey_date']
         df['survey_date'] =  pd.to_datetime(df['survey_date'], format='%Y-%m-%d')
@@ -112,8 +120,11 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
 
     # Check to see if territories were chosen and use default if not
     if len(frame.controller.territories) == 0:
-        frame.controller.territories = info.territories
-        print("Used Default Territories")
+        if TESTING:
+            frame.controller.territories = {"Test_Territory": ["Maryland"]}
+        else:
+            frame.controller.territories = info.territories
+            print("Used Default Territories")
     # Convert states to their two letter code
     frame.controller.territories = convert_states(frame.controller.territories)
     print("Converted States to Two-Letter Codes")
@@ -438,7 +449,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
         frame.instructions.config(text="Sheets made in " + str(int(time.time() - start_time)) + " seconds")
         print("Nursing Home Sheets made in " + str(int(time.time() - start_time)) + " seconds")
         time.sleep(3)
-        frame.finish()
+        # frame.finish()
 
 
 def make_nursing_homes_optional_workbook(tag_hash, writer):
@@ -464,13 +475,13 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
 
     # Setting defaults for missing user choices
 
-    # Check to see if territories were chosen and use default if not
-    if len(frame.controller.territories) == 0:
-        frame.controller.territories = info.territories
-        print("Used Default Territories")
-    # Convert states to their two letter code
-    frame.controller.territories = convert_states(frame.controller.territories)
-    print("Converted States to Two-Letter Codes")
+    # Check to see if territories were chosen and use default if not - Won't need this if we always do nursing homes before this
+    # if len(frame.controller.territories) == 0:
+    #     frame.controller.territories = info.territories
+    #     print("Used Default Territories")
+    # # Convert states to their two letter code
+    # frame.controller.territories = convert_states(frame.controller.territories)
+    # print("Converted States to Two-Letter Codes")
 
     # Optional sheets
     dfs = {}
@@ -550,7 +561,7 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
             df.to_excel(f"{outpath}/test.xlsx", sheet_name="Test")
 
             writer.save()
-            
+
     frame.instructions.config(text="Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     print("Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     time.sleep(3)
