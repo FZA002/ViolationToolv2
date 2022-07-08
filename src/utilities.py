@@ -80,8 +80,9 @@ def download(frame):
     
 def make_sheets(frame: gui.ExcelPage, nursing_home_df, home_health_df, long_term_care_df, outpath):
     ''' Calls all functions that make excel sheets. '''
-    make_nursing_home_sheets(frame, nursing_home_df, outpath)
-    make_home_health_sheets(frame, home_health_df, outpath)
+    # make_nursing_home_sheets(frame, nursing_home_df, outpath)
+    # make_home_health_sheets(frame, home_health_df, outpath)
+    make_home_long_term_care_sheets(frame, long_term_care_df, outpath)
 
 def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     ''' Makes the nursing home excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
@@ -138,7 +139,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
         print("Filtered Tags, length: {}".format(len(df)))
 
     # Get dates in range for state df
-    df = get_inrange(df, frame.controller.startdate, frame.controller.enddate)
+    df = get_inrange_nursing_homes(df, frame.controller.startdate, frame.controller.enddate)
     print("Filtered Dates")
 
     # Optional sheets
@@ -189,7 +190,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
 
                     # Get the year's sum and format it as currency
-                    dfs["US"].at["Fines", year] = get_inrange(df, yearstart, yearend)['fine_amount'].sum()
+                    dfs["US"].at["Fines", year] = get_inrange_nursing_homes(df, yearstart, yearend)['fine_amount'].sum()
 
                 # Change columns type back, add data to hash
                 df['survey_date'] = oldcol
@@ -211,7 +212,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
 
                     # Get the year's sum
-                    dfs["US"].at["Violations", year] = count_violations_df(get_inrange(df, yearstart, yearend)) 
+                    dfs["US"].at["Violations", year] = count_violations_df(get_inrange_nursing_homes(df, yearstart, yearend)) 
 
                 # Add data to hash of dfs
                 dfs["US"].at["Violations", "Total"] = sum
@@ -241,7 +242,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     for state in info.states_codes:
                         # Get subdf of a given state
                         subdf = df.loc[df['provider_state'] == state]
-                        subdf = get_inrange(subdf, yearstart, yearend)
+                        subdf = get_inrange_nursing_homes(subdf, yearstart, yearend)
                         # Get a list of the most fined organizations across a year
                         state_orgs[year][state] = get_most_fined(subdf, num)
 
@@ -291,7 +292,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     for state in info.states_codes:
                         # Get subdf of a given state
                         subdf = df.loc[df['provider_state'] == state]
-                        subdf = get_inrange(subdf, yearstart, yearend)
+                        subdf = get_inrange_nursing_homes(subdf, yearstart, yearend)
                         # Get a list of the most severe organizations across a year
                         state_orgs[year][state] = get_most_severe(subdf, num)
 
@@ -327,7 +328,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     #'${:,.2f}'.format(
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
-                        subdf2 = get_inrange(subdf, yearstart, yearend)
+                        subdf2 = get_inrange_nursing_homes(subdf, yearstart, yearend)
                         row += [subdf2['fine_amount'].sum()]
                         #'${:,.2f}'.format(
                     
@@ -344,7 +345,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     row = [count_violations_df(subdf)]
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
-                        subdf2 = get_inrange(subdf, yearstart, yearend)
+                        subdf2 = get_inrange_nursing_homes(subdf, yearstart, yearend)
                         row += [count_violations_df(subdf2)]
                     
                     dfs["State Violations"].loc[state] = row
@@ -361,7 +362,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     #'${:,.2f}'.format(
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
-                        subdf2 = get_inrange(subdf, yearstart, yearend)
+                        subdf2 = get_inrange_nursing_homes(subdf, yearstart, yearend)
                         row += [subdf2['fine_amount'].sum()]
                         #'${:,.2f}'.format(
                     
@@ -378,7 +379,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     row = [count_violations_df(subdf)]
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
-                        subdf2 = get_inrange(subdf, yearstart, yearend)
+                        subdf2 = get_inrange_nursing_homes(subdf, yearstart, yearend)
                         row += [count_violations_df(subdf2)]
                     
                     dfs["Tag Violations"].loc[tag] = row
@@ -570,6 +571,134 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
     frame.finish()
 
 
+def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
+    ''' Makes the long term care excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
+
+    # Update the screen
+    frame.instructions.config(text="Making Long Term Care sheets...")
+    frame.instructions2.grid_forget()
+    frame.sheet_btn.grid_forget()
+    start_time = time.time()
+
+    # Setting defaults for missing user choices
+
+    # Check to see if territories were chosen and use default if not - Won't need this if we always do nursing homes before this
+    # if len(frame.controller.territories) == 0:
+    #     frame.controller.territories = info.territories
+    #     print("Used Default Territories")
+    # # Convert states to their two letter code
+    # frame.controller.territories = convert_states(frame.controller.territories)
+    # print("Converted States to Two-Letter Codes")
+
+    # Get years in range that user chose, or set a default range
+    if None in {frame.controller.startdate, frame.controller.enddate}:
+
+
+        if TESTING:
+            frame.controller.startdate = datetime.strptime("01/10/2020", '%m/%d/%Y')
+            frame.controller.enddate = datetime.strptime("01/10/2020", '%m/%d/%Y')
+
+        # Conversion to date time objects for min and max
+        old_start = df['start_date']
+        old_end = df['end_date']
+        df['start_date'] =  pd.to_datetime(df['start_date'], format='%m/%d/%Y')
+        df['end_date'] =  pd.to_datetime(df['end_date'], format='%m/%d/%Y')
+
+        frame.controller.startdate = df['start_date'].min()
+        frame.controller.enddate = df['end_date'].max()
+
+        # Convert date column back to string 
+        df['start_date'] = old_start
+        df['end_date'] = old_end
+        print("Used Default Dates")
+
+    # Get dates in range for state df
+    df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate)
+    print("Filtered Dates")
+
+    # Optional sheets
+    dfs = {}
+
+    # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
+    t_dfs = sort_by_territories(df, frame.controller.territories)
+    
+    # Sort through options
+    if "Long Term" in frame.controller.options.keys():
+        for option in frame.controller.options["Long Term"].keys():
+
+    
+            if option == "State Statistics" and frame.controller.options["Long Term"][option]:
+
+                with open(home_folder_path + "dataframes/hhc_state_by_state_df.pkl", 'rb') as inp:
+                    dfs["State Statistics"] = pickle.load(inp)
+                    print("Loaded Long Term Care state by state data")
+                    
+
+            elif option == "Create sheet with all territories combined" and frame.controller.options["Long Term"][option]:
+                # Get a dict of dfs by territory
+                tdfs = sort_by_territories(df, frame.controller.territories)
+                combined = pd.DataFrame()
+                for terr in tdfs.keys():
+                    combined = pd.concat([combined, tdfs[terr]])
+                dfs["All Territories"] = combined.reset_index()
+
+                # Set indicies properly
+                dfs["All Territories"] = dfs["All Territories"].drop(["index"], axis=1)
+                dfs["All Territories"] = dfs["All Territories"].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
+                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
+
+                # Set fine column as currency
+                dfs["All Territories"]['fine_amount'] = dfs["All Territories"]['fine_amount'].apply(lambda x: 0 if x == "" else x)
+                dfs["All Territories"]['fine_amount'] = pd.to_numeric(dfs["All Territories"]['fine_amount'], errors="coerce")
+                dfs["All Territories"]['fine_amount'] =  dfs["All Territories"]['fine_amount'].apply(lambda x: float(x))
+                print("Made all territories combined sheet for Long Term")
+
+
+            elif option == "All Violations" and frame.controller.options["Long Term"][option]:
+                dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
+                dfs["All US States"] = dfs["All US States"].set_index(['provider_state','provider_name', 'federal_provider_number', 
+                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
+
+                # Set fine column as currency
+                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
+                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: float(x))
+                print("Made all violations sheet for Long Term")
+
+
+    # --- Write to excel --- #
+
+    # Excel workbook for each territory
+    for terr in t_dfs.keys():
+        # Makes the sheets more organized
+        if not t_dfs[terr].empty:
+            # Sort alphabetically by provider name
+            t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "provider_city"])
+            # This will group things together in the excel sheets
+            t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state', 'provider_name', 
+        'provider_city', 'address_line_1', 'address_line_2', 'phone_number', 'total_number_of_beds',
+        'ownership_type', 'measure_code'])
+
+
+        t_dfs[terr].to_excel(f"{outpath}/{terr}_LongTermCare.xlsx", sheet_name=f"{terr}_LongTermCare")
+        print(f"Made {terr}_LongTermCare.xlsx")
+
+    # start_row = 1
+    # with pd.ExcelWriter(outpath + '/OptionalData_LongTermCare.xlsx') as writer:
+
+    #     # Excel sheet for each set of options
+    #     for dfname in dfs.keys():
+    #         dfs[dfname].to_excel(writer, sheet_name=dfname)
+    #         start_row += len(dfs[dfname])
+    #         print(f"Made {dfname} Excel Sheet for Long Term")
+
+    #     writer.save()
+
+    frame.instructions.config(text="Long Term Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+    print("Long Term Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+    time.sleep(3)
+    frame.finish()
+
+
 def convert_states(territories):
     ''' Converts states from full name into their two letter code Dict[String, List[String]]) -> Dict[String, List[String]] '''
     
@@ -611,7 +740,7 @@ def sort_by_territories(df, territories):
     return tdict
 
 
-def get_inrange(df, start, end):
+def get_inrange_nursing_homes(df, start, end):
     ''' Gets a subframe where only violations with dates in a certain range are included. '''
     # Conversion to date time objects for comparison
     oldcol = df['survey_date']
@@ -621,6 +750,24 @@ def get_inrange(df, start, end):
     # Then revert columns back to strings
     new['survey_date'] = new['survey_date'].dt.strftime('%Y-%m-%d')
     df['survey_date'] = oldcol
+
+    return new
+
+def get_inrange_long_term_care(df, start, end):
+    ''' Gets a subframe where only violations with dates in a certain range are included. '''
+    # Conversion to date time objects for comparison
+    old_start = df['start_date']
+    old_end = df['end_date']
+    df['start_date'] =  pd.to_datetime(df['start_date'], format='%m/%d/%Y')
+    df['end_date'] =  pd.to_datetime(df['end_date'], format='%m/%d/%Y')
+    # So rows included where either the start date is on or after the start date filter, same for end date filter
+    new = df.loc[(df['start_date'] >= start) | (df['end_date'] <= end)] 
+
+    # Then revert columns back to strings
+    new['start_date'] = new['start_date'].dt.strftime('%m/%d/%Y')
+    new['end_date'] = new['end_date'].dt.strftime('%m/%d/%Y')
+    df['start_date'] = old_start
+    df['end_date'] = old_end
 
     return new 
 

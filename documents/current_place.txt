@@ -24,4 +24,5 @@ Going to start working on Home Health Data
 Need to implement the dates for home health, as well as excel sheet creation 
 implemented home health state statistics optional sheet, but only tested calling it on it's own, without nursing home sheets being made
 
-Can move onto long_term_Care
+GOing to implement long term care data first, then I'll come back and add options for home health and long term
+Want to be able to have measure codes for lthc as a default optional sheet
