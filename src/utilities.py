@@ -542,25 +542,27 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
             t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "provider_city"])
             # This will group things together in the excel sheets
             t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state', 'provider_name', 
-       'provider_city', 'provider_address'])
+       'provider_city'])
 
 
         t_dfs[terr].to_excel(f"{outpath}/{terr}_HomeHealth.xlsx", sheet_name=f"{terr}_HomeHealth")
         print(f"Made {terr}_HomeHealth.xlsx")
 
+    # Excel sheet for date ranges
+    with open(home_folder_path + "dataframes/hhc_date_range_df.pkl", 'rb') as inp:
+        dfs["Measure Date Ranges"] = pickle.load(inp)
+        print("Loaded Home Health measure date range data")
+
     start_row = 1
-    if len(dfs) != 0:
-        with pd.ExcelWriter(outpath + '/OptionalData_HomeHealth.xlsx') as writer:
+    with pd.ExcelWriter(outpath + '/OptionalData_HomeHealth.xlsx') as writer:
 
-            # Excel sheet for each set of options
-            for dfname in dfs.keys():
-                dfs[dfname].to_excel(writer, sheet_name=dfname)
-                start_row += len(dfs[dfname])
-                print(f"Made {dfname} Excel Sheet for Home Health")
+        # Excel sheet for each set of options
+        for dfname in dfs.keys():
+            dfs[dfname].to_excel(writer, sheet_name=dfname)
+            start_row += len(dfs[dfname])
+            print(f"Made {dfname} Excel Sheet for Home Health")
 
-            df.to_excel(f"{outpath}/test.xlsx", sheet_name="Test")
-
-            writer.save()
+        writer.save()
 
     frame.instructions.config(text="Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     print("Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")

@@ -617,6 +617,11 @@ class ExcelPage(tk.Frame):
         else:
             print(f"Save path chosen: {outpath}")
 
+        # Make a folder for the sheets
+        outpath = outpath + "/ViolationToolExcelData/"
+        if not os.path.exists(outpath):
+            os.mkdir(outpath)
+
         print(f"Home folder path: {controller.home_folder_path}")
         with open(controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
             nursing_home_df = pickle.load(inp)
