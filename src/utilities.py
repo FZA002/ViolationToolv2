@@ -476,7 +476,7 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
     dfs = {}
 
     # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
-    # t_dfs = sort_by_territories(df, frame.controller.territories)
+    t_dfs = sort_by_territories(df, frame.controller.territories)
     
     # Sort through options
     if "Home Health" in frame.controller.options.keys():
@@ -523,34 +523,38 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
 
     # --- Write to excel --- #
 
-    # # Excel workbook for each territory
-    # for terr in t_dfs.keys():
-    #     # Makes the sheets more organized
-    #     if not t_dfs[terr].empty:
-    #         # Sort alphabetically by provider name
-    #         t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "survey_date"])
-    #         # This will group things together in the excel sheets
-    #         t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
-    #    'provider_city', 'provider_address', 'survey_date', 'survey_type'])
+    # Excel workbook for each territory
+    for terr in t_dfs.keys():
+        # Makes the sheets more organized
+        if not t_dfs[terr].empty:
+            # Sort alphabetically by provider name
+            t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "provider_city"])
+            # This will group things together in the excel sheets
+            t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state', 'provider_name', 
+       'provider_city', 'provider_address'])
 
 
-    #     t_dfs[terr].to_excel(f"{outpath}/{terr}_HomeHealth.xlsx", sheet_name=f"{terr}_HomeHealth")
-    #     print(f"Made {terr}_HomeHealth.xlsx")
+        t_dfs[terr].to_excel(f"{outpath}/{terr}_HomeHealth.xlsx", sheet_name=f"{terr}_HomeHealth")
+        print(f"Made {terr}_HomeHealth.xlsx")
 
     start_row = 1
-    with pd.ExcelWriter(outpath + '/OptionalData_HomeHealth.xlsx') as writer:
+    if len(dfs) != 0:
+        with pd.ExcelWriter(outpath + '/OptionalData_HomeHealth.xlsx') as writer:
 
-        # Excel sheet for each set of options
-        for dfname in dfs.keys():
-            dfs[dfname].to_excel(writer, sheet_name=dfname)
-            start_row += len(dfs[dfname])
-            print(f"Made {dfname} Excel Sheet for Home Health")
+            # Excel sheet for each set of options
+            for dfname in dfs.keys():
+                dfs[dfname].to_excel(writer, sheet_name=dfname)
+                start_row += len(dfs[dfname])
+                print(f"Made {dfname} Excel Sheet for Home Health")
 
-        writer.save()
-        frame.instructions.config(text="Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
-        print("Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
-        time.sleep(3)
-        frame.finish()
+            df.to_excel(f"{outpath}/test.xlsx", sheet_name="Test")
+
+            writer.save()
+            
+    frame.instructions.config(text="Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+    print("Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+    time.sleep(3)
+    frame.finish()
 
 
 def convert_states(territories):
@@ -575,7 +579,7 @@ def convert_states(territories):
     return territories
 
 
-def sort_by_territories(state_df, territories):
+def sort_by_territories(df, territories):
     ''' Sort violations by territories for when we make an excel sheet. Also want to update
         territory values as we go through the dataframe. '''
     tdict = {}
@@ -584,7 +588,7 @@ def sort_by_territories(state_df, territories):
     # Create a hash where key is territory name and value is dataframe of related rows
     for name in territorynames:
         # Get subframe, add territory column and reset indicies
-        tdict[name] = state_df[state_df['provider_state'].isin(territories[name])]
+        tdict[name] = df[df['provider_state'].isin(territories[name])]
         tdict[name].insert(0,"territory", 0)
         tdict[name] = tdict[name].reset_index(drop=True)
 

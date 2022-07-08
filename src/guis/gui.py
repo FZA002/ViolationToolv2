@@ -611,6 +611,12 @@ class ExcelPage(tk.Frame):
     def make_sheets(thisframe, controller):
         ''' Uses threads to make excel sheets -> need to first break data up by territory. '''
         outpath = askdirectory()
+        if outpath == "":
+            print(f"No save location chosen: saving to {controller.home_folder_path}")
+            outpath = controller.home_folder_path
+        else:
+            print(f"Save path chosen: {outpath}")
+
         print(f"Home folder path: {controller.home_folder_path}")
         with open(controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
             nursing_home_df = pickle.load(inp)
