@@ -242,9 +242,10 @@ class FormatPage(tk.Frame):
 
     # Once user is done selecting options
     def finish(self):
-        gui.options = self.options
+        self.controller.options["Nursing Home"] = self.options
         self.controller.resize_optionspage()
         self.controller.show_frame(OptionsPage)
+        print(f"Chosen Nursing Home Options: {self.controller.options['Nursing Home']}")
         for button in self.boxes:
             button.destroy()
         self.fm.destroy()

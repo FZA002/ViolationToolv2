@@ -48,15 +48,8 @@ class FormatPage(tk.Frame):
         self.instructions = ttk.Label(self, text="Choose which data to include", font=("Times", 15))
         self.instructions.grid(column=1, row=2, columnspan=3, pady=10)
         
-        self.instructions2 = ttk.Label(self, text="Will include dates and tags chosen or defaults if none are selected", font=("Times", 15))
-        self.instructions2.grid(column=1, row=3, columnspan=3, pady=10)
-
         # Holds buttons
-        self.options = {"US Fines":False, "US Violations":False,
-                            "Top fined organizations per state":False, "Most severe organizations per state":False,
-                            "Sum of fines per state per year":False, "Sum of violations per state per year":False,
-                            "Sum of fines per tag per year":False, "Sum of violations per tag per year":False,
-                            "Create sheet with all territories combined":False, "All Violations":False}
+        self.options = {"State Statistics":False}
 
         # Frame to hold the buttons and list to access them directly
         self.fm = ttk.Labelframe(self, width=50, border=0)
@@ -65,43 +58,7 @@ class FormatPage(tk.Frame):
         i = 0
         
         # Buttons
-        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="US Fines (Total, yearly)", anchor="w", command=lambda:self.add_option("US Fines")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="US Violations (Total, yearly)", anchor="w", command=lambda:self.add_option("US Violations")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Top fined organizations (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Top fined organizations per state")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Most severe organizations (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Most severe organizations per state")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of fines per state (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of fines per state per year")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per state (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per state per year")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of fines per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of fines per tag per year")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per tag per year")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet with all territories combined", width=35, anchor="w", command=lambda:self.add_option("Create sheet with all territories combined")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet for all violations without territories", width=35, anchor="w", command=lambda:self.add_option("All Violations")))
+        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="Include State Statistics", anchor="w", command=lambda:self.add_option("State Statistics")))
         self.boxes[i].grid()
         i += 1
 
@@ -120,9 +77,10 @@ class FormatPage(tk.Frame):
 
     # Once user is done selecting options
     def finish(self):
-        gui.options = self.options
+        self.controller.options["Home Health"] = self.options
         self.controller.resize_optionspage()
         self.controller.show_frame(OptionsPage)
+        print(f"Chosen Home Health Options: {self.controller.options['Home Health']}")
         for button in self.boxes:
             button.destroy()
         self.fm.destroy()

@@ -77,7 +77,7 @@ def download(frame):
     frame.show_options(True)
     
 
-def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
+def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     ''' Makes the excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
 
     # Update the screen
@@ -152,11 +152,11 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
     print("Made Territory Dataframes")
 
     # Sort through options
-    if options != None:
-        for option in options.keys():
+    if "Nursing Home" in frame.controller.options.keys():
+        for option in frame.controller.options["Nursing Home"].keys():
 
     
-            if option == "US Fines" and options[option]:
+            if option == "US Fines" and frame.controller.options["Nursing Home"][option]:
 
                 # Initialize indicies
                 dfs["US"].loc["Fines"] = [0] * (len(dfs["US"].columns))
@@ -182,7 +182,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                 print("Made US Fines sheet for Nursing Homes")
                     
                         
-            elif option == "US Violations" and options[option]:
+            elif option == "US Violations" and frame.controller.options["Nursing Home"][option]:
 
                  # Initialize indicies
                 dfs["US"].loc["Violations"] = [0] * (len(dfs["US"].columns))
@@ -203,7 +203,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                 print("Made US Violations sheet for Nursing Homes")
 
 
-            elif option == "Top fined organizations per state" and options[option]:
+            elif option == "Top fined organizations per state" and frame.controller.options["Nursing Home"][option]:
 
                 # Dict[String, Dict[String, List]]
                 state_orgs = {}
@@ -253,7 +253,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                 print("Made Top fined organizations per state sheet for Nursing Homes")
             
 
-            elif option == "Most severe organizations per state" and options[option]:
+            elif option == "Most severe organizations per state" and frame.controller.options["Nursing Home"][option]:
 
                 # Dict[String, Dict[String, List]]
                 state_orgs = {}
@@ -302,7 +302,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                 dfs["Most Severe"] = dfs["Most Severe"].set_index(["State"])
                 print("Made Most severe organizations per state sheet for Nursing Homes")
 
-            elif option == "Sum of fines per state per year" and options[option]:
+            elif option == "Sum of fines per state per year" and frame.controller.options["Nursing Home"][option]:
 
                 # Initialize indicies
                 for state in info.states_codes:
@@ -320,7 +320,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                 print("Made sum of fines per state per year sheet for Nursing Homes")
                 
 
-            elif option == "Sum of violations per state per year" and options[option]:
+            elif option == "Sum of violations per state per year" and frame.controller.options["Nursing Home"][option]:
 
                 # Initialize indicies
                 for state in info.states_codes:
@@ -336,7 +336,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                 print("Made sum of violations per state per year sheet for Nursing Homes")
 
 
-            elif option == "Sum of fines per tag per year" and options[option]:
+            elif option == "Sum of fines per tag per year" and frame.controller.options["Nursing Home"][option]:
 
                 # Initialize indicies
                 for tag in sorted(frame.controller.tags):
@@ -354,7 +354,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                 print("Made sum of fines per tag per year sheet for Nursing Homes")
                 
 
-            elif option == "Sum of violations per tag per year" and options[option]:
+            elif option == "Sum of violations per tag per year" and frame.controller.options["Nursing Home"][option]:
 
                 # Initialize indicies
                 for tag in sorted(frame.controller.tags):
@@ -370,7 +370,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                 print("Made sum of violations per state per year sheet for Nursing Homes")
             
 
-            elif option == "Create sheet with all territories combined" and options[option]:
+            elif option == "Create sheet with all territories combined" and frame.controller.options["Nursing Home"][option]:
                 # Get a dict of dfs by territory
                 tdfs = sort_by_territories(df, frame.controller.territories)
                 combined = pd.DataFrame()
@@ -390,7 +390,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
                 print("Made all territories combined sheet for Nursing Homes")
 
 
-            elif option == "All Violations" and options[option]:
+            elif option == "All Violations" and frame.controller.options["Nursing Home"][option]:
                 dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
                 dfs["All US States"] = dfs["All US States"].set_index(['provider_state','provider_name', 'federal_provider_number', 
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
@@ -425,7 +425,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, options, df, outpath):
             if not dfs[dfname].empty:
                 dfs[dfname].to_excel(writer, sheet_name=dfname)
                 start_row += len(dfs[dfname])
-                print(f"Made {dfname} Excel Workbook")
+                print(f"Made {dfname} Excel Sheet for Nursing Homes")
 
         # Makes Excel Sheet in OptionalData_NursingHomes.xlsx that has descriptions of different metrcs
         make_nursing_homes_optional_workbook(tag_hash, writer)

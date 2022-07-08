@@ -12,7 +12,7 @@ import info, utilities as util
 
 # Global variables
 
-df, options = None, None
+df = None
 territories = {}
 chosen_tags = []
 
@@ -69,6 +69,7 @@ class tkinterApp(tk.Tk):
         self.enddate: datetime = None
         self.tags: List[str] = []
         self.territories: dict[str, list[str]] = {}
+        self.options = {} # Excel formatting options for the different data categories
         
 
     def show_frame(self, cont):
@@ -622,7 +623,7 @@ class ExcelPage(tk.Frame):
         
             def run(self):
                 global options
-                self.func(thisframe, options, df, outpath)
+                self.func(thisframe, df, outpath)
 
         thisframe.cancel_btn.grid_forget()
         thread(util.make_nursing_home_sheets).start()
