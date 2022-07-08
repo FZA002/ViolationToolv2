@@ -595,22 +595,23 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
 
 
         if TESTING:
-            frame.controller.startdate = datetime.strptime("01/10/2020", '%m/%d/%Y')
-            frame.controller.enddate = datetime.strptime("01/10/2020", '%m/%d/%Y')
+            frame.controller.startdate = datetime.strptime("01/10/2019", '%m/%d/%Y')
+            frame.controller.enddate = datetime.strptime("01/10/2021", '%m/%d/%Y')
 
-        # Conversion to date time objects for min and max
-        old_start = df['start_date']
-        old_end = df['end_date']
-        df['start_date'] =  pd.to_datetime(df['start_date'], format='%m/%d/%Y')
-        df['end_date'] =  pd.to_datetime(df['end_date'], format='%m/%d/%Y')
+        else:
+            # Conversion to date time objects for min and max
+            old_start = df['start_date']
+            old_end = df['end_date']
+            df['start_date'] =  pd.to_datetime(df['start_date'], format='%m/%d/%Y')
+            df['end_date'] =  pd.to_datetime(df['end_date'], format='%m/%d/%Y')
 
-        frame.controller.startdate = df['start_date'].min()
-        frame.controller.enddate = df['end_date'].max()
+            frame.controller.startdate = df['start_date'].min()
+            frame.controller.enddate = df['end_date'].max()
 
-        # Convert date column back to string 
-        df['start_date'] = old_start
-        df['end_date'] = old_end
-        print("Used Default Dates")
+            # Convert date column back to string 
+            df['start_date'] = old_start
+            df['end_date'] = old_end
+            print("Used Default Dates")
 
     # Get dates in range for state df
     df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate)
@@ -618,6 +619,15 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
 
     # Optional sheets
     dfs = {}
+
+    # Check to see if territories were chosen and use default if not
+    if len(frame.controller.territories) == 0:  
+        frame.controller.territories = info.territories
+        print("Used Default Territories")
+
+    # Convert states to their two letter code
+    frame.controller.territories = convert_states(frame.controller.territories)
+    print("Converted States to Two-Letter Codes")
 
     # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
     t_dfs = sort_by_territories(df, frame.controller.territories)
@@ -761,7 +771,7 @@ def get_inrange_long_term_care(df, start, end):
     df['start_date'] =  pd.to_datetime(df['start_date'], format='%m/%d/%Y')
     df['end_date'] =  pd.to_datetime(df['end_date'], format='%m/%d/%Y')
     # So rows included where either the start date is on or after the start date filter, same for end date filter
-    new = df.loc[(df['start_date'] >= start) | (df['end_date'] <= end)] 
+    new = df.loc[(df['start_date'] >= start) & (df['end_date'] <= end)] 
 
     # Then revert columns back to strings
     new['start_date'] = new['start_date'].dt.strftime('%m/%d/%Y')
