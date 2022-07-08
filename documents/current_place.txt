@@ -14,3 +14,11 @@ Going to test current state of formatting Nursing Homes.
     Works, but seems to be out of whack. I lied. It works fine.
 
 Want to work on getting the other types working next.
+
+
+7/8/22
+Going to start working on Home Health Data
+    Refactored options so that each datasets options are saved in a dict in the controller
+    Changed visual options for Home Health Data
+
+Need to implement the dates for home health, as well as excel sheet creation 
