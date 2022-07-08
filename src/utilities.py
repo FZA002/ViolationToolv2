@@ -76,6 +76,10 @@ def download(frame):
     # Update screen, show options page
     frame.show_options(True)
     
+def make_sheets(frame: gui.ExcelPage, nursing_home_df, home_health_df, long_term_care_df, outpath):
+    ''' Calls all functions that make excel sheets. '''
+    #make_nursing_home_sheets(frame, nursing_home_df, outpath)
+    make_home_health_sheets(frame, home_health_df, outpath)
 
 def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     ''' Makes the nursing home excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
@@ -479,7 +483,7 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
         for option in frame.controller.options["Home Health"].keys():
 
     
-            if option == "State Statistics" and frame.controller.options["State Statistics"][option]:
+            if option == "State Statistics" and frame.controller.options["Home Health"][option]:
 
                 with open(home_folder_path + "dataframes/hhc_state_by_state_df.pkl", 'rb') as inp:
                     dfs["State Statistics"] = pickle.load(inp)

@@ -613,7 +613,11 @@ class ExcelPage(tk.Frame):
         outpath = askdirectory()
         print(f"Home folder path: {controller.home_folder_path}")
         with open(controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
-            df = pickle.load(inp)  
+            nursing_home_df = pickle.load(inp)
+        with open(controller.home_folder_path + "dataframes/hhc_df.pkl", 'rb') as inp:
+            home_health_df = pickle.load(inp)  
+        with open(controller.home_folder_path + "dataframes/ltch_df.pkl", 'rb') as inp:
+            long_term_care_df = pickle.load(inp)    
 
         # Create a thread to run make_sheets() so we can update the screen
         class thread(threading.Thread):
@@ -623,10 +627,10 @@ class ExcelPage(tk.Frame):
         
             def run(self):
                 global options
-                self.func(thisframe, df, outpath)
+                self.func(thisframe, nursing_home_df, home_health_df, long_term_care_df, outpath)
 
         thisframe.cancel_btn.grid_forget()
-        thread(util.make_nursing_home_sheets).start()
+        thread(util.make_sheets).start()
 
     
     def finish(thisframe):
