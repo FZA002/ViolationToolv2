@@ -102,40 +102,9 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     with open(home_folder_path + "assets/tag_hash.pkl", 'rb') as inp:
         tag_hash = pickle.load(inp)
 
-    # Get years in range that user chose, or set a default range
-    if None in {frame.controller.startdate, frame.controller.enddate}:
-
-        if TESTING:
-            frame.controller.startdate = datetime.strptime("01/10/2020", '%m/%d/%Y')
-            frame.controller.enddate = datetime.strptime("01/10/2020", '%m/%d/%Y')
-        else:
-            # Conversion to date time objects for min and max
-            oldcol = df['survey_date']
-            df['survey_date'] =  pd.to_datetime(df['survey_date'], format='%Y-%m-%d')
-
-            frame.controller.startdate = df['survey_date'].min()
-            frame.controller.enddate = df['survey_date'].max()
-
-            # Convert date column back to string 
-            df['survey_date'] = oldcol
-            print("Used Default Dates")
-
-    # Check to see if territories were chosen and use default if not
-    if len(frame.controller.territories) == 0:
-        if TESTING:
-            frame.controller.territories = {"Test_Territory": ["Maryland", "California", "Florida", "Texas"]}
-        else:
-            if not TERRITORIES_LOADED:
-                TERRITORIES_LOADED = True
-                frame.controller.territories = info.territories
-                print("Used Default Territories")
-    
-    # Convert states to their two letter code
-    global STATES_CONVERTED
-    if not STATES_CONVERTED:
-        STATES_CONVERTED = True
-        frame.controller.territories = convert_states(frame.controller.territories)
-        print("Converted States to Two-Letter Codes")
+    set_defaults(frame, df)
+    dfs = {} # Holds optional dataframes that will be excel sheets
+    years = list(range(frame.controller.startdate.year, frame.controller.enddate.year+1)) # Range of years from date filter
 
     # Check to see if tags were chosen and if not use all
     if len(frame.controller.tags) == 0:
@@ -148,9 +117,6 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     # Get dates in range for nursing home df
     df = get_inrange_nursing_homes(df, frame.controller.startdate, frame.controller.enddate)
     print("Filtered Dates")
-
-    dfs = {} # Holds optional dataframes that will be excel sheets
-    years = list(range(frame.controller.startdate.year, frame.controller.enddate.year+1)) # Range of years from date filter
     
     # Convert fine column to numeric
     df['fine_amount'] = df['fine_amount'].apply(lambda x: 0 if x == "" else x)
@@ -468,19 +434,9 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
     frame.instructions2.grid_forget()
     frame.sheet_btn.grid_forget()
     start_time = time.time()
-
-    # Setting defaults for missing user choices
-
-    # Check to see if territories were chosen and use default if not - Won't need this if we always do nursing homes before this
-    # if len(frame.controller.territories) == 0:
-    #     frame.controller.territories = info.territories
-    #     print("Used Default Territories")
-    # # Convert states to their two letter code
-    # frame.controller.territories = convert_states(frame.controller.territories)
-    # print("Converted States to Two-Letter Codes")
-
-    # Optional sheets
-    dfs = {}
+              
+    dfs = {} # Optional sheets
+    set_defaults(frame, df)
 
     # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
     t_dfs = sort_by_territories(df, frame.controller.territories)
@@ -509,11 +465,6 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
                 dfs["All Territories"] = dfs["All Territories"].drop(["index"], axis=1)
                 dfs["All Territories"] = dfs["All Territories"].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
-
-                # Set fine column as currency
-                dfs["All Territories"]['fine_amount'] = dfs["All Territories"]['fine_amount'].apply(lambda x: 0 if x == "" else x)
-                dfs["All Territories"]['fine_amount'] = pd.to_numeric(dfs["All Territories"]['fine_amount'], errors="coerce")
-                dfs["All Territories"]['fine_amount'] =  dfs["All Territories"]['fine_amount'].apply(lambda x: float(x))
                 print("Made all territories combined sheet for Home Health")
 
 
@@ -521,10 +472,6 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
                 dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
                 dfs["All US States"] = dfs["All US States"].set_index(['provider_state','provider_name', 'federal_provider_number', 
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
-
-                # Set fine column as currency
-                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
-                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: float(x))
                 print("Made all violations sheet for Home Health")
 
 
@@ -540,7 +487,6 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
             t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state', 'provider_name', 
        'provider_city'])
 
-
         t_dfs[terr].to_excel(f"{outpath}/{terr}_HomeHealth.xlsx", sheet_name=f"{terr}_HomeHealth")
         print(f"Made {terr}_HomeHealth.xlsx")
 
@@ -549,13 +495,11 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
         dfs["Measure Date Ranges"] = pickle.load(inp)
         print("Loaded Home Health measure date range data")
 
-    start_row = 1
     with pd.ExcelWriter(outpath + '/OptionalData_HomeHealth.xlsx') as writer:
 
         # Excel sheet for each set of options
         for dfname in dfs.keys():
             dfs[dfname].to_excel(writer, sheet_name=dfname)
-            start_row += len(dfs[dfname])
             print(f"Made {dfname} Excel Sheet for Home Health")
 
         writer.save()
@@ -575,56 +519,13 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
     frame.sheet_btn.grid_forget()
     start_time = time.time()
 
-    # Setting defaults for missing user choices
+    dfs = {}     # Optional sheets
+    set_defaults(frame, df)
 
-    # Check to see if territories were chosen and use default if not - Won't need this if we always do nursing homes before this
-    # if len(frame.controller.territories) == 0:
-    #     frame.controller.territories = info.territories
-    #     print("Used Default Territories")
-    # # Convert states to their two letter code
-    # frame.controller.territories = convert_states(frame.controller.territories)
-    # print("Converted States to Two-Letter Codes")
-
-    # Get years in range that user chose, or set a default range
-    if None in {frame.controller.startdate, frame.controller.enddate}:
-
-
-        if TESTING:
-            frame.controller.startdate = datetime.strptime("01/10/2019", '%m/%d/%Y')
-            frame.controller.enddate = datetime.strptime("01/10/2021", '%m/%d/%Y')
-
-        else:
-            # Conversion to date time objects for min and max
-            old_start = df['start_date']
-            old_end = df['end_date']
-            df['start_date'] =  pd.to_datetime(df['start_date'], format='%m/%d/%Y')
-            df['end_date'] =  pd.to_datetime(df['end_date'], format='%m/%d/%Y')
-
-            frame.controller.startdate = df['start_date'].min()
-            frame.controller.enddate = df['end_date'].max()
-
-            # Convert date column back to string 
-            df['start_date'] = old_start
-            df['end_date'] = old_end
-            print("Used Default Dates")
-
-    # Get dates in range for state df
-    df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate)
+    df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate) # Get dates in range
     print("Filtered Dates")
 
-    # Optional sheets
-    dfs = {}
-
-    # Check to see if territories were chosen and use default if not
-    if len(frame.controller.territories) == 0:  
-        frame.controller.territories = info.territories
-        print("Used Default Territories")
-
-    # Convert states to their two letter code
-    frame.controller.territories = convert_states(frame.controller.territories)
-    print("Converted States to Two-Letter Codes")
-
-    # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
+    # Make a dataframe for each territory (saved in a dict) and then only keep violations in date range
     t_dfs = sort_by_territories(df, frame.controller.territories)
     
     # Sort through options
@@ -652,21 +553,12 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
                 dfs["All Territories"] = dfs["All Territories"].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
-                # Set fine column as currency
-                dfs["All Territories"]['fine_amount'] = dfs["All Territories"]['fine_amount'].apply(lambda x: 0 if x == "" else x)
-                dfs["All Territories"]['fine_amount'] = pd.to_numeric(dfs["All Territories"]['fine_amount'], errors="coerce")
-                dfs["All Territories"]['fine_amount'] =  dfs["All Territories"]['fine_amount'].apply(lambda x: float(x))
-                print("Made all territories combined sheet for Long Term")
-
 
             elif option == "All Violations" and frame.controller.options["Long Term"][option]:
                 dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
                 dfs["All US States"] = dfs["All US States"].set_index(['provider_state','provider_name', 'federal_provider_number', 
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
-                # Set fine column as currency
-                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
-                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: float(x))
                 print("Made all violations sheet for Long Term")
 
 
@@ -682,7 +574,6 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
             t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state', 'provider_name', 
         'provider_city', 'address_line_1', 'address_line_2', 'phone_number', 'total_number_of_beds',
         'ownership_type', 'measure_code'])
-
 
         t_dfs[terr].to_excel(f"{outpath}/{terr}_LongTermCare.xlsx", sheet_name=f"{terr}_LongTermCare")
         print(f"Made {terr}_LongTermCare.xlsx")
@@ -845,3 +736,43 @@ def get_year_range(year, years, startdate, enddate):
         yearend = datetime.strptime(str(year)+"-12-31", "%Y-%m-%d")
 
     return (yearstart, yearend)
+
+def set_defaults(frame, df):
+    ''' Sets the default values for the date and territory filters if necessary. Also converts 
+        territory states to two letter codes if necessary. '''
+    # Check to see if territories were chosen and use default if not
+    if len(frame.controller.territories) == 0:
+        if TESTING:
+            frame.controller.territories = {"Test_Territory": ["Maryland", "California", "Florida", "Texas"]}
+        else:
+            if not TERRITORIES_LOADED:
+                TERRITORIES_LOADED = True
+                frame.controller.territories = info.territories
+                print("Used Default Territories")
+    
+    # Convert states to their two letter code
+    global STATES_CONVERTED
+    if not STATES_CONVERTED:
+        STATES_CONVERTED = True
+        frame.controller.territories = convert_states(frame.controller.territories)
+        print("Converted States to Two-Letter Codes")
+
+    # Set default date filters if necessary
+    if None in {frame.controller.startdate, frame.controller.enddate}:
+
+        if TESTING:
+            frame.controller.startdate = datetime.strptime("01/10/2020", '%m/%d/%Y')
+            frame.controller.enddate = datetime.strptime("01/10/2020", '%m/%d/%Y')
+        else:
+            # Conversion to date time objects for min and max
+            oldcol = df['survey_date']
+            df['survey_date'] =  pd.to_datetime(df['survey_date'], format='%Y-%m-%d')
+
+            frame.controller.startdate = df['survey_date'].min()
+            frame.controller.enddate = df['survey_date'].max()
+
+            # Convert date column back to string 
+            df['survey_date'] = oldcol
+            print("Used Default Dates")
+
+    
