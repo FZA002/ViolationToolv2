@@ -15,6 +15,8 @@ abs_home = os.path.abspath(os.path.expanduser("~"))
 home_folder_path = abs_home + "/ViolationToolv2/"
 
 TESTING = True
+TERRITORIES_LOADED = False # Turned False after certain data that is shared amongst make sheets is loaded for the first time
+STATES_CONVERTED = False
 
 def resource_path(relative_path):
     ''' Get absolute path to resource, works for dev and for PyInstaller '''
@@ -77,12 +79,14 @@ def download(frame):
 
     # Update screen, show options page
     frame.show_options(True)
-    
+
+
 def make_sheets(frame: gui.ExcelPage, nursing_home_df, home_health_df, long_term_care_df, outpath):
     ''' Calls all functions that make excel sheets. '''
-    # make_nursing_home_sheets(frame, nursing_home_df, outpath)
-    # make_home_health_sheets(frame, home_health_df, outpath)
-    make_home_long_term_care_sheets(frame, long_term_care_df, outpath)
+    make_nursing_home_sheets(frame, nursing_home_df, outpath)
+    #make_home_health_sheets(frame, home_health_df, outpath)
+    #make_home_long_term_care_sheets(frame, long_term_care_df, outpath)
+
 
 def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     ''' Makes the nursing home excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
@@ -98,37 +102,40 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     with open(home_folder_path + "assets/tag_hash.pkl", 'rb') as inp:
         tag_hash = pickle.load(inp)
 
-    # Setting defaults for missing user choices
-
     # Get years in range that user chose, or set a default range
     if None in {frame.controller.startdate, frame.controller.enddate}:
-
 
         if TESTING:
             frame.controller.startdate = datetime.strptime("01/10/2020", '%m/%d/%Y')
             frame.controller.enddate = datetime.strptime("01/10/2020", '%m/%d/%Y')
+        else:
+            # Conversion to date time objects for min and max
+            oldcol = df['survey_date']
+            df['survey_date'] =  pd.to_datetime(df['survey_date'], format='%Y-%m-%d')
 
-        # Conversion to date time objects for min and max
-        oldcol = df['survey_date']
-        df['survey_date'] =  pd.to_datetime(df['survey_date'], format='%Y-%m-%d')
+            frame.controller.startdate = df['survey_date'].min()
+            frame.controller.enddate = df['survey_date'].max()
 
-        frame.controller.startdate = df['survey_date'].min()
-        frame.controller.enddate = df['survey_date'].max()
-
-        # Convert date column back to string 
-        df['survey_date'] = oldcol
-        print("Used Default Dates")
+            # Convert date column back to string 
+            df['survey_date'] = oldcol
+            print("Used Default Dates")
 
     # Check to see if territories were chosen and use default if not
     if len(frame.controller.territories) == 0:
         if TESTING:
             frame.controller.territories = {"Test_Territory": ["Maryland"]}
         else:
-            frame.controller.territories = info.territories
-            print("Used Default Territories")
+            if not TERRITORIES_LOADED:
+                TERRITORIES_LOADED = True
+                frame.controller.territories = info.territories
+                print("Used Default Territories")
+    
     # Convert states to their two letter code
-    frame.controller.territories = convert_states(frame.controller.territories)
-    print("Converted States to Two-Letter Codes")
+    global STATES_CONVERTED
+    if not STATES_CONVERTED:
+        STATES_CONVERTED = True
+        frame.controller.territories = convert_states(frame.controller.territories)
+        print("Converted States to Two-Letter Codes")
 
     # Check to see if tags were chosen and if not use all
     if len(frame.controller.tags) == 0:
@@ -138,33 +145,19 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
         df = df.loc[df['deficiency_tag_number'].isin(frame.controller.tags)] 
         print("Filtered Tags, length: {}".format(len(df)))
 
-    # Get dates in range for state df
+    # Get dates in range for nursing home df
     df = get_inrange_nursing_homes(df, frame.controller.startdate, frame.controller.enddate)
     print("Filtered Dates")
 
-    # Optional sheets
-    dfs = {}
-    years = list(range(frame.controller.startdate.year, frame.controller.enddate.year+1))
-    dfs["US"] = pd.DataFrame(columns=(["Total"] + years))
-    dfs["Most Fined"] = pd.DataFrame()
-    dfs["Most Severe"] = pd.DataFrame()
-    dfs["State Fines"] = pd.DataFrame(columns=(["Total"] + years))
-    dfs["State Violations"] = pd.DataFrame(columns=(["Total"] + years))
-    dfs["Tag Fines"] = pd.DataFrame(columns=(["Total"] + years))
-    dfs["Tag Violations"] = pd.DataFrame(columns=(["Total"] + years))
-    dfs["All Territories"] = pd.DataFrame()
-    dfs["All US States"] = pd.DataFrame()
-
-    # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
-    t_dfs = sort_by_territories(df, frame.controller.territories)
-    for terr in t_dfs.keys():
-        # Convert fine column to currency
-        t_dfs[terr]['fine_amount'] = t_dfs[terr]['fine_amount'].apply(lambda x: 0 if x == "" else x)
-        t_dfs[terr]['fine_amount'] = pd.to_numeric(t_dfs[terr]['fine_amount'], errors="coerce")
+    dfs = {} # Holds optional dataframes that will be excel sheets
+    years = list(range(frame.controller.startdate.year, frame.controller.enddate.year+1)) # Range of years from date filter
     
     # Convert fine column to numeric
     df['fine_amount'] = df['fine_amount'].apply(lambda x: 0 if x == "" else x)
     df['fine_amount'] = pd.to_numeric(df['fine_amount'], errors="coerce")
+
+    # Make a dataframe for each territory (saved in a dict) and then only keep violations in date range
+    t_dfs = sort_by_territories(df, frame.controller.territories)
     print("Made Territory Dataframes")
 
     # Sort through options
@@ -173,6 +166,9 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
 
     
             if option == "US Fines" and frame.controller.options["Nursing Home"][option]:
+
+                if not "US" in dfs.keys():
+                    dfs["US"] = pd.DataFrame(columns=(["Total"] + years))
 
                 # Initialize indicies
                 dfs["US"].loc["Fines"] = [0] * (len(dfs["US"].columns))
@@ -200,7 +196,10 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                         
             elif option == "US Violations" and frame.controller.options["Nursing Home"][option]:
 
-                 # Initialize indicies
+                if not "US" in dfs.keys():
+                    dfs["US"] = pd.DataFrame(columns=(["Total"] + years))
+
+                # Initialize indicies
                 dfs["US"].loc["Violations"] = [0] * (len(dfs["US"].columns))
 
                 # Get total number of US violations within date range
@@ -320,6 +319,8 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
 
             elif option == "Sum of fines per state per year" and frame.controller.options["Nursing Home"][option]:
 
+                dfs["State Fines"] = pd.DataFrame(columns=(["Total"] + years))
+
                 # Initialize indicies
                 for state in info.states_codes:
                     # Get row for each state, add total for a state first
@@ -338,6 +339,8 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
 
             elif option == "Sum of violations per state per year" and frame.controller.options["Nursing Home"][option]:
 
+                dfs["State Violations"] = pd.DataFrame(columns=(["Total"] + years))
+
                 # Initialize indicies
                 for state in info.states_codes:
                     # Get row for each state, add total for a state first
@@ -353,6 +356,8 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
 
 
             elif option == "Sum of fines per tag per year" and frame.controller.options["Nursing Home"][option]:
+
+                dfs["Tag Fines"] = pd.DataFrame(columns=(["Total"] + years))
 
                 # Initialize indicies
                 for tag in sorted(frame.controller.tags):
@@ -371,6 +376,8 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                 
 
             elif option == "Sum of violations per tag per year" and frame.controller.options["Nursing Home"][option]:
+
+                dfs["Tag Violations"] = pd.DataFrame(columns=(["Total"] + years))
 
                 # Initialize indicies
                 for tag in sorted(frame.controller.tags):
