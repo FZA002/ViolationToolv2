@@ -123,7 +123,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     # Check to see if territories were chosen and use default if not
     if len(frame.controller.territories) == 0:
         if TESTING:
-            frame.controller.territories = {"Test_Territory": ["Maryland"]}
+            frame.controller.territories = {"Test_Territory": ["Maryland", "California", "Florida", "Texas"]}
         else:
             if not TERRITORIES_LOADED:
                 TERRITORIES_LOADED = True
@@ -220,7 +220,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
 
             elif option == "Top fined organizations per state" and frame.controller.options["Nursing Home"][option]:
 
-                # Dict[String, Dict[String, List]]
+                # dict[String, dict[String, List]]
                 state_orgs = {}
                 num = 3
                 # For each state get the most fined overall
@@ -270,7 +270,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
 
             elif option == "Most severe organizations per state" and frame.controller.options["Nursing Home"][option]:
 
-                # Dict[String, Dict[String, List]]
+                # dict[String, dict[String, List]]
                 state_orgs = {}
                 num = 3
                 # For each state get the most severe overall
@@ -326,12 +326,11 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     # Get row for each state, add total for a state first
                     subdf = df.loc[df['provider_state'] == state]
                     row = [subdf['fine_amount'].sum()]
-                    #'${:,.2f}'.format(
+
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
                         subdf2 = get_inrange_nursing_homes(subdf, yearstart, yearend)
                         row += [subdf2['fine_amount'].sum()]
-                        #'${:,.2f}'.format(
                     
                     dfs["State Fines"].loc[state] = row
                 print("Made sum of fines per state per year sheet for Nursing Homes")
@@ -346,6 +345,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     # Get row for each state, add total for a state first
                     subdf = df.loc[df['provider_state'] == state]
                     row = [count_violations_df(subdf)]
+
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
                         subdf2 = get_inrange_nursing_homes(subdf, yearstart, yearend)
@@ -364,12 +364,11 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     # Get row for each state, add total for a state first
                     subdf = df.loc[df['deficiency_tag_number'] == tag]
                     row = [subdf['fine_amount'].sum()]
-                    #'${:,.2f}'.format(
+
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
                         subdf2 = get_inrange_nursing_homes(subdf, yearstart, yearend)
                         row += [subdf2['fine_amount'].sum()]
-                        #'${:,.2f}'.format(
                     
                     dfs["Tag Fines"].loc[tag] = row
                 print("Made sum of fines per tag per year sheet for Nursing Homes")
@@ -384,6 +383,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                     # Get row for each state, add total for a state first
                     subdf = df.loc[df['deficiency_tag_number'] == tag]
                     row = [count_violations_df(subdf)]
+
                     for year in years:
                         yearstart, yearend = get_year_range(year, years, frame.controller.startdate, frame.controller.enddate)
                         subdf2 = get_inrange_nursing_homes(subdf, yearstart, yearend)
@@ -405,11 +405,6 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                 dfs["All Territories"] = dfs["All Territories"].drop(["index"], axis=1)
                 dfs["All Territories"] = dfs["All Territories"].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
-
-                # Set fine column as currency
-                dfs["All Territories"]['fine_amount'] = dfs["All Territories"]['fine_amount'].apply(lambda x: 0 if x == "" else x)
-                dfs["All Territories"]['fine_amount'] = pd.to_numeric(dfs["All Territories"]['fine_amount'], errors="coerce")
-                dfs["All Territories"]['fine_amount'] =  dfs["All Territories"]['fine_amount'].apply(lambda x: float(x))
                 print("Made all territories combined sheet for Nursing Homes")
 
 
@@ -417,10 +412,6 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                 dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
                 dfs["All US States"] = dfs["All US States"].set_index(['provider_state','provider_name', 'federal_provider_number', 
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
-
-                # Set fine column as currency
-                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: 0 if x == "No Fine" else x)
-                dfs["All US States"]['fine_amount'] = dfs["All US States"]['fine_amount'].apply(lambda x: float(x))
                 print("Made all violations sheet for Nursing Homes")
 
 
@@ -436,18 +427,15 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
             t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
        'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
-
         t_dfs[terr].to_excel(f"{outpath}/{terr}_NursingHomes.xlsx", sheet_name=f"{terr}_NursingHomes")
         print(f"Made {terr}_NursingHomes.xlsx")
 
-    start_row = 1
     with pd.ExcelWriter(outpath + '/OptionalData_NursingHomes.xlsx') as writer:
 
         # Excel sheet for each set of options
         for dfname in dfs.keys():
             if not dfs[dfname].empty:
                 dfs[dfname].to_excel(writer, sheet_name=dfname)
-                start_row += len(dfs[dfname])
                 print(f"Made {dfname} Excel Sheet for Nursing Homes")
 
         # Makes Excel Sheet in OptionalData_NursingHomes.xlsx that has descriptions of different metrcs
