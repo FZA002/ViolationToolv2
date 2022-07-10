@@ -28,3 +28,19 @@ GOing to implement long term care data first, then I'll come back and add option
 Want to be able to have measure codes for lthc as a default optional sheet
 
 Having problems with date filter for long term, returning empty dataframe. 
+
+Ran test with everything activated (except last two for nursing homes), with a wide date range, taking very long
+ValueError: 'MD' is not in list - probably duplicated changng territory names
+
+
+7/9/22
+Going to add a bool so that crucial steps aren't duplicated when calling all 3 make sheets, so that I can eventually allow for
+only some of the data sets to be used
+
+Made a default function for this
+Tested doing all 3 make sheets with TESTING enabled, worked
+
+Want to work on options for home health and finish them before coming back to long term care 
+
+7/10/22
+Trying to make options for home health without hardcoding, going to ask on stack over flow

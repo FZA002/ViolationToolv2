@@ -1,12 +1,12 @@
 import tkinter as tk
-from tkinter import ttk
-import gui
+from tkinter import Checkbutton, ttk
+import gui, pickle
 
 # Shows users options for the dataset
 class OptionsPage(tk.Frame):
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
-        self.controller = controller
+        self.controller: gui.tkinterApp = controller
 
         # Instructions, Buttons for options
         option_count = 1
@@ -42,7 +42,7 @@ class OptionsPage(tk.Frame):
 class FormatPage(tk.Frame):
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
-        self.controller = controller
+        self.controller: gui.tkinterApp = controller
 
         # Instructions
         self.instructions = ttk.Label(self, text="Choose which data to include", font=("Times", 15))
@@ -54,13 +54,19 @@ class FormatPage(tk.Frame):
         # Frame to hold the buttons and list to access them directly
         self.fm = ttk.Labelframe(self, width=50, border=0)
         self.fm.grid(column=2, row=4)
-        self.boxes = []
-        i = 0
+        self.boxes = {}
+        self.i = 0
         
         # Buttons
-        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="Include State Statistics", anchor="w", command=lambda:self.add_option("State Statistics")))
-        self.boxes[i].grid()
-        i += 1
+        option = 'State Statistics'
+        self.boxes[option] = tk.Checkbutton(self.fm, width=35, text="Include State Statistics", anchor="w", command=lambda:self.add_option(option))
+        self.boxes[option].grid()
+        self.i += 1
+
+        # Load ownership type buttons
+        self.make_ownership_type_buttons()
+        for button in self.boxes.keys():
+            self.boxes[button].config(command=lambda:self.add_option(str(button)))
 
         # Butttons
         self.all_btn = tk.Button(self, command=lambda:self.select_all(), text="Select All", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
@@ -72,7 +78,7 @@ class FormatPage(tk.Frame):
 
         # Sets all boxes to have no checkmark - need this so a user can click back in 
         for box in self.boxes:
-            box.deselect()
+            self.boxes[box].deselect()
 
 
     # Once user is done selecting options
@@ -88,6 +94,7 @@ class FormatPage(tk.Frame):
 
     # Add a chosen option to a list
     def add_option(self, opt):
+        print(opt)
         self.options[opt] = not self.options[opt]
 
     # Select all button functionality
@@ -103,4 +110,21 @@ class FormatPage(tk.Frame):
             for box in self.boxes:
                 box.select()
             self.all = True
-            self.all_btn.config(text="Unselect All")   
+            self.all_btn.config(text="Unselect All")
+
+    def make_ownership_type_buttons(self):
+        ''' Create buttons that allow the user to exclude certain ownership types from the excel data. '''
+        with open(self.controller.home_folder_path + "dataframes/hhc_df.pkl", 'rb') as inp:
+            hhq = pickle.load(inp)
+         
+        ownership_types = list(hhq['type_of_ownership'].unique())
+        ownership_types.remove("-")
+
+        # Make a button to exclude each type of ownership and add it to options
+        for type in ownership_types:
+            option = f"Exclude {type}"
+            self.boxes[option] = tk.Checkbutton(self.fm, width=35, text=f"Exclude {type} orgs", anchor="w", command=lambda:self.add_option(option))
+            self.options[option] = False 
+            self.boxes[option].grid()
+            self.i += 1
+

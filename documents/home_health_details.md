@@ -12,3 +12,10 @@ mdr = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/c886
     - I will have to match the measures to the other data frames, probably manually
 
 Will not let the user filter on dates, but will provide them with which measures have a date range as a forced sheet in the optional page
+
+
+Options to implement 
+    Show averages for an org per measure
+    Exclude certain types of ownership
+    Star range (could do a picker for 0 to 5 stars)
+    

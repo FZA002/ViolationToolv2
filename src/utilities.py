@@ -84,8 +84,8 @@ def download(frame):
 def make_sheets(frame: gui.ExcelPage, nursing_home_df, home_health_df, long_term_care_df, outpath):
     ''' Calls all functions that make excel sheets. '''
     make_nursing_home_sheets(frame, nursing_home_df, outpath)
-    #make_home_health_sheets(frame, home_health_df, outpath)
-    #make_home_long_term_care_sheets(frame, long_term_care_df, outpath)
+    make_home_health_sheets(frame, home_health_df, outpath)
+    make_home_long_term_care_sheets(frame, long_term_care_df, outpath)
 
 
 def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
