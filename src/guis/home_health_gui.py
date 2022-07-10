@@ -55,18 +55,14 @@ class FormatPage(tk.Frame):
         self.fm = ttk.Labelframe(self, width=50, border=0)
         self.fm.grid(column=2, row=4)
         self.boxes = {}
-        self.i = 0
         
         # Buttons
         option = 'State Statistics'
-        self.boxes[option] = tk.Checkbutton(self.fm, width=35, text="Include State Statistics", anchor="w", command=lambda:self.add_option(option))
+        self.boxes[option] = tk.Checkbutton(self.fm, width=35, text="Include State Statistics", anchor="w", command=lambda x=option: self.add_option(x))
         self.boxes[option].grid()
-        self.i += 1
 
         # Load ownership type buttons
         self.make_ownership_type_buttons()
-        for button in self.boxes.keys():
-            self.boxes[button].config(command=lambda:self.add_option(str(button)))
 
         # Butttons
         self.all_btn = tk.Button(self, command=lambda:self.select_all(), text="Select All", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
@@ -77,8 +73,8 @@ class FormatPage(tk.Frame):
         self.fin_btn.grid(column=2, row=6, pady=5)
 
         # Sets all boxes to have no checkmark - need this so a user can click back in 
-        for box in self.boxes:
-            self.boxes[box].deselect()
+        for option in self.boxes:
+            self.boxes[option].deselect()
 
 
     # Once user is done selecting options
@@ -87,28 +83,27 @@ class FormatPage(tk.Frame):
         self.controller.resize_optionspage()
         self.controller.show_frame(OptionsPage)
         print(f"Chosen Home Health Options: {self.controller.options['Home Health']}")
-        for button in self.boxes:
-            button.destroy()
+        for option in self.boxes:
+            self.boxes[option].destroy()
         self.fm.destroy()
         FormatPage.destroy(self)
 
     # Add a chosen option to a list
     def add_option(self, opt):
-        print(opt)
         self.options[opt] = not self.options[opt]
 
     # Select all button functionality
     def select_all(self):
         if self.all:    
             self.options = {k: False for k, _ in self.options.items()}
-            for box in self.boxes:
-                box.deselect()   
+            for option in self.boxes:
+                self.boxes[option].deselect()   
             self.all = False
             self.all_btn.config(text="Select All")   
         else:         
             self.options = {k: True for k, _ in self.options.items()}
-            for box in self.boxes:
-                box.select()
+            for option in self.boxes:
+                self.boxes[option].select()
             self.all = True
             self.all_btn.config(text="Unselect All")
 
@@ -122,9 +117,7 @@ class FormatPage(tk.Frame):
 
         # Make a button to exclude each type of ownership and add it to options
         for type in ownership_types:
-            option = f"Exclude {type}"
-            self.boxes[option] = tk.Checkbutton(self.fm, width=35, text=f"Exclude {type} orgs", anchor="w", command=lambda:self.add_option(option))
-            self.options[option] = False 
-            self.boxes[option].grid()
-            self.i += 1
+            self.boxes[type] = tk.Checkbutton(self.fm, width=35, text=f"Exclude {type} orgs", anchor="w", command=(lambda x=type: self.add_option(x)))
+            self.options[type] = False 
+            self.boxes[type].grid()
 

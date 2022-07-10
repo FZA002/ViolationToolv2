@@ -44,3 +44,4 @@ Want to work on options for home health and finish them before coming back to lo
 
 7/10/22
 Trying to make options for home health without hardcoding, going to ask on stack over flow
+Fixed that shit - go back and fix for nursing home next
