@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 import gui, pickle
 
-# Shows users options for the dataset
+
 class OptionsPage(tk.Frame):
+    ''' Shows users options for the dataset. '''
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
         self.controller: gui.tkinterApp = controller
@@ -38,8 +39,9 @@ class OptionsPage(tk.Frame):
         self.controller.show_frame(gui.MainOptionsPage)
 
 
-# Format excel sheets
+
 class FormatPage(tk.Frame):
+    ''' Format excel sheets for home health. '''
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
         self.controller: gui.tkinterApp = controller
