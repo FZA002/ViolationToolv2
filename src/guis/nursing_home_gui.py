@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import gui
 
-# Shows users options for the dataset
+
 class OptionsPage(tk.Frame):
+    ''' Shows users options for the dataset. '''
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
         self.controller = controller
@@ -47,8 +48,9 @@ class OptionsPage(tk.Frame):
         self.controller.show_frame(gui.MainOptionsPage)
 
 
-# Choose which tags to include
+
 class TagsPage(tk.Frame):
+    ''' Choose which tags to include. '''
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
         self.controller = controller
@@ -73,8 +75,9 @@ class TagsPage(tk.Frame):
         self.cancel_btn = tk.Button(self, command=lambda:self.cancel(), text="Cancel", font="Times", bg="#000099", fg="#00ace6", height=1, width=5)
         self.cancel_btn.grid(column=2, row=6, pady=3)
 
-        # Hides the cancel button once user types anything into the box 
+        
         def hide_cancel_button(_):
+            ''' Hides the cancel button once user types anything into the box. '''
             self.cancel_btn.grid_forget()
             self.controller.resize_optionspage()
         self.box.bind('<Key>', hide_cancel_button)
@@ -82,13 +85,15 @@ class TagsPage(tk.Frame):
         # For storing invalid tags
         self.rejected_tags = []
 
-    # When cancel is pressed
+
     def cancel(self):
+        ''' When cancel is pressed. '''
         self.controller.resize_optionspage()
         self.controller.show_frame(OptionsPage)
 
-    # Lets the user add the tags
+    
     def set_tags(self):
+        ''' Lets the user add the tags. '''
         notags = True
         lines = self.box.get("1.0","end-1c").splitlines()
         lines = [x.strip() for x in lines if x != '']
@@ -114,13 +119,15 @@ class TagsPage(tk.Frame):
         else:
             self.show_tags()
     
-    # For setting all tags
+
     def set_all_tags(self):
+        ''' For setting all tags. '''
         global chosen_tags; chosen_tags = list(self.controller.tag_hash.keys())
         self.show_tags()
 
-    # Shows tags accepted and rejected
+
     def show_tags(self):
+        ''' Shows tags accepted and rejected. '''
         # Hide elements
         self.all_btn.grid_forget()
         self.fin_btn.grid_forget()
@@ -160,15 +167,16 @@ class TagsPage(tk.Frame):
         TagsPage.destroy(self)
 
 
-# Format excel sheets
+
 class FormatPage(tk.Frame):
+    ''' Format excel sheets for nursing homes. '''
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
         self.controller = controller
 
         # Instructions
         self.instructions = ttk.Label(self, text="Choose which data to include", font=("Times", 15))
-        self.instructions.grid(column=1, row=2, columnspan=3, pady=10)\
+        self.instructions.grid(column=1, row=2, columnspan=3, pady=10)
         
         self.instructions2 = ttk.Label(self, text="Will include dates and tag filters or defaults if none are selected", font=("Times", 15))
         self.instructions2.grid(column=1, row=3, columnspan=3, pady=10)
