@@ -438,6 +438,9 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
     dfs = {} # Optional sheets
     set_defaults(frame, df)
 
+    # Filter out unwanted ownership types before anything else
+    df = exclude_ownership_types(df, frame.controller.options["Home Health"])
+
     # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
     t_dfs = sort_by_territories(df, frame.controller.territories)
     
@@ -774,5 +777,20 @@ def set_defaults(frame, df):
             # Convert date column back to string 
             df['survey_date'] = oldcol
             print("Used Default Dates")
+
+
+def exclude_ownership_types(df: pd.DataFrame, options):
+    ''' Filters out ownership types that the user chose to exclude. '''
+    ownership_types = list(df['type_of_ownership'].unique()) # List of the different ownership types organizations can have
+    ownership_types.remove("-")
+
+    for type in ownership_types:
+        if options[type]: # If the types value is True, the user chose to exclude it
+            df = df.loc[df['type_of_ownership'] != type]
+
+    # Turn "-" to NA
+    df['type_of_ownership'] = df['type_of_ownership'].replace('-', "NA")
+
+    return df          
 
     

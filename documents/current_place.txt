@@ -50,3 +50,5 @@ Fixed that shit - go back and fix for nursing home next
 Fixed options for nursing and home health. Refactored the files. 
 Back to working on home health options.
 Now need to implement the exclusions.
+
+Implemented exclusion options. Need to add option to exclude empty ownership types
