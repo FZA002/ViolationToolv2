@@ -50,7 +50,8 @@ class FormatPage(tk.Frame):
         self.instructions = ttk.Label(self, text="Choose which data to include", font=("Times", 15))
         self.instructions.grid(column=1, row=2, columnspan=3, pady=10)
         
-        self.fm = ttk.Labelframe(self, width=50, border=0) # Frame to hold the buttons and list to access them directly
+        self.fm_width = 70
+        self.fm = ttk.Labelframe(self, width=self.fm_width, border=0) # Frame to hold the buttons and list to access them directly
         self.fm.grid(column=2, row=4)
         self.options = {} # bools for options
         self.option_buttons = {} # Holds option buttons
@@ -102,7 +103,7 @@ class FormatPage(tk.Frame):
         ''' Create buttons that allow the user to exclude certain ownership types from the excel data. '''
         option = 'State Statistics'
         self.options[option] = False
-        self.option_buttons[option] = tk.Checkbutton(self.fm, width=35, text="Include State Statistics", anchor="w", command=lambda x=option: self.add_option(x))
+        self.option_buttons[option] = tk.Checkbutton(self.fm, width=self.fm_width, text="Include State Statistics", anchor="w", command=lambda x=option: self.add_option(x), font=("Times", 12))
         self.option_buttons[option].grid()
 
         with open(self.controller.home_folder_path + "dataframes/hhc_df.pkl", 'rb') as inp:
@@ -113,7 +114,7 @@ class FormatPage(tk.Frame):
 
         # Make a button to exclude each type of ownership and add it to options
         for type in ownership_types:
-            self.option_buttons[type] = tk.Checkbutton(self.fm, width=35, text=f"Exclude {type} orgs", anchor="w", command=(lambda x=type: self.add_option(x)))
+            self.option_buttons[type] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Exclude {type} orgs", anchor="w", command=(lambda x=type: self.add_option(x)), font=("Times", 12))
             self.options[type] = False 
             self.option_buttons[type].grid()
 
