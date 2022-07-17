@@ -101,10 +101,11 @@ class FormatPage(tk.Frame):
 
     def make_option_buttons(self):
         ''' Create buttons that allow the user to exclude certain ownership types from the excel data. '''
-        option = 'State Statistics'
-        self.options[option] = False
-        self.option_buttons[option] = tk.Checkbutton(self.fm, width=self.fm_width, text="Include State Statistics", anchor="w", command=lambda x=option: self.add_option(x), font=("Times", 12))
-        self.option_buttons[option].grid()
+        options = ['State Statistics', 'Measure Averages per Organization']
+        for option in options:
+            self.options[option] = False
+            self.option_buttons[option] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Include {option}", anchor="w", command=lambda x=option: self.add_option(x), font=("Times", 12))
+            self.option_buttons[option].grid()
 
         with open(self.controller.home_folder_path + "dataframes/hhc_df.pkl", 'rb') as inp:
             hhq = pickle.load(inp)
