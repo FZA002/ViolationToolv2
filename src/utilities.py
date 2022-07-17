@@ -452,10 +452,16 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
             if option == "State Statistics" and frame.controller.options["Home Health"][option]:
 
                 with open(home_folder_path + "dataframes/hhc_state_by_state_df.pkl", 'rb') as inp:
-                    dfs["State Statistics"] = pickle.load(inp)
-                    print("Loaded Home Health state by state data")
-                    
+                    dfs[option] = pickle.load(inp)
+                    print(f"Loaded Home Health {option} data")
 
+
+            elif option == "Measure Averages per Organization" and frame.controller.options["Home Health"][option]:
+
+                dfs[option] = get_organization_averages(df)
+                print(f"Loaded Home Health {option} data")
+                    
+        
             elif option == "Create sheet with all territories combined" and frame.controller.options["Home Health"][option]:
                 # Get a dict of dfs by territory
                 tdfs = sort_by_territories(df, frame.controller.territories)

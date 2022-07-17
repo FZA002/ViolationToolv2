@@ -52,3 +52,7 @@ Back to working on home health options.
 Now need to implement the exclusions.
 
 Implemented exclusion options. Need to add option to exclude empty ownership types
+
+7/17/22
+Implemented empty ownership types and org averages for HHC. 
+Now going to implement star picker for quality of care. quality_of_patient_care_star_rating
