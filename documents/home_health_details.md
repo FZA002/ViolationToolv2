@@ -15,7 +15,7 @@ Will not let the user filter on dates, but will provide them with which measures
 
 
 Options to implement 
-    Show averages for an org per measure
+    ~~Show averages for an org per measure~~
     ~~Exclude certain types of ownership~~
     Star range (could do a picker for 0 to 5 stars)
     

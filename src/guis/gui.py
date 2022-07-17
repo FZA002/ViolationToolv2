@@ -609,7 +609,8 @@ class ExcelPage(tk.Frame):
 
 
     def make_sheets(thisframe, controller):
-        ''' Uses threads to make excel sheets -> need to first break data up by territory. '''
+        ''' Uses threads to make excel sheets for each dataset. Passes main dataframe for each dataset
+            to respective make_sheets function. '''
         outpath = askdirectory()
         if outpath == "":
             print(f"No save location chosen: saving to {controller.home_folder_path}")
