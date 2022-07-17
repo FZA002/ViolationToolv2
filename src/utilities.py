@@ -699,7 +699,6 @@ def get_most_fined(df, num):
         if sum[0] != "NA":
             temp = list(sum)
             temp[1] = temp[1]
-            #'${:,.2f}'.format(
             sums[i] = tuple(temp)
 
     return sums[:num]
@@ -795,6 +794,22 @@ def exclude_ownership_types(df: pd.DataFrame, options):
     # Turn "-" to NA, will only take effect if the used didn't chose to exclude Undefined
     df['type_of_ownership'] = df['type_of_ownership'].replace('-', "NA")
 
-    return df          
+    return df
+
+def get_organization_averages(df):
+    ''' Returns a dataframe with averages for different measures for each home 
+        health care organization in the dataset. '''
+    
+    columns = list(df.columns)[6:] # Get rid of columns not related to measures
+    measures = []
+    for column in columns:
+        if column.find("footnote") == -1: # If "footnote" isn't in the column name, it's a measure
+            measures.append(column)
+
+    averages_df = df.groupby('provider_name')[measures].mean()
+    return averages_df
+    
+
+
 
     
