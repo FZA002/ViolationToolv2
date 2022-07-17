@@ -95,5 +95,5 @@ Current columns:
        
 
 
-
-    
+Add text to tell user which data is downloading!
+Fix sizing of windows, define constants

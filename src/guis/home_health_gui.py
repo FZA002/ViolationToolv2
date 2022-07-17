@@ -111,10 +111,11 @@ class FormatPage(tk.Frame):
          
         ownership_types = list(hhq['type_of_ownership'].unique()) # List of the different ownership types organizations can have
         ownership_types.remove("-")
+        ownership_types.append("Undefined") # This represents "-" ownership type
 
         # Make a button to exclude each type of ownership and add it to options
         for type in ownership_types:
             self.option_buttons[type] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Exclude {type} orgs", anchor="w", command=(lambda x=type: self.add_option(x)), font=("Times", 12))
-            self.options[type] = False 
+            self.options[type] = False
             self.option_buttons[type].grid()
 

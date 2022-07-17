@@ -783,12 +783,16 @@ def exclude_ownership_types(df: pd.DataFrame, options):
     ''' Filters out ownership types that the user chose to exclude. '''
     ownership_types = list(df['type_of_ownership'].unique()) # List of the different ownership types organizations can have
     ownership_types.remove("-")
+    ownership_types.append("Undefined") # This represents "-" ownership type
 
     for type in ownership_types:
         if options[type]: # If the types value is True, the user chose to exclude it
-            df = df.loc[df['type_of_ownership'] != type]
+            if type == "Undefined":
+                df = df.loc[df['type_of_ownership'] != "-"]
+            else:
+                df = df.loc[df['type_of_ownership'] != type]
 
-    # Turn "-" to NA
+    # Turn "-" to NA, will only take effect if the used didn't chose to exclude Undefined
     df['type_of_ownership'] = df['type_of_ownership'].replace('-', "NA")
 
     return df          
