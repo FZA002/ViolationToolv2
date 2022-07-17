@@ -17,7 +17,11 @@ class OptionsPage(tk.Frame):
 
         self.instructions2 = ttk.Label(self, text="", font=("Times", 15))
         self.instructions2.grid(column=1, row=option_count, columnspan=3)
-        option_count += 1 
+        option_count += 1
+
+        self.star_btn = tk.Button(self, command=lambda:self.show_star_range(), text="Choose Star Range", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        self.star_btn.grid(column=2, row=option_count, pady=30)
+        option_count += 1
 
         self.excel_btn = tk.Button(self, command=lambda:self.show_format(), text="Format Excel Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
         self.excel_btn.grid(column=2, row=option_count, pady=30)
@@ -32,6 +36,11 @@ class OptionsPage(tk.Frame):
         self.controller.resize_optionspage()
         self.controller.add_frames([FormatPage])
         self.controller.show_frame(FormatPage)
+
+    def show_star_range(self):
+        self.controller.resize_optionspage()
+        self.controller.add_frames([StarRangePage])
+        self.controller.show_frame(StarRangePage)
 
     def show_main_options(self):
         self.controller.resize_optionspage()
@@ -120,3 +129,74 @@ class FormatPage(tk.Frame):
             self.options[type] = False
             self.option_buttons[type].grid()
 
+
+
+class StarRangePage(tk.Frame):
+    ''' Define a range for quality_of_patient_care_star_rating to be shown in the end excel sheets.
+        Will apply to the whole Home Health dataset. '''
+    def __init__(self, parent, controller):
+        gui.PageLayout.__init__(self, parent)
+        self.controller: gui.tkinterApp = controller
+
+        # Instructions
+        self.instructions = ttk.Label(self, text="Choose a range (0-5) for the \"quality_of_patient_care_star_rating\"", font=("Times", 15))
+        self.instructions.grid(column=1, row=1, columnspan=3, pady=10)
+
+        self.instructions2 = ttk.Label(self, text="This range will be applied to the whole dataset!", font=("Times", 15))
+        self.instructions2.grid(column=1, row=2, columnspan=3, pady=10) 
+
+        self.instructions3 = ttk.Label(self, text="Lowest Star Rating Acceptable", font=("Times", 15))
+        self.instructions3.grid(column=1, row=3, columnspan=3, pady=10)
+
+        self.instructions4 = ttk.Label(self, text="Highest Star Rating Acceptable", font=("Times", 15))
+        self.instructions4.grid(column=1, row=5, columnspan=3, pady=10)
+
+        self.start = tk.Text(self, height=2, width=25)
+        self.start.grid(column=2, row=4, pady=10)
+
+        self.end = tk.Text(self, height=2, width=25)
+        self.end.grid(column=2, row=6, pady=10)
+
+        self.fin_btn = tk.Button(self, command=lambda:self.check_range(), text="Finish", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        self.fin_btn.grid(column=2, row=7, pady=20)
+       
+        self.cancel_btn = tk.Button(self, command=lambda:self.cancel(), text="Cancel", font="Times", bg="#000099", fg="#00ace6", height=1, width=5)
+        self.cancel_btn.grid(column=2, row=8, pady=3)
+
+        
+        def hide_cancel_button(_):
+            ''' Hides the cancel button once user types anything into the boxes. '''
+            self.cancel_btn.grid_forget()
+        self.start.bind('<Key>', hide_cancel_button)
+        self.end.bind('<Key>', hide_cancel_button)
+       
+
+    def cancel(self):
+        ''' When cancel is pressed. '''
+        self.controller.resize_optionspage()
+        self.controller.show_frame(OptionsPage)
+
+
+    def check_range(self):
+        ''' Checks to see if stars are in correct format and within range. '''
+        try:
+            lower_stars = self.start.get("1.0","end-1c")
+            higher_stars = self.end.get("1.0","end-1c")
+            lower_stars = float(lower_stars)
+            higher_stars = float(higher_stars)
+
+            # If user gives start date later than end date
+            if lower_stars > higher_stars:
+                self.instructions.config(text="Lower stars must be greater than or equal to higher stars!")
+            elif lower_stars < 0 or higher_stars > 5:
+                self.instructions.config(text="Range must be with 0 to 5 stars!")
+            else:
+                self.controller.set_star_range(lower_stars, higher_stars)
+                self.controller.resize_optionspage()
+                self.controller.show_frame(OptionsPage)
+                print(f"Chosen Star Range: {self.controller.lower_stars}-{self.controller.higher_stars}")
+                StarRangePage.destroy()
+
+        except:
+            self.instructions.config(text="Make sure valid decimals have been used!")
+        

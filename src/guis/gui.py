@@ -67,6 +67,8 @@ class tkinterApp(tk.Tk):
 
         self.startdate: datetime = None
         self.enddate: datetime = None
+        self.lower_stars: float = None
+        self.higher_stars:float = None
         self.tags: List[str] = []
         self.territories: dict[str, list[str]] = {}
         self.options = {} # Excel formatting options for the different data categories
@@ -120,6 +122,11 @@ class tkinterApp(tk.Tk):
     def set_territories(self, territories: dict[str, list[str]]):
         ''' Save territories that are defined by the user. '''
         self.territories = territories
+
+    def set_star_range(self, lower_stars, higher_stars):
+        ''' Save star range for home health care quality_of_patient_care_star_rating measure. '''
+        self.lower_stars = lower_stars
+        self.higher_stars = higher_stars
 
 
 
