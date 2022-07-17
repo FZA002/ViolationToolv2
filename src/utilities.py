@@ -438,8 +438,18 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
     dfs = {} # Optional sheets
     set_defaults(frame, df)
 
-    # Filter out unwanted ownership types before anything else
-    df = exclude_ownership_types(df, frame.controller.options["Home Health"])
+    # Filter out unwanted ownership types before anything else, if the user chose to exclude any
+    if "Home Health" in frame.controller.options:
+        df = exclude_ownership_types(df, frame.controller.options["Home Health"])
+        print("Filtered Home Health ownership types")
+
+    # Filter on the users chosen star range
+    if not None in {frame.controller.lower_stars, frame.controller.higher_stars}:
+        df = df[(df['quality_of_patient_care_star_rating'] >= frame.controller.lower_stars) & (df['quality_of_patient_care_star_rating'] <= frame.controller.higher_stars)]
+        print("Filtered Star Range using user's choices")
+    else:
+        print("No Star Range chosen by user")
+
 
     # Make a dataframe for each territory (saved in a hash) and then only keep violations in date range
     t_dfs = sort_by_territories(df, frame.controller.territories)
