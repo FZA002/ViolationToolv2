@@ -13,8 +13,8 @@ class OptionsPage(tk.Frame):
         self.instructions = ttk.Label(self, text="Choose your options for Long Term Care Hospital Data", font=("Times", 15))
         self.instructions.grid(column=1, row=1, columnspan=3, pady=30)
 
-        labels = ["Set Bed Range", "Set Date Range", "Format Excel Data", "Done"]
-        pages = [BedRangePage, DateRangePage, FormatPage, gui.MainOptionsPage]
+        labels = ["Set Bed Range", "Format Excel Data", "Done"]
+        pages = [BedRangePage, FormatPage, gui.MainOptionsPage]
         for idx, page in enumerate(pages):
             button = tk.Button(self, command=(lambda x=page: self.show_page(x)), text=labels[idx], font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
             button.grid(column=2, row=idx+2, pady=30)
@@ -94,12 +94,6 @@ class BedRangePage(tk.Frame):
         except:
             self.instructions.config(text="Make sure valid whole numbers have been used!")
 
-
-class DateRangePage(tk.Frame):
-    ''' Lets user set a date range for organizations to be included in the excel sheets. '''
-    def __init__(self, parent, controller):
-        gui.PageLayout.__init__(self, parent)
-        self.controller: gui.tkinterApp = controller
 
 
 class FormatPage(tk.Frame):
