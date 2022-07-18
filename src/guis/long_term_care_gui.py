@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 import gui
 
-# Shows users options for the dataset
+
 class OptionsPage(tk.Frame):
+    ''' Shows users options for the dataset. '''
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
         self.controller = controller
