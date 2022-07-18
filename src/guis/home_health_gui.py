@@ -1,3 +1,4 @@
+import enum
 import tkinter as tk
 from tkinter import ttk
 import gui, pickle
@@ -10,42 +11,21 @@ class OptionsPage(tk.Frame):
         self.controller: gui.tkinterApp = controller
 
         # Instructions, Buttons for options
-        option_count = 1
         self.instructions = ttk.Label(self, text="Choose your options for Home Health Care Data", font=("Times", 15))
-        self.instructions.grid(column=1, row=option_count, columnspan=3, pady=15)
-        option_count += 1 
+        self.instructions.grid(column=1, row=1, columnspan=3, pady=30)
 
-        self.instructions2 = ttk.Label(self, text="", font=("Times", 15))
-        self.instructions2.grid(column=1, row=option_count, columnspan=3)
-        option_count += 1
+        buttons = ["Choose Star Range", "Format Excel Data", "Done"]
+        pages = [FormatPage, StarRangePage, gui.MainOptionsPage]
+        for idx, page in enumerate(pages):
+            button = tk.Button(self, command=(lambda x=page: self.show_page(x)), text=buttons[idx], font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+            button.grid(column=2, row=idx+2, pady=30)
 
-        self.star_btn = tk.Button(self, command=lambda:self.show_star_range(), text="Choose Star Range", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.star_btn.grid(column=2, row=option_count, pady=30)
-        option_count += 1
 
-        self.excel_btn = tk.Button(self, command=lambda:self.show_format(), text="Format Excel Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.excel_btn.grid(column=2, row=option_count, pady=30)
-        option_count += 1
-
-        self.done_btn = tk.Button(self, command=lambda:self.show_main_options(), text="Done", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.done_btn.grid(column=2, row=option_count, pady=30)
-        option_count += 1
-
-    # Functions to show appropriate screens and disable buttons after press    
-    def show_format(self):
+    def show_page(self, page):
+        ''' Show the appropriate page after a button is pressed. '''
         self.controller.resize_optionspage()
-        self.controller.add_frames([FormatPage])
-        self.controller.show_frame(FormatPage)
-
-    def show_star_range(self):
-        self.controller.resize_optionspage()
-        self.controller.add_frames([StarRangePage])
-        self.controller.show_frame(StarRangePage)
-
-    def show_main_options(self):
-        self.controller.resize_optionspage()
-        self.controller.add_frames([gui.MainOptionsPage])
-        self.controller.show_frame(gui.MainOptionsPage)
+        self.controller.add_frames([page])
+        self.controller.show_frame(page)
 
 
 
@@ -62,8 +42,7 @@ class FormatPage(tk.Frame):
         self.fm_width = 70
         self.fm = ttk.Labelframe(self, width=self.fm_width, border=0) # Frame to hold the buttons and list to access them directly
         self.fm.grid(column=2, row=4)
-        self.options = {} # bools for options
-        self.option_buttons = {} # Holds option buttons
+        self.options, self.option_buttons = {}, {} # bools for options, holds options buttons
         self.make_option_buttons() # Load option buttons
 
         # More Buttons

@@ -56,3 +56,20 @@ Implemented exclusion options. Need to add option to exclude empty ownership typ
 7/17/22
 Implemented empty ownership types and org averages for HHC. 
 Now going to implement star picker for quality of care. quality_of_patient_care_star_rating
+
+Finished Home Health. Last but not least: Long Term care.
+Options:
+    Don't include mobile
+    ownership types
+    bed range
+    date range
+
+For ultimate formatting:
+ldf.set_index(['provider_state', 'provider_name', 'provider_city', 'address_line_1','address_line_2', 'phone_number', 'ownership_type','total_number_of_beds', 'measure_code'])
+
+Need to figure out what the codes mean and include it in the sheet. Possibly change the data around the measure code.
+https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/long_term_care_hospital/LTCH-Data-Dictionary.pdf
+Will see if pandas can turn into pdf.
+
+For now going to just include the data dictionary. Turning the pdf into a dataframe seems infeasible in an automated fashion. Maybe
+I'll just provide a link to the dataset page so they can always grab the most recent data dictionary. Maybe even a screen to download it.

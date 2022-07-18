@@ -95,10 +95,8 @@ class tkinterApp(tk.Tk):
     
     def setup_savedata(self):
         ''' Creates a folder for this program's data. '''
-        #global home_folder_path
         abs_home = os.path.abspath(os.path.expanduser("~"))
         self.home_folder_path = abs_home + "/ViolationToolv2/"
-        # print("First: " + self.home_folder_path)
 
         # Create all folders if they don't already exist
         if not os.path.exists(self.home_folder_path):
@@ -207,76 +205,22 @@ class MainOptionsPage(tk.Frame):
         self.controller = controller
 
         # Instructions, Buttons for options
-        option_count = 1
         self.instructions = ttk.Label(self, text="Choose your options", font=("Times", 15))
-        self.instructions.grid(column=1, row=option_count, columnspan=3, pady=15)
-        option_count += 1 
+        self.instructions.grid(column=1, row=1, columnspan=3, pady=30)
 
-        self.instructions2 = ttk.Label(self, text="", font=("Times", 15))
-        self.instructions2.grid(column=1, row=option_count, columnspan=3)
-        option_count += 1 
+        labels = ["Set Territories", "Set Date Range", "Format Nursing Home Data", "Format Home Health Data",
+        "Format Long Term Care Hospital Data", "Make Excel Files"]
+        pages = [TerritoriesPage, DateRangePage, nursing_home_gui.OptionsPage, home_health_gui.OptionsPage,
+        long_term_care_gui.OptionsPage, ExcelPage]
+        for idx, page in enumerate(pages):
+            button = tk.Button(self, command=(lambda x=page: self.show_page(x)), text=labels[idx], font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+            button.grid(column=2, row=idx+2, pady=15)
 
-        self.terr_btn = tk.Button(self, command=lambda:self.show_territories(), text="Set Territories", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.terr_btn.grid(column=2, row=option_count, pady=15)
-        option_count += 1 
 
-        self.date_btn = tk.Button(self, command=lambda:self.show_daterange(), text="Set Date Range", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.date_btn.grid(column=2, row=option_count, pady=15)
-        option_count += 1
-
-        # self.tag_btn = tk.Button(self, command=lambda:self.show_tags(), text="Choose Tags to Include", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        # self.tag_btn.grid(column=2, row=option_count, pady=15)
-        # option_count += 1
-
-        self.tag_btn = tk.Button(self, command=lambda:self.show_nursing_home_data(), text="Format Nursing Home Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.tag_btn.grid(column=2, row=option_count, pady=15)
-        option_count += 1
-
-        self.tag_btn = tk.Button(self, command=lambda:self.show_home_health_data(), text="Format Home Health Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.tag_btn.grid(column=2, row=option_count, pady=15)
-        option_count += 1
-         
-        self.tag_btn = tk.Button(self, command=lambda:self.show_long_term_care_data(), text="Format Long Term Care Hospital Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.tag_btn.grid(column=2, row=option_count, pady=15)
-        option_count += 1
-
-        # self.excel_btn = tk.Button(self, command=lambda:self.show_format(), text="Format Excel Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        # self.excel_btn.grid(column=2, row=option_count, pady=15)
-        # option_count += 1 
-
-        self.make_btn = tk.Button(self, command=lambda:self.show_excel(), text="Make Excel Files", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.make_btn.grid(column=2, row=option_count, pady=15)
-        option_count += 1 
-
-    # Functions to show appropriate screens and disable buttons after press
-    def show_territories(self):
-        self.controller.add_frames([TerritoriesPage]) 
-        self.controller.show_frame(TerritoriesPage)
-
-    def show_daterange(self):    
-        self.controller.add_frames([DateRangePage]) 
-        self.controller.geometry("500x600")
-        self.controller.show_frame(DateRangePage)
-    
-    def show_nursing_home_data(self):
-        self.controller.add_frames([nursing_home_gui.OptionsPage])
-        self.controller.geometry("500x520")
-        self.controller.show_frame(nursing_home_gui.OptionsPage)
-
-    def show_home_health_data(self):
-        self.controller.resize_optionspage()
-        self.controller.add_frames([home_health_gui.OptionsPage])
-        self.controller.show_frame(home_health_gui.OptionsPage)
-
-    def show_long_term_care_data(self):
-        self.controller.resize_optionspage()
-        self.controller.add_frames([long_term_care_gui.OptionsPage])
-        self.controller.show_frame(long_term_care_gui.OptionsPage)
-
-    def show_excel(self):
-        self.controller.geometry("500x370")
-        self.controller.add_frames([ExcelPage])
-        self.controller.show_frame(ExcelPage)
+    def show_page(self, page):
+        ''' Show the appropriate page after a button is pressed. '''
+        self.controller.add_frames([page])
+        self.controller.show_frame(page)
 
 
 

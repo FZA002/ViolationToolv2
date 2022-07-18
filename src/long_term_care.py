@@ -21,6 +21,9 @@ def download_data():
     odf = pd.read_csv("https://data.cms.gov/provider-data/api/1/datastore/query/azum-44iv/0/download?format=csv", encoding="iso_8859-1")
     odf = odf.rename(columns={'facility_name':'provider_name'}) # Rename the columns
     ldf = ldf.merge(odf[['provider_name', 'ownership_type', 'total_number_of_beds']], on='provider_name') # Combine the dataframes here
+    ldf = ldf[['provider_state', 'provider_name', 'provider_city', 'address_line_1',
+       'address_line_2', 'phone_number', 'ownership_type', 'total_number_of_beds', 'measure_code', 'score', 'footnote',
+       'start_date', 'end_date']]
 
     return ldf
 
