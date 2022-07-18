@@ -7,44 +7,44 @@ class OptionsPage(tk.Frame):
     ''' Shows users options for the dataset. '''
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
-        self.controller = controller
+        self.controller: gui.tkinterApp = controller
 
         # Instructions, Buttons for options
         self.instructions = ttk.Label(self, text="Choose your options for Long Term Care Hospital Data", font=("Times", 15))
         self.instructions.grid(column=1, row=1, columnspan=3, pady=30)
 
-        buttons = ["Set Bed Range", "Set Date Range", "Format Excel Data", "Done"]
-        functions = [self.show_bed_range, self.show_date_range, self.show_format, self.show_main_options]
-        for idx, function in enumerate(functions):
-            button = tk.Button(self, command=(lambda x=function: x()), text=buttons[idx], font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        labels = ["Set Bed Range", "Set Date Range", "Format Excel Data", "Done"]
+        pages = [BedRangePage, DateRangePage, FormatPage, gui.MainOptionsPage]
+        for idx, page in enumerate(pages):
+            button = tk.Button(self, command=(lambda x=page: self.show_page(x)), text=labels[idx], font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
             button.grid(column=2, row=idx+2, pady=30)
             
 
-    # Functions to show appropriate screens and disable buttons after press
-    def show_bed_range(self):
-        print("bed")
-
-
-    def show_date_range(self):
-        print("date")
-
-
-    def show_format(self):
+    def show_page(self, page):
+        ''' Show the appropriate page after a button is pressed. '''
         self.controller.resize_optionspage()
-        self.controller.add_frames([FormatPage])
-        self.controller.show_frame(FormatPage)
+        self.controller.add_frames([page])
+        self.controller.show_frame(page)
 
-    def show_main_options(self):
-        self.controller.resize_optionspage()
-        self.controller.add_frames([gui.MainOptionsPage])
-        self.controller.show_frame(gui.MainOptionsPage)
-
-
-# Format excel sheets
-class FormatPage(tk.Frame):
+class BedRangePage(tk.Frame):
+    ''' Lets user set a range for the number of beds an organization must have to be included in the excel sheets. '''
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
-        self.controller = controller
+        self.controller: gui.tkinterApp = controller
+
+
+class DateRangePage(tk.Frame):
+    ''' Lets user set a date range for organizations to be included in the excel sheets. '''
+    def __init__(self, parent, controller):
+        gui.PageLayout.__init__(self, parent)
+        self.controller: gui.tkinterApp = controller
+
+
+class FormatPage(tk.Frame):
+    ''' Format excel sheets. '''
+    def __init__(self, parent, controller):
+        gui.PageLayout.__init__(self, parent)
+        self.controller: gui.tkinterApp = controller
 
         # Instructions
         self.instructions = ttk.Label(self, text="Choose which data to include", font=("Times", 15))
