@@ -73,3 +73,8 @@ Will see if pandas can turn into pdf.
 
 For now going to just include the data dictionary. Turning the pdf into a dataframe seems infeasible in an automated fashion. Maybe
 I'll just provide a link to the dataset page so they can always grab the most recent data dictionary. Maybe even a screen to download it.
+
+7/18/22
+Make a new branch!
+
+Working on bed range for long term care, still need to add all terrs and data option to home health.

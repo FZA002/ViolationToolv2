@@ -61,13 +61,15 @@ class tkinterApp(tk.Tk):
 
          # Will create a folder at the User's home folder for this programs data
         self.setup_savedata()
-        self.add_frames([StartPage, MainOptionsPage, FormatPage])
+        self.add_frames([StartPage, MainOptionsPage])
         self.show_frame(StartPage)
 
         self.startdate: datetime = None
         self.enddate: datetime = None
         self.lower_stars: float = None
         self.higher_stars:float = None
+        self.lower_beds: int = None
+        self.higher_beds: int = None
         self.tags: List[str] = []
         self.territories: dict[str, list[str]] = {}
         self.options = {} # Excel formatting options for the different data categories
@@ -120,6 +122,11 @@ class tkinterApp(tk.Tk):
         ''' Save star range for home health care quality_of_patient_care_star_rating measure. '''
         self.lower_stars = lower_stars
         self.higher_stars = higher_stars
+
+    def set_bed_range(self, lower_beds, higher_beds):
+        ''' Save bed range for long term care hospital number of beds. '''
+        self.lower_beds = lower_beds
+        self.higher_beds = higher_beds
 
 
 
@@ -407,83 +414,6 @@ class DateRangePage(tk.Frame):
 
         except:
             self.instructions.config(text="Check date formats and retry")
-
-
-class FormatPage(tk.Frame):
-    ''' Format excel sheets. '''
-    def __init__(self, parent, controller):
-        PageLayout.__init__(self, parent)
-        self.controller = controller
-
-        # Instructions
-        self.instructions = ttk.Label(self, text="Choose which data to include", font=("Times", 15))
-        self.instructions.grid(column=1, row=2, columnspan=3, pady=10)\
-        
-        self.instructions2 = ttk.Label(self, text="Will include dates and tags chosen or defaults if none are selected", font=("Times", 15))
-        self.instructions2.grid(column=1, row=3, columnspan=3, pady=10)
-
-        # Options buttons
-        self.fm_width = 35
-        self.fm = ttk.Labelframe(self, width=self.fm_width, border=0) # Frame to hold the buttons and list to access them directly
-        self.fm.grid(column=2, row=4)
-        self.options, self.option_buttons = {}, {} # bools for options, holds options buttons
-        self.make_option_buttons() # Load option buttons
-        
-        # Butttons
-        self.all_btn = tk.Button(self, command=lambda:self.select_all(), text="Select All", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.all_btn.grid(column=2, row=5, pady=15)
-        self.all = False
-
-        self.fin_btn = tk.Button(self, command=lambda:self.finish(), text="Finish", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.fin_btn.grid(column=2, row=6, pady=5)
-
-        # Sets all boxes to have no checkmark - need this so a user can click back in 
-        for option in self.option_buttons:
-            self.option_buttons[option].deselect()   
-
-
-    def make_option_buttons(self):
-        ''' Create buttons that allow the user to exclude certain ownership types from the excel data. '''
-
-        # Make a button for each option and add it to options dict
-        options = ["US Fines (Total, yearly)", "US Violations (Total, yearly)",
-                "top fined organizations per state (Total, yearly)", "most severe organizations per state (Total, yearly)",
-                "sum of fines per state per year (Total, yearly)", "sum of violations per state per year (Total, yearly)",
-                "sum of fines per tag per year (Total, yearly)", "sum of violations per tag per year (Total, yearly)",
-                "create sheet with all territories combined", "sheet for all violations without territories"]
-        for option in options:
-            self.options[option] = False
-            self.option_buttons[option] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Include {option}", anchor="w", command=(lambda x=option: self.add_option(x)), font=("Times", 12))
-            self.option_buttons[option].grid()
-
-    def finish(self):
-        ''' Once user is done selecting options. '''
-        global options; options = self.options
-        self.controller.resize_optionspage()
-        self.controller.show_frame(MainOptionsPage)
-        for option in self.option_buttons:
-            self.option_buttons[option].destroy()
-        self.fm.destroy()
-        FormatPage.destroy(self)
-
-    def add_option(self, opt):
-        ''' Add a chosen option to a list. '''
-        self.options[opt] = not self.options[opt]
-
-    def select_all(self):
-        ''' Select all button functionality. '''
-        if self.all:    
-            self.options = {k: False for k, _ in self.options.items()}
-            for option in self.option_buttons:
-                self.option_buttons[option].deselect()   
-            self.all = False
-            self.all_btn.config(text="Select All")   
-        else:         
-            self.options = {k: True for k, _ in self.options.items()}
-            for option in self.option_buttons:
-                self.option_buttons[option].select()   
-            self.all = True
-            self.all_btn.config(text="Unselect All")   
 
 
 

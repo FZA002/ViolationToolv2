@@ -541,8 +541,16 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
     dfs = {}     # Optional sheets
     set_defaults(frame, df)
 
-    df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate) # Get dates in range
-    print("Filtered Dates")
+    # df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate) # Get dates in range
+    # print("Filtered Dates")
+
+
+    # Filter on the users chosen bed range
+    if not None in {frame.controller.lower_beds, frame.controller.higher_beds}:
+        df = df[(df['total_number_of_beds'] >= frame.controller.lower_beds) & (df['total_number_of_beds'] <= frame.controller.higher_beds)]
+        print("Filtered Bed Range using user's choices")
+    else:
+        print("No Bed Range chosen by user")
 
     # Make a dataframe for each territory (saved in a dict) and then only keep violations in date range
     t_dfs = sort_by_territories(df, frame.controller.territories)
