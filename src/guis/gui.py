@@ -53,7 +53,6 @@ class tkinterApp(tk.Tk):
         # creating a container
         self.container = tk.Frame(self) 
         self.container.pack(side = "top", fill = "both", expand = True)
-  
         self.container.grid_rowconfigure(0, weight = 1)
         self.container.grid_columnconfigure(0, weight = 1)
   
@@ -72,14 +71,12 @@ class tkinterApp(tk.Tk):
         self.tags: List[str] = []
         self.territories: dict[str, list[str]] = {}
         self.options = {} # Excel formatting options for the different data categories
-        
 
     def show_frame(self, cont):
         ''' Shows frame that was passed in as a parameter. '''
         frame = self.frames[cont]
         frame.tkraise()        
 
-    
     def add_frames(self, frames):
         ''' Add a frame to the dict of pages. '''
         for F in frames:
@@ -87,11 +84,9 @@ class tkinterApp(tk.Tk):
             self.frames[F] = frame
             frame.grid(row = 0, column = 0, sticky ="nsew")
 
-
     def resize_optionspage(self):
         ''' Window size for options page. '''
         self.geometry("500x650")
-
     
     def setup_savedata(self):
         ''' Creates a folder for this program's data. '''
@@ -198,6 +193,7 @@ class StartPage(tk.Frame):
         thisframe.controller.show_frame(MainOptionsPage)
 
 
+
 class MainOptionsPage(tk.Frame):
     ''' Shows users options for the datasets. '''
     def __init__(self, parent, controller):
@@ -232,10 +228,7 @@ class TerritoriesPage(tk.Frame):
 
         # Instructions, Territory box and Next button 
         self.instructions = ttk.Label(self, text="Enter territory names, each on their own line", font=("Times", 15))
-        self.instructions.grid(column=1, row=1, columnspan=3, pady=10)
-
-        self.instructions2 = ttk.Label(self, text="", font=("Times", 15))
-        self.instructions2.grid(column=1, row=2, columnspan=3, pady=10)
+        self.instructions.grid(column=1, row=1, columnspan=3, pady=20)
 
         self.box = scrolledtext.ScrolledText(self, undo=True, width=40, height=10)
         self.box.grid(column=2, row=3, pady=10)
@@ -263,12 +256,10 @@ class TerritoriesPage(tk.Frame):
         self.controller.set_territories(info.territories)
         self.controller.show_frame(MainOptionsPage)
 
-
     def cancel(self):
         ''' When cancel is pressed. '''
         self.controller.show_frame(MainOptionsPage)
-
-    
+ 
     def set_terr(self):
         ''' Lets the user add territories. '''
         lines = self.box.get("1.0","end-1c").splitlines()
@@ -388,14 +379,12 @@ class DateRangePage(tk.Frame):
         self.controller.resize_optionspage()
         self.controller.show_frame(MainOptionsPage)
 
-
     def all_dates(self):
         ''' Sets start and end dates to None, this will make sure that min and max dates used when excel sheets are made. '''
         self.controller.add_dates(None, None)
         self.controller.resize_optionspage()
         self.controller.show_frame(MainOptionsPage)
 
-    
     def check_range(self):
         ''' Checks to see if dates are in correct format and within range -> need to add earliest date. '''
         try:
@@ -433,60 +422,13 @@ class FormatPage(tk.Frame):
         self.instructions2 = ttk.Label(self, text="Will include dates and tags chosen or defaults if none are selected", font=("Times", 15))
         self.instructions2.grid(column=1, row=3, columnspan=3, pady=10)
 
-        # Holds buttons
-        self.options = {"US Fines":False, "US Violations":False,
-                            "Top fined organizations per state":False, "Most severe organizations per state":False,
-                            "Sum of fines per state per year":False, "Sum of violations per state per year":False,
-                            "Sum of fines per tag per year":False, "Sum of violations per tag per year":False,
-                            "Create sheet with all territories combined":False, "All Violations":False}
-
-        # Frame to hold the buttons and list to access them directly
-        self.fm = ttk.Labelframe(self, width=50, border=0)
+        # Options buttons
+        self.fm_width = 35
+        self.fm = ttk.Labelframe(self, width=self.fm_width, border=0) # Frame to hold the buttons and list to access them directly
         self.fm.grid(column=2, row=4)
-        self.boxes = []
-        i = 0
+        self.options, self.option_buttons = {}, {} # bools for options, holds options buttons
+        self.make_option_buttons() # Load option buttons
         
-        # Buttons
-        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="US Fines (Total, yearly)", anchor="w", command=lambda:self.add_option("US Fines")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, width=35, text="US Violations (Total, yearly)", anchor="w", command=lambda:self.add_option("US Violations")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Top fined organizations (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Top fined organizations per state")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Most severe organizations (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Most severe organizations per state")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of fines per state (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of fines per state per year")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per state (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per state per year")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of fines per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of fines per tag per year")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Sum of violations per tag (Total, yearly)", width=35, anchor="w", command=lambda:self.add_option("Sum of violations per tag per year")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet with all territories combined", width=35, anchor="w", command=lambda:self.add_option("Create sheet with all territories combined")))
-        self.boxes[i].grid()
-        i += 1
-
-        self.boxes.append(tk.Checkbutton(self.fm, text="Create sheet for all violations without territories", width=35, anchor="w", command=lambda:self.add_option("All Violations")))
-        self.boxes[i].grid()
-        i += 1
-
         # Butttons
         self.all_btn = tk.Button(self, command=lambda:self.select_all(), text="Select All", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
         self.all_btn.grid(column=2, row=5, pady=15)
@@ -496,38 +438,50 @@ class FormatPage(tk.Frame):
         self.fin_btn.grid(column=2, row=6, pady=5)
 
         # Sets all boxes to have no checkmark - need this so a user can click back in 
-        for box in self.boxes:
-            box.deselect()
+        for option in self.option_buttons:
+            self.option_buttons[option].deselect()   
 
+
+    def make_option_buttons(self):
+        ''' Create buttons that allow the user to exclude certain ownership types from the excel data. '''
+
+        # Make a button for each option and add it to options dict
+        options = ["US Fines (Total, yearly)", "US Violations (Total, yearly)",
+                "top fined organizations per state (Total, yearly)", "most severe organizations per state (Total, yearly)",
+                "sum of fines per state per year (Total, yearly)", "sum of violations per state per year (Total, yearly)",
+                "sum of fines per tag per year (Total, yearly)", "sum of violations per tag per year (Total, yearly)",
+                "create sheet with all territories combined", "sheet for all violations without territories"]
+        for option in options:
+            self.options[option] = False
+            self.option_buttons[option] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Include {option}", anchor="w", command=(lambda x=option: self.add_option(x)), font=("Times", 12))
+            self.option_buttons[option].grid()
 
     def finish(self):
         ''' Once user is done selecting options. '''
         global options; options = self.options
         self.controller.resize_optionspage()
         self.controller.show_frame(MainOptionsPage)
-        for button in self.boxes:
-            button.destroy()
+        for option in self.option_buttons:
+            self.option_buttons[option].destroy()
         self.fm.destroy()
         FormatPage.destroy(self)
-
 
     def add_option(self, opt):
         ''' Add a chosen option to a list. '''
         self.options[opt] = not self.options[opt]
 
-
     def select_all(self):
         ''' Select all button functionality. '''
         if self.all:    
             self.options = {k: False for k, _ in self.options.items()}
-            for box in self.boxes:
-                box.deselect()   
+            for option in self.option_buttons:
+                self.option_buttons[option].deselect()   
             self.all = False
             self.all_btn.config(text="Select All")   
         else:         
             self.options = {k: True for k, _ in self.options.items()}
-            for box in self.boxes:
-                box.select()
+            for option in self.option_buttons:
+                self.option_buttons[option].select()   
             self.all = True
             self.all_btn.config(text="Unselect All")   
 
@@ -557,7 +511,6 @@ class ExcelPage(tk.Frame):
         ''' Lets a user go back to OptionsPage. '''
         thisframe.controller.resize_optionspage()
         thisframe.controller.show_frame(MainOptionsPage)
-
 
     def make_sheets(thisframe, controller):
         ''' Uses threads to make excel sheets for each dataset. Passes main dataframe for each dataset
@@ -595,7 +548,6 @@ class ExcelPage(tk.Frame):
         thisframe.cancel_btn.grid_forget()
         thread(util.make_sheets).start()
 
-    
     def finish(thisframe):
         ''' Once sheets are made. '''
         thisframe.controller.add_frames([DonePage]) # Not sure why I have to re-add this...
