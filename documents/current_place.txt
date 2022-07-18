@@ -78,3 +78,5 @@ I'll just provide a link to the dataset page so they can always grab the most re
 Make a new branch!
 
 Working on bed range for long term care, still need to add all terrs and data option to home health.
+Also need to move main date range option into nursing homes.
+Nevermind. Already implemented date range for long term and nursing homes.
