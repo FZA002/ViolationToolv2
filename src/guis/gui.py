@@ -68,6 +68,8 @@ class tkinterApp(tk.Tk):
         self.enddate: datetime = None
         self.lower_stars: float = None
         self.higher_stars:float = None
+        self.lower_beds: int = None
+        self.higher_beds: int = None
         self.tags: List[str] = []
         self.territories: dict[str, list[str]] = {}
         self.options = {} # Excel formatting options for the different data categories
@@ -120,6 +122,11 @@ class tkinterApp(tk.Tk):
         ''' Save star range for home health care quality_of_patient_care_star_rating measure. '''
         self.lower_stars = lower_stars
         self.higher_stars = higher_stars
+
+    def set_bed_range(self, lower_beds, higher_beds):
+        ''' Save bed range for long term care hospital number of beds. '''
+        self.lower_beds = lower_beds
+        self.higher_beds = higher_beds
 
 
 
