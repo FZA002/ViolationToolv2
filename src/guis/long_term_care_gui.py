@@ -172,6 +172,6 @@ class FormatPage(tk.Frame):
 
         # Make a button to exclude each type of ownership and add it to options
         for type in ownership_types:
-            self.option_buttons[type] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Exclude {type} ownership type organizations", anchor="w", command=(lambda x=type: self.add_option(x)), font=("Times", 15))
+            self.option_buttons[type] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Exclude {type} orgs", anchor="w", command=(lambda x=type: self.add_option(x)), font=("Times", 15))
             self.options[type] = False
             self.option_buttons[type].grid()
