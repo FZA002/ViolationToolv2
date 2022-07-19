@@ -61,8 +61,8 @@ Finished Home Health. Last but not least: Long Term care.
 Options:
     Don't include mobile
     ownership types
-    bed range
-    date range
+    ~~bed range~~
+    ~~date range~
 
 For ultimate formatting:
 ldf.set_index(['provider_state', 'provider_name', 'provider_city', 'address_line_1','address_line_2', 'phone_number', 'ownership_type','total_number_of_beds', 'measure_code'])
