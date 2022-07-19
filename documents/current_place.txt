@@ -80,3 +80,10 @@ Make a new branch!
 Working on bed range for long term care, still need to add all terrs and data option to home health.
 Also need to move main date range option into nursing homes.
 Nevermind. Already implemented date range for long term and nursing homes.
+
+7/19/22
+Implemented all initial long term options, now testing.
+
+Came across the fact that writing to csvs is MUCH quicker, at the cost of not being able to use set_index to group values.
+Maybe there's another way to do that. Running time test now for Justin. 
+Made Test_Territory_NursingHomes.xlsx: write to excel took 242 seconds for 41192 rows!!! Versus 2 seconds....

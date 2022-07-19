@@ -14,7 +14,7 @@ from datetime import datetime
 abs_home = os.path.abspath(os.path.expanduser("~"))
 home_folder_path = abs_home + "/ViolationToolv2/"
 
-TESTING = True
+TESTING = False
 TERRITORIES_LOADED = False # Turned False after certain data that is shared amongst make sheets is loaded for the first time
 STATES_CONVERTED = False
 
@@ -83,8 +83,8 @@ def download(frame):
 
 def make_sheets(frame: gui.ExcelPage, nursing_home_df, home_health_df, long_term_care_df, outpath):
     ''' Calls all functions that make excel sheets. '''
-    make_nursing_home_sheets(frame, nursing_home_df, outpath)
-    make_home_health_sheets(frame, home_health_df, outpath)
+    #make_nursing_home_sheets(frame, nursing_home_df, outpath)
+    #make_home_health_sheets(frame, home_health_df, outpath)
     make_home_long_term_care_sheets(frame, long_term_care_df, outpath)
 
 
@@ -102,7 +102,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
     with open(home_folder_path + "assets/tag_hash.pkl", 'rb') as inp:
         tag_hash = pickle.load(inp)
 
-    set_defaults(frame, df)
+    set_defaults(frame)
     dfs = {} # Holds optional dataframes that will be excel sheets
     years = list(range(frame.controller.startdate.year, frame.controller.enddate.year+1)) # Range of years from date filter
 
@@ -393,8 +393,9 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
             t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
        'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
+        start = time.time()
         t_dfs[terr].to_excel(f"{outpath}/{terr}_NursingHomes.xlsx", sheet_name=f"{terr}_NursingHomes")
-        print(f"Made {terr}_NursingHomes.xlsx")
+        print(f"Made {terr}_NursingHomes.xlsx: write to excel took {str(int(time.time() - start))} seconds for {str(len(t_dfs[terr]))} rows")
 
     with pd.ExcelWriter(outpath + '/OptionalData_NursingHomes.xlsx') as writer:
 
@@ -436,11 +437,11 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
     start_time = time.time()
               
     dfs = {} # Optional sheets
-    set_defaults(frame, df)
+    set_defaults(frame)
 
     # Filter out unwanted ownership types before anything else, if the user chose to exclude any
     if "Home Health" in frame.controller.options:
-        df = exclude_ownership_types(df, frame.controller.options["Home Health"])
+        df = exclude_ownership_types_home_health(df, frame.controller.options["Home Health"])
         print("Filtered Home Health ownership types")
 
     # Filter on the users chosen star range
@@ -539,10 +540,15 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
     start_time = time.time()
 
     dfs = {}     # Optional sheets
-    set_defaults(frame, df)
+    set_defaults(frame)
 
-    # df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate) # Get dates in range
-    # print("Filtered Dates")
+    # Filter out unwanted ownership types before anything else, if the user chose to exclude any
+    if "Long Term" in frame.controller.options:
+        df = exclude_ownership_types_long_term_care(df, frame.controller.options["Long Term"])
+        print("Filtered Long Term ownership types")
+
+    df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate) # Get dates in range
+    print("Filtered Dates")
 
 
     # Filter on the users chosen bed range
@@ -560,11 +566,8 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
         for option in frame.controller.options["Long Term"].keys():
 
     
-            if option == "State Statistics" and frame.controller.options["Long Term"][option]:
-
-                with open(home_folder_path + "dataframes/hhc_state_by_state_df.pkl", 'rb') as inp:
-                    dfs["State Statistics"] = pickle.load(inp)
-                    print("Loaded Long Term Care state by state data")
+            if option == "Mobile" and frame.controller.options["Long Term"][option]:
+                dfs["Mobile"] = exclude_mobile_organizations_long_term_care(df)
                     
 
             elif option == "Create sheet with all territories combined" and frame.controller.options["Long Term"][option]:
@@ -643,7 +646,6 @@ def convert_states(territories):
     
     return territories
 
-
 def sort_by_territories(df, territories):
     ''' Sort violations by territories for when we make an excel sheet. Also want to update
         territory values as we go through the dataframe. '''
@@ -661,7 +663,6 @@ def sort_by_territories(df, territories):
         tdict[name] = tdict[name].replace({"territory": 0}, name)
 
     return tdict
-
 
 def get_inrange_nursing_homes(df, start, end):
     ''' Gets a subframe where only violations with dates in a certain range are included. '''
@@ -694,11 +695,9 @@ def get_inrange_long_term_care(df, start, end):
 
     return new 
 
-
 def count_violations_df(df):
     ''' Counts the number of violations in a dataframe by counting the rows. '''
     return len(df)
-
 
 def get_most_fined(df, num):
     ''' Returns a sorted list of tuples where each tuple contains an organization and total fines for a period. '''
@@ -727,7 +726,6 @@ def get_most_fined(df, num):
 
     return sums[:num]
 
-
 def get_most_severe(df, num):
     ''' Returns a sorted list of tuples where each tuple contains an organization and total violations for a period. '''
     sums = []
@@ -748,7 +746,6 @@ def get_most_severe(df, num):
 
     return sums[:num]
 
-
 def get_year_range(year, years, startdate, enddate):
     ''' Get proper bounds for a date range. '''
     if year == years[0]:
@@ -763,7 +760,7 @@ def get_year_range(year, years, startdate, enddate):
 
     return (yearstart, yearend)
 
-def set_defaults(frame, df):
+def set_defaults(frame):
     ''' Sets the default values for the date and territory filters if necessary. Also converts 
         territory states to two letter codes if necessary. '''
     # Check to see if territories were chosen and use default if not
@@ -787,9 +784,13 @@ def set_defaults(frame, df):
     if None in {frame.controller.startdate, frame.controller.enddate}:
 
         if TESTING:
-            frame.controller.startdate = datetime.strptime("01/10/2020", '%m/%d/%Y')
+            frame.controller.startdate = datetime.strptime("01/10/2018", '%m/%d/%Y')
             frame.controller.enddate = datetime.strptime("01/10/2020", '%m/%d/%Y')
         else:
+
+            with open(home_folder_path + "dataframes/df.pkl", 'rb') as inp:
+                df = pickle.load(inp)
+
             # Conversion to date time objects for min and max
             oldcol = df['survey_date']
             df['survey_date'] =  pd.to_datetime(df['survey_date'], format='%Y-%m-%d')
@@ -801,9 +802,8 @@ def set_defaults(frame, df):
             df['survey_date'] = oldcol
             print("Used Default Dates")
 
-
-def exclude_ownership_types(df: pd.DataFrame, options):
-    ''' Filters out ownership types that the user chose to exclude. '''
+def exclude_ownership_types_home_health(df: pd.DataFrame, options):
+    ''' Filters out ownership types for home health data that the user chose to exclude. '''
     ownership_types = list(df['type_of_ownership'].unique()) # List of the different ownership types organizations can have
     ownership_types.remove("-")
     ownership_types.append("Undefined") # This represents "-" ownership type
@@ -819,6 +819,24 @@ def exclude_ownership_types(df: pd.DataFrame, options):
     df['type_of_ownership'] = df['type_of_ownership'].replace('-', "NA")
 
     return df
+
+def exclude_ownership_types_long_term_care(df: pd.DataFrame, options):
+    ''' Filters out ownership types for long term care hospital data that the user chose to exclude. '''
+    ownership_types = list(df['ownership_type'].unique()) # List of the different ownership types organizations can have
+    ownership_types = [type for type in ownership_types if not pd.isnull(type)]
+
+    for type in ownership_types:
+        if options[type]: # If the types value is True, the user chose to exclude it
+            if type == "Undefined":
+                df = df.loc[df['ownership_type'].dropna()]
+            else:
+                df = df.loc[df['ownership_type'] != type]
+
+    return df
+
+def exclude_mobile_organizations_long_term_care(df: pd.DataFrame):
+    ''' Returns a dataframe where organizations who's address is MOBILE are filtered out. '''
+    return df[df['provider_city'] != "MOBILE"]
 
 def get_organization_averages(df):
     ''' Returns a dataframe with averages for different measures for each home 

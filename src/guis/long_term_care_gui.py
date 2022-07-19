@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-import gui, pickle
+import gui, pickle, pandas as pd
 
 
 class OptionsPage(tk.Frame):
@@ -166,6 +166,8 @@ class FormatPage(tk.Frame):
             ltc = pickle.load(inp)
          
         ownership_types = list(ltc['ownership_type'].unique()) # List of the different ownership types organizations can have
+        ownership_types = [type for type in ownership_types if not pd.isnull(type)] # Remove nan from the list and replace with "Undefined"
+        ownership_types.append('Undefined')
         ownership_types.append('Mobile') # Not an ownership type, but an option to exclude
 
         # Make a button to exclude each type of ownership and add it to options
