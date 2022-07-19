@@ -547,6 +547,10 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
         df = exclude_ownership_types_long_term_care(df, frame.controller.options["Long Term"])
         print("Filtered Long Term ownership types")
 
+    # Filter out MOBILE organizations if chosen by user
+    if "Long Term" in frame.controller.options and frame.controller.options["Long Term"]["Mobile"]:
+        df = exclude_mobile_organizations_long_term_care(df)
+
     df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate) # Get dates in range
     print("Filtered Dates")
 
@@ -564,13 +568,9 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
     # Sort through options
     if "Long Term" in frame.controller.options.keys():
         for option in frame.controller.options["Long Term"].keys():
+                
 
-    
-            if option == "Mobile" and frame.controller.options["Long Term"][option]:
-                dfs["Mobile"] = exclude_mobile_organizations_long_term_care(df)
-                    
-
-            elif option == "Create sheet with all territories combined" and frame.controller.options["Long Term"][option]:
+            if option == "Create sheet with all territories combined" and frame.controller.options["Long Term"][option]:
                 # Get a dict of dfs by territory
                 tdfs = sort_by_territories(df, frame.controller.territories)
                 combined = pd.DataFrame()
@@ -763,6 +763,7 @@ def get_year_range(year, years, startdate, enddate):
 def set_defaults(frame):
     ''' Sets the default values for the date and territory filters if necessary. Also converts 
         territory states to two letter codes if necessary. '''
+    global STATES_CONVERTED, TERRITORIES_LOADED
     # Check to see if territories were chosen and use default if not
     if len(frame.controller.territories) == 0:
         if TESTING:
@@ -774,7 +775,6 @@ def set_defaults(frame):
                 print("Used Default Territories")
     
     # Convert states to their two letter code
-    global STATES_CONVERTED
     if not STATES_CONVERTED:
         STATES_CONVERTED = True
         frame.controller.territories = convert_states(frame.controller.territories)
@@ -823,12 +823,13 @@ def exclude_ownership_types_home_health(df: pd.DataFrame, options):
 def exclude_ownership_types_long_term_care(df: pd.DataFrame, options):
     ''' Filters out ownership types for long term care hospital data that the user chose to exclude. '''
     ownership_types = list(df['ownership_type'].unique()) # List of the different ownership types organizations can have
+    ownership_types.append("Undefined") # Use this to remove nan's if chosen by user
     ownership_types = [type for type in ownership_types if not pd.isnull(type)]
 
     for type in ownership_types:
         if options[type]: # If the types value is True, the user chose to exclude it
             if type == "Undefined":
-                df = df.loc[df['ownership_type'].dropna()]
+                df = df.dropna(subset=['ownership_type'])
             else:
                 df = df.loc[df['ownership_type'] != type]
 

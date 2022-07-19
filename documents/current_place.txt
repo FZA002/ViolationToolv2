@@ -87,3 +87,7 @@ Implemented all initial long term options, now testing.
 Came across the fact that writing to csvs is MUCH quicker, at the cost of not being able to use set_index to group values.
 Maybe there's another way to do that. Running time test now for Justin. 
 Made Test_Territory_NursingHomes.xlsx: write to excel took 242 seconds for 41192 rows!!! Versus 2 seconds....
+Validated mobile feature and exclude ownership_types, need to check for undefined
+
+I will make a new branch where I keep old excel format, then change main to be csv
+Should probably make it exclude x ownership type organizations
