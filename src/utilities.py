@@ -388,27 +388,10 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
                 print("Made all violations sheet for Nursing Homes")
 
-    # Sheet for each territory
-    outpath = f"{outpath}/NursingHomes"
-    for terr in t_dfs.keys():
-        # Makes the sheets more organized
-        if not t_dfs[terr].empty:
-            # Sort alphabetically by provider name
-            t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "survey_date"])
-
-        start = time.time()
-        t_dfs[terr].to_csv(f"{outpath}/{terr}_NursingHomes.csv")
-        print(f"Made {terr}_NursingHomes.csv: write to csv {str(int(time.time() - start))} seconds for {str(len(t_dfs[terr]))} rows")
-
-    # Sheet for each set of options
-    for dfname in dfs.keys():
-        if not dfs[dfname].empty:
-            dfs[dfname].to_csv(f"{outpath}/{dfname}_NursingHomes.csv")
-            print(f"Made {dfname} Sheet for Nursing Homes")
-
-    # Makes csvs that have descriptions of different metrcs
-    make_nursing_homes_optional_workbook(tag_hash, outpath)
-
+   
+    # Make and save sheets
+    save_csvs(t_dfs, dfs, outpath, "NursingHomes")
+    make_nursing_homes_optional_workbook(tag_hash, outpath) # Makes csvs that have descriptions of different metrcs
     frame.instructions.config(text="Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     print("Nursing Home Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     time.sleep(3)
@@ -493,30 +476,14 @@ def make_home_health_sheets(frame: gui.SheetsPage, df, outpath):
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
                 print("Made all violations sheet for Home Health")
 
-    # Sheet for each territory
-    outpath = f"{outpath}/HomeHealth"
-    for terr in t_dfs.keys():
-        # Makes the sheets more organized
-        if not t_dfs[terr].empty:
-            # Sort alphabetically by provider name
-            t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "provider_city"])
-            # This will group things together in the sheets
-            t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state', 'provider_name', 
-       'provider_city'])
-
-        t_dfs[terr].to_csv(f"{outpath}/{terr}_HomeHealth.csv")
-        print(f"Made {terr}_HomeHealth.csv")
 
     # Sheet for date ranges
     with open(home_folder_path + "dataframes/hhc_date_range_df.pkl", 'rb') as inp:
         dfs["MeasureDateRanges"] = pickle.load(inp)
         print("Loaded Home Health measure date range data")
 
-    # Sheet for each set of options
-    for dfname in dfs.keys():
-        dfs[dfname].to_csv(f"{outpath}/{dfname}_HomeHealth.csv")
-        print(f"Made {dfname} Sheet for Home Health")
-
+    # Make and save sheets
+    save_csvs(t_dfs, dfs, outpath, "HomeHealth")
     frame.instructions.config(text="Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     print("Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     time.sleep(3)
@@ -585,23 +552,8 @@ def make_home_long_term_care_sheets(frame: gui.SheetsPage, df, outpath):
                 print("Made all violations sheet for Long Term")
 
 
-    # Sheet for each territory
-    outpath = f"{outpath}/LongTermCare"
-    for terr in t_dfs.keys():
-        # Makes the sheets more organized
-        if not t_dfs[terr].empty:
-            # Sort alphabetically by provider name
-            t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "provider_city"])
-
-        t_dfs[terr].to_csv(f"{outpath}/{terr}_LongTermCare.csv")
-        print(f"Made {terr}_LongTermCare.csv")
-
-    # Sheet for each set of options
-    for dfname in dfs.keys():
-        dfs[dfname].to_csv("{outpath}/{dfname}_LongTermCare.csv")
-        start_row += len(dfs[dfname])
-        print(f"Made {dfname} Sheet for Long Term")
-
+    # Make and save sheets
+    save_csvs(t_dfs, dfs, outpath, "LongTermCare")
     frame.instructions.config(text="Long Term Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     print("Long Term Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     time.sleep(3)
@@ -834,6 +786,27 @@ def get_organization_averages(df):
 
     averages_df = df.groupby('provider_name')[measures].mean()
     return averages_df
+
+def save_csvs(territory_dfs, dfs, outpath, dataset):
+    ''' Save the csv files to the appropriate folder. '''
+    
+    outpath = f"{outpath}/{dataset}"
+    for terr in territory_dfs.keys():
+        start = time.time()
+        # Makes the sheets more organized
+        if not territory_dfs[terr].empty:
+            # Sort alphabetically by provider name
+            territory_dfs[terr] = territory_dfs[terr].sort_values(by=["provider_state", "provider_name", "provider_city"])
+
+        territory_dfs[terr].to_csv(f"{outpath}/{terr}_{dataset}.csv")
+        print(f"Made {terr}_{dataset}.csv: Wrote {str(len(territory_dfs[terr]))} rows to csv in {str(int(time.time() - start))} seconds")
+
+    # Sheet for each set of options
+    for dfname in dfs.keys():
+        start = time.time()
+        dfs[dfname].to_csv(f"{outpath}/{dfname}_{dataset}.csv")
+        print(f"Made {dfname}_{dataset}.csv: Wrote {str(len(dfs[dfname]))} rows to csv {str(int(time.time() - start))} seconds")
+
     
 
 
