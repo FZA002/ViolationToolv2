@@ -61,8 +61,8 @@ Finished Home Health. Last but not least: Long Term care.
 Options:
     Don't include mobile
     ownership types
-    bed range
-    date range
+    ~~bed range~~
+    ~~date range~
 
 For ultimate formatting:
 ldf.set_index(['provider_state', 'provider_name', 'provider_city', 'address_line_1','address_line_2', 'phone_number', 'ownership_type','total_number_of_beds', 'measure_code'])
@@ -80,3 +80,14 @@ Make a new branch!
 Working on bed range for long term care, still need to add all terrs and data option to home health.
 Also need to move main date range option into nursing homes.
 Nevermind. Already implemented date range for long term and nursing homes.
+
+7/19/22
+Implemented all initial long term options, now testing.
+
+Came across the fact that writing to csvs is MUCH quicker, at the cost of not being able to use set_index to group values.
+Maybe there's another way to do that. Running time test now for Justin. 
+Made Test_Territory_NursingHomes.xlsx: write to excel took 242 seconds for 41192 rows!!! Versus 2 seconds....
+Validated mobile feature and exclude ownership_types, need to check for undefined
+
+I will make a new branch where I keep old excel format, then change main to be csv
+Should probably make it exclude x ownership type organizations
