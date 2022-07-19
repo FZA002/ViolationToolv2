@@ -530,24 +530,22 @@ def make_home_long_term_care_sheets(frame: gui.SheetsPage, df, outpath):
         for option in frame.controller.options["Long Term"].keys():
                 
 
-            if option == "Create sheet with all territories combined" and frame.controller.options["Long Term"][option]:
+            if option == "Sheet With All Territories Combined" and frame.controller.options["Long Term"][option]:
                 # Get a dict of dfs by territory
                 tdfs = sort_by_territories(df, frame.controller.territories)
                 combined = pd.DataFrame()
                 for terr in tdfs.keys():
                     combined = pd.concat([combined, tdfs[terr]])
-                dfs["All Territories"] = combined.reset_index()
 
                 # Set indicies properly
-                dfs["All Territories"] = dfs["All Territories"].drop(["index"], axis=1)
-                dfs["All Territories"] = dfs["All Territories"].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
-                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
+                dfs["AllTerritories"] = combined.reset_index()
+                dfs["AllTerritories"] = dfs["AllTerritories"].drop(["index"], axis=1)
 
 
-            elif option == "All Violations" and frame.controller.options["Long Term"][option]:
-                dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
-                dfs["All US States"] = dfs["All US States"].set_index(['provider_state','provider_name', 'federal_provider_number', 
-                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
+            elif option == "Sheet For All Violations in the Dataset Without Territories" and frame.controller.options["Long Term"][option]:
+                dfs["AllUSStates"] = df.sort_values(by=["provider_state", "provider_name"])
+                dfs["AllUSStates"] = dfs["AllUSStates"].reset_index()
+                dfs["AllUSStates"] = dfs["AllUSStates"].drop(["index"], axis=1)
 
                 print("Made all violations sheet for Long Term")
 

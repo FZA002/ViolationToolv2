@@ -130,6 +130,7 @@ class FormatPage(tk.Frame):
         self.controller.options["Long Term"] = self.options
         self.controller.resize_optionspage()
         self.controller.show_frame(OptionsPage)
+        print(f"Chosen Long Term Options: {self.controller.options['Long Term']}")
         for option in self.option_buttons:
             self.option_buttons[option].destroy()
         self.fm.destroy()
@@ -156,10 +157,10 @@ class FormatPage(tk.Frame):
 
     def make_option_buttons(self):
         ''' Create buttons that allow the user to exclude certain ownership types from the excel data. '''
-        options = []
+        options = ["Sheet With All Territories Combined", "Sheet For All Violations in the Dataset Without Territories"]
         for option in options:
             self.options[option] = False
-            self.option_buttons[option] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Include {option}", anchor="w", command=lambda x=option: self.add_option(x), font=("Times", 15))
+            self.option_buttons[option] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Include {option}", anchor="w", command=lambda x=option: self.add_option(x), font=("Times", 13))
             self.option_buttons[option].grid()
 
         with open(self.controller.home_folder_path + "dataframes/ltch_df.pkl", 'rb') as inp:
@@ -172,6 +173,6 @@ class FormatPage(tk.Frame):
 
         # Make a button to exclude each type of ownership and add it to options
         for type in ownership_types:
-            self.option_buttons[type] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Exclude {type} orgs", anchor="w", command=(lambda x=type: self.add_option(x)), font=("Times", 15))
+            self.option_buttons[type] = tk.Checkbutton(self.fm, width=self.fm_width, text=f"Exclude {type} orgs", anchor="w", command=(lambda x=type: self.add_option(x)), font=("Times", 13))
             self.options[type] = False
             self.option_buttons[type].grid()
