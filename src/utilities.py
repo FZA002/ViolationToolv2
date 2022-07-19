@@ -6,7 +6,7 @@ the latest Penalties and Health Deficiencies CSV's. It also contains
 various utility functions for back-end processes of gui.py.
 
 '''
-import pickle, sys, os, time, info, home_health_care, long_term_care, guis.gui as gui
+import pickle, sys, os, time, info, nursing_homes, home_health_care, long_term_care, guis.gui as gui
 import pandas as pd
 from datetime import datetime
 
@@ -33,29 +33,13 @@ def download(frame):
     ''' Downloads CSV's from cms.gov and saves them as pandas dataframes. Also saves the date that this method
         was executed so it can be displayed on the program's start page. '''
 
-    # Url for Penalties and Health Deficiencies dataset queries
-    p_urls = "https://data.cms.gov/provider-data/api/1/datastore/query/g6vv-u9sr/0/download?format=csv"
-    hd_urls = "https://data.cms.gov/provider-data/api/1/datastore/query/r5ix-sfxw/0/download?format=csv"
-
     # Make the dataframes and save them
-    pdf = pd.read_csv(p_urls, encoding="iso_8859-1") # Penalites
-    hdf = pd.read_csv(hd_urls, encoding="iso_8859-1") # Health Deficiencies
-    frames = home_health_care.download_data()
-    hhq, hhs, mdr = frames['hhq'], frames['hhs'], frames['mdr'] # Home Health Care
+    nursing_home_frames = nursing_homes.download_data()
+    home_health_frames = home_health_care.download_data()
     ldf = long_term_care.download_data()
-
-    # Combine the nursing home dataframes
-    hdf['fine_amount'] = ""
-    hdf.update(pdf)
-    hdf = hdf[['federal_provider_number', 'provider_name', 'provider_state',
-       'provider_city', 'provider_address', 'survey_date', 'survey_type', 'deficiency_prefix', 'deficiency_category',
-       'deficiency_tag_number', 'deficiency_description', 'scope_severity_code', 'deficiency_corrected', 
-       'correction_date','fine_amount']]
-
-    # Get tags and their descriptions and save it into a dictionary
-    tags = hdf[['deficiency_tag_number', 'deficiency_description']].drop_duplicates()
-    tags = dict(zip(tags['deficiency_tag_number'], tags['deficiency_description']))
-
+    hdf, tags = nursing_home_frames['hdf'], nursing_home_frames['tags']
+    hhq, hhs, mdr = home_health_frames['hhq'], home_health_frames['hhs'], home_health_frames['mdr'] # Home Health Care
+    
     # Save the new dataframes
     with open(home_folder_path + "assets/tag_hash.pkl", 'wb') as outp:
         pickle.dump(tags, outp, pickle.HIGHEST_PROTOCOL)
@@ -69,7 +53,6 @@ def download(frame):
         pickle.dump(mdr, outp, pickle.HIGHEST_PROTOCOL)
     with open(home_folder_path + "dataframes/ltch_df.pkl", 'wb') as outp:
         pickle.dump(ldf, outp, pickle.HIGHEST_PROTOCOL)
-    
     
     # Save the date of this download
     today = datetime.now()

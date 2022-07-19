@@ -97,3 +97,6 @@ Merged branches. Made excel only branch. Next is all for home health and long te
 Refactoring utlities.py to be csv. Done.
 
 Going to add all territories and and all states to home health and make folders for each type of sheets
+
+Done. Now to test and rewrite read me...
+Added nursing_homes.py for download, need to test when I have wifi 
