@@ -392,8 +392,9 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
     # Make and save sheets
     save_csvs(t_dfs, dfs, outpath, "NursingHomes")
     make_nursing_homes_optional_workbook(tag_hash, outpath) # Makes csvs that have descriptions of different metrcs
-    frame.instructions.config(text="Sheets made in " + str(int(time.time() - start_time)) + " seconds")
-    print("Nursing Home Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+    instructions = f"Nursing Home Sheets made in {str(int(time.time() - start_time))} seconds"
+    frame.instructions.config(text=instructions)
+    print(instructions)
     time.sleep(3)
 
 
@@ -405,8 +406,8 @@ def make_nursing_homes_optional_workbook(tag_hash, outpath):
     df1 = df1.sort_values(by="Tag")
     df1 = df1.reset_index().drop("index", axis=1)
     df2 = pd.DataFrame(items2, columns=["Rank", "Description"])        
-    df1.to_csv(f"{outpath}/TagDescription_NursingHomes.csv")
-    df2.to_csv(f"{outpath}/SeverityRanks_NursingHomes.csv")
+    df1.to_csv(f"{outpath}/NursingHomes/TagDescription_NursingHomes.csv")
+    df2.to_csv(f"{outpath}/NursingHomes/SeverityRanks_NursingHomes.csv")
 
 
 def make_home_health_sheets(frame: gui.SheetsPage, df, outpath):
@@ -455,25 +456,23 @@ def make_home_health_sheets(frame: gui.SheetsPage, df, outpath):
                 print(f"Loaded Home Health {option} data")
                     
         
-            elif option == "Create sheet with all territories combined" and frame.controller.options["Home Health"][option]:
+            elif option == "Sheet With All Territories Combined" and frame.controller.options["Home Health"][option]:
                 # Get a dict of dfs by territory
                 tdfs = sort_by_territories(df, frame.controller.territories)
                 combined = pd.DataFrame()
                 for terr in tdfs.keys():
                     combined = pd.concat([combined, tdfs[terr]])
-                dfs["All Territories"] = combined.reset_index()
+                dfs["AllTerritories"] = combined.reset_index()
 
                 # Set indicies properly
-                dfs["All Territories"] = dfs["All Territories"].drop(["index"], axis=1)
-                dfs["All Territories"] = dfs["All Territories"].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
-                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
+                dfs["AllTerritories"] = dfs["AllTerritories"].drop(["index"], axis=1)
                 print("Made all territories combined sheet for Home Health")
 
 
-            elif option == "All Violations" and frame.controller.options["Home Health"][option]:
-                dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
-                dfs["All US States"] = dfs["All US States"].set_index(['provider_state','provider_name', 'federal_provider_number', 
-                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
+            elif option == "Sheet For All Violations in the Dataset Without Territories" and frame.controller.options["Home Health"][option]:
+                dfs["AllUSStates"] = df.sort_values(by=["provider_state", "provider_name"])
+                dfs["AllUSStates"] = dfs["AllUSStates"].reset_index()
+                dfs["AllUSStates"] = dfs["AllUSStates"].drop(["index"], axis=1)
                 print("Made all violations sheet for Home Health")
 
 
@@ -484,8 +483,9 @@ def make_home_health_sheets(frame: gui.SheetsPage, df, outpath):
 
     # Make and save sheets
     save_csvs(t_dfs, dfs, outpath, "HomeHealth")
-    frame.instructions.config(text="Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
-    print("Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+    instructions = f"Home Health Sheets made in {str(int(time.time() - start_time))} seconds"
+    frame.instructions.config(text=instructions)
+    print(instructions)
     time.sleep(3)
     frame.finish()
 
@@ -554,8 +554,9 @@ def make_home_long_term_care_sheets(frame: gui.SheetsPage, df, outpath):
 
     # Make and save sheets
     save_csvs(t_dfs, dfs, outpath, "LongTermCare")
-    frame.instructions.config(text="Long Term Sheets made in " + str(int(time.time() - start_time)) + " seconds")
-    print("Long Term Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+    instructions = "Long Term Sheets made in " + str(int(time.time() - start_time)) + " seconds"
+    frame.instructions.config(text=instructions)
+    print(instructions)
     time.sleep(3)
     frame.finish()
 
