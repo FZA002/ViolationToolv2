@@ -81,15 +81,23 @@ def download(frame):
     frame.show_options(True)
 
 
-def make_sheets(frame: gui.ExcelPage, nursing_home_df, home_health_df, long_term_care_df, outpath):
-    ''' Calls all functions that make excel sheets. '''
-    #make_nursing_home_sheets(frame, nursing_home_df, outpath)
-    #make_home_health_sheets(frame, home_health_df, outpath)
+def make_sheets(frame: gui.SheetsPage, nursing_home_df, home_health_df, long_term_care_df, outpath):
+    ''' Calls all functions that make sheets. '''
+
+    # Make a folder for each dataset.
+    datasets = ["NursingHomes", "HomeHealth", "LongTermCare"]
+    for dataset in datasets:
+        folder_path = f"{outpath}/{dataset}/"
+        if not os.path.exists(folder_path):
+            os.mkdir(folder_path)
+
+    make_nursing_home_sheets(frame, nursing_home_df, outpath)
+    make_home_health_sheets(frame, home_health_df, outpath)
     make_home_long_term_care_sheets(frame, long_term_care_df, outpath)
 
 
-def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
-    ''' Makes the nursing home excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
+def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
+    ''' Makes the nursing home sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
     if TESTING:
         print("------- USING TEST VALUES FOR NURSING HOME -------")
     # Update the screen
@@ -103,7 +111,7 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
         tag_hash = pickle.load(inp)
 
     set_defaults(frame)
-    dfs = {} # Holds optional dataframes that will be excel sheets
+    dfs = {} # Holds optional dataframes that will be sheets
     years = list(range(frame.controller.startdate.year, frame.controller.enddate.year+1)) # Range of years from date filter
 
     # Check to see if tags were chosen and if not use all
@@ -380,42 +388,33 @@ def make_nursing_home_sheets(frame: gui.ExcelPage, df, outpath):
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
                 print("Made all violations sheet for Nursing Homes")
 
-
-    # --- Write to excel --- #
-
-    # Excel workbook for each territory
+    # Sheet for each territory
+    outpath = f"{outpath}/NursingHomes"
     for terr in t_dfs.keys():
         # Makes the sheets more organized
         if not t_dfs[terr].empty:
             # Sort alphabetically by provider name
             t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "survey_date"])
-            # This will group things together in the excel sheets
-            t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
-       'provider_city', 'provider_address', 'survey_date', 'survey_type'])
 
         start = time.time()
-        t_dfs[terr].to_excel(f"{outpath}/{terr}_NursingHomes.xlsx", sheet_name=f"{terr}_NursingHomes")
-        print(f"Made {terr}_NursingHomes.xlsx: write to excel took {str(int(time.time() - start))} seconds for {str(len(t_dfs[terr]))} rows")
+        t_dfs[terr].to_csv(f"{outpath}/{terr}_NursingHomes.csv")
+        print(f"Made {terr}_NursingHomes.csv: write to csv {str(int(time.time() - start))} seconds for {str(len(t_dfs[terr]))} rows")
 
-    with pd.ExcelWriter(outpath + '/OptionalData_NursingHomes.xlsx') as writer:
+    # Sheet for each set of options
+    for dfname in dfs.keys():
+        if not dfs[dfname].empty:
+            dfs[dfname].to_csv(f"{outpath}/{dfname}_NursingHomes.csv")
+            print(f"Made {dfname} Sheet for Nursing Homes")
 
-        # Excel sheet for each set of options
-        for dfname in dfs.keys():
-            if not dfs[dfname].empty:
-                dfs[dfname].to_excel(writer, sheet_name=dfname)
-                print(f"Made {dfname} Excel Sheet for Nursing Homes")
+    # Makes csvs that have descriptions of different metrcs
+    make_nursing_homes_optional_workbook(tag_hash, outpath)
 
-        # Makes Excel Sheet in OptionalData_NursingHomes.xlsx that has descriptions of different metrcs
-        make_nursing_homes_optional_workbook(tag_hash, writer)
-
-        writer.save()
-        frame.instructions.config(text="Sheets made in " + str(int(time.time() - start_time)) + " seconds")
-        print("Nursing Home Sheets made in " + str(int(time.time() - start_time)) + " seconds")
-        time.sleep(3)
-        # frame.finish()
+    frame.instructions.config(text="Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+    print("Nursing Home Sheets made in " + str(int(time.time() - start_time)) + " seconds")
+    time.sleep(3)
 
 
-def make_nursing_homes_optional_workbook(tag_hash, writer):
+def make_nursing_homes_optional_workbook(tag_hash, outpath):
     ''' Creates the optional data's Description sheet for nursing homes. '''
     items1 = list(tag_hash.items())
     items2 = list(info.severities.items())
@@ -423,12 +422,12 @@ def make_nursing_homes_optional_workbook(tag_hash, writer):
     df1 = df1.sort_values(by="Tag")
     df1 = df1.reset_index().drop("index", axis=1)
     df2 = pd.DataFrame(items2, columns=["Rank", "Description"])        
-    df1.to_excel(writer, sheet_name="Descriptions", startrow=1, startcol=0)
-    df2.to_excel(writer, sheet_name="Descriptions", startrow=len(df1.index)+5, startcol=0)
+    df1.to_csv(f"{outpath}/TagDescription_NursingHomes.csv")
+    df2.to_csv(f"{outpath}/SeverityRanks_NursingHomes.csv")
 
 
-def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
-    ''' Makes the home health excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
+def make_home_health_sheets(frame: gui.SheetsPage, df, outpath):
+    ''' Makes the home health sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
 
     # Update the screen
     frame.instructions.config(text="Making Home Health sheets...")
@@ -494,35 +493,29 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
                 'provider_city', 'provider_address', 'survey_date', 'survey_type'])
                 print("Made all violations sheet for Home Health")
 
-
-    # --- Write to excel --- #
-
-    # Excel workbook for each territory
+    # Sheet for each territory
+    outpath = f"{outpath}/HomeHealth"
     for terr in t_dfs.keys():
         # Makes the sheets more organized
         if not t_dfs[terr].empty:
             # Sort alphabetically by provider name
             t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "provider_city"])
-            # This will group things together in the excel sheets
+            # This will group things together in the sheets
             t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state', 'provider_name', 
        'provider_city'])
 
-        t_dfs[terr].to_excel(f"{outpath}/{terr}_HomeHealth.xlsx", sheet_name=f"{terr}_HomeHealth")
-        print(f"Made {terr}_HomeHealth.xlsx")
+        t_dfs[terr].to_csv(f"{outpath}/{terr}_HomeHealth.csv")
+        print(f"Made {terr}_HomeHealth.csv")
 
-    # Excel sheet for date ranges
+    # Sheet for date ranges
     with open(home_folder_path + "dataframes/hhc_date_range_df.pkl", 'rb') as inp:
-        dfs["Measure Date Ranges"] = pickle.load(inp)
+        dfs["MeasureDateRanges"] = pickle.load(inp)
         print("Loaded Home Health measure date range data")
 
-    with pd.ExcelWriter(outpath + '/OptionalData_HomeHealth.xlsx') as writer:
-
-        # Excel sheet for each set of options
-        for dfname in dfs.keys():
-            dfs[dfname].to_excel(writer, sheet_name=dfname)
-            print(f"Made {dfname} Excel Sheet for Home Health")
-
-        writer.save()
+    # Sheet for each set of options
+    for dfname in dfs.keys():
+        dfs[dfname].to_csv(f"{outpath}/{dfname}_HomeHealth.csv")
+        print(f"Made {dfname} Sheet for Home Health")
 
     frame.instructions.config(text="Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     print("Home Health Sheets made in " + str(int(time.time() - start_time)) + " seconds")
@@ -530,8 +523,8 @@ def make_home_health_sheets(frame: gui.ExcelPage, df, outpath):
     frame.finish()
 
 
-def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
-    ''' Makes the long term care excel sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
+def make_home_long_term_care_sheets(frame: gui.SheetsPage, df, outpath):
+    ''' Makes the long term care sheets based on options chosen by the user. Saves them to a folder chosen by the user. '''
 
     # Update the screen
     frame.instructions.config(text="Making Long Term Care sheets...")
@@ -592,32 +585,22 @@ def make_home_long_term_care_sheets(frame: gui.ExcelPage, df, outpath):
                 print("Made all violations sheet for Long Term")
 
 
-    # --- Write to excel --- #
-
-    # Excel workbook for each territory
+    # Sheet for each territory
+    outpath = f"{outpath}/LongTermCare"
     for terr in t_dfs.keys():
         # Makes the sheets more organized
         if not t_dfs[terr].empty:
             # Sort alphabetically by provider name
             t_dfs[terr] = t_dfs[terr].sort_values(by=["provider_state", "provider_name", "provider_city"])
-            # This will group things together in the excel sheets
-            t_dfs[terr] = t_dfs[terr].set_index(["territory", 'provider_state', 'provider_name', 
-        'provider_city', 'address_line_1', 'address_line_2', 'phone_number', 'total_number_of_beds',
-        'ownership_type', 'measure_code'])
 
-        t_dfs[terr].to_excel(f"{outpath}/{terr}_LongTermCare.xlsx", sheet_name=f"{terr}_LongTermCare")
-        print(f"Made {terr}_LongTermCare.xlsx")
+        t_dfs[terr].to_csv(f"{outpath}/{terr}_LongTermCare.csv")
+        print(f"Made {terr}_LongTermCare.csv")
 
-    # start_row = 1
-    # with pd.ExcelWriter(outpath + '/OptionalData_LongTermCare.xlsx') as writer:
-
-    #     # Excel sheet for each set of options
-    #     for dfname in dfs.keys():
-    #         dfs[dfname].to_excel(writer, sheet_name=dfname)
-    #         start_row += len(dfs[dfname])
-    #         print(f"Made {dfname} Excel Sheet for Long Term")
-
-    #     writer.save()
+    # Sheet for each set of options
+    for dfname in dfs.keys():
+        dfs[dfname].to_csv("{outpath}/{dfname}_LongTermCare.csv")
+        start_row += len(dfs[dfname])
+        print(f"Made {dfname} Sheet for Long Term")
 
     frame.instructions.config(text="Long Term Sheets made in " + str(int(time.time() - start_time)) + " seconds")
     print("Long Term Sheets made in " + str(int(time.time() - start_time)) + " seconds")
@@ -647,7 +630,7 @@ def convert_states(territories):
     return territories
 
 def sort_by_territories(df, territories):
-    ''' Sort violations by territories for when we make an excel sheet. Also want to update
+    ''' Sort violations by territories for when we make a sheet. Also want to update
         territory values as we go through the dataframe. '''
     tdict = {}
     territorynames = list(territories.keys())

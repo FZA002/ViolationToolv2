@@ -93,3 +93,7 @@ I will make a new branch where I keep old excel format, then change main to be c
 Should probably make it exclude x ownership type organizations
 
 Merged branches. Made excel only branch. Next is all for home health and long term.
+
+Refactoring utlities.py to be csv. Done.
+
+Going to add all territories and and all states to home health and make folders for each type of sheets

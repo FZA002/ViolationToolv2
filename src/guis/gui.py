@@ -72,7 +72,7 @@ class tkinterApp(tk.Tk):
         self.higher_beds: int = None
         self.tags: List[str] = []
         self.territories: dict[str, list[str]] = {}
-        self.options = {} # Excel formatting options for the different data categories
+        self.options = {} # Formatting options for the different data categories
 
     def show_frame(self, cont):
         ''' Shows frame that was passed in as a parameter. '''
@@ -212,9 +212,9 @@ class MainOptionsPage(tk.Frame):
         self.instructions.grid(column=1, row=1, columnspan=3, pady=30)
 
         labels = ["Set Territories", "Set Date Range", "Format Nursing Home Data", "Format Home Health Data",
-        "Format Long Term Care Hospital Data", "Make Excel Files"]
+        "Format Long Term Care Hospital Data", "Make Sheets"]
         pages = [TerritoriesPage, DateRangePage, nursing_home_gui.OptionsPage, home_health_gui.OptionsPage,
-        long_term_care_gui.OptionsPage, ExcelPage]
+        long_term_care_gui.OptionsPage, SheetsPage]
         for idx, page in enumerate(pages):
             button = tk.Button(self, command=(lambda x=page: self.show_page(x)), text=labels[idx], font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
             button.grid(column=2, row=idx+2, pady=15)
@@ -346,7 +346,7 @@ class DateRangePage(tk.Frame):
         self.controller: tkinterApp = controller   
 
         # Instructions, Dates, Buttons
-        self.instructions = ttk.Label(self, text="Choose range of dates to include in excel file", font=("Times", 15))
+        self.instructions = ttk.Label(self, text="Choose range of dates to include in sheets", font=("Times", 15))
         self.instructions.grid(column=1, row=2, columnspan=3, pady=10)
 
         self.instructions2 = ttk.Label(self, text="Start date (MM/DD/YYYY)", font=("Times", 15))
@@ -387,7 +387,7 @@ class DateRangePage(tk.Frame):
         self.controller.show_frame(MainOptionsPage)
 
     def all_dates(self):
-        ''' Sets start and end dates to None, this will make sure that min and max dates used when excel sheets are made. '''
+        ''' Sets start and end dates to None, this will make sure that min and max dates used when sheets are made. '''
         self.controller.add_dates(None, None)
         self.controller.resize_optionspage()
         self.controller.show_frame(MainOptionsPage)
@@ -417,14 +417,14 @@ class DateRangePage(tk.Frame):
 
 
 
-class ExcelPage(tk.Frame):
-    ''' Page where excel sheet is made. '''
+class SheetsPage(tk.Frame):
+    ''' Page where sheets are made. '''
     def __init__(thisframe, parent, controller):
         PageLayout.__init__(thisframe, parent)
         thisframe.controller: tkinterApp = controller
 
         # Instructions and Make sheets button
-        thisframe.instructions = ttk.Label(thisframe, text="Press button to choose where to save excel sheets", font=("Times", 15))
+        thisframe.instructions = ttk.Label(thisframe, text="Press button to choose where to save sheets", font=("Times", 15))
         thisframe.instructions.grid(column=1, row=2, columnspan=3, pady=10)
 
         thisframe.instructions2 = ttk.Label(thisframe, text="Sheet creation will start", font=("Times", 15))
@@ -443,7 +443,7 @@ class ExcelPage(tk.Frame):
         thisframe.controller.show_frame(MainOptionsPage)
 
     def make_sheets(thisframe, controller):
-        ''' Uses threads to make excel sheets for each dataset. Passes main dataframe for each dataset
+        ''' Uses threads to make sheets for each dataset. Passes main dataframe for each dataset
             to respective make_sheets function. '''
         outpath = askdirectory()
         if outpath == "":
@@ -453,7 +453,7 @@ class ExcelPage(tk.Frame):
             print(f"Save path chosen: {outpath}")
 
         # Make a folder for the sheets
-        outpath = outpath + "/ViolationToolExcelData/"
+        outpath = outpath + "/ViolationToolSheets/"
         if not os.path.exists(outpath):
             os.mkdir(outpath)
 
@@ -486,7 +486,7 @@ class ExcelPage(tk.Frame):
 
 
 class DonePage(tk.Frame):
-    ''' After excel sheets are made. '''
+    ''' After sheets are made. '''
     def __init__(self, parent, controller):
         PageLayout.__init__(self, parent)
         self.controller = controller
