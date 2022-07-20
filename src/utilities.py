@@ -122,7 +122,8 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
         for option in frame.controller.options["Nursing Home"].keys():
 
     
-            if option == "US Fines" and frame.controller.options["Nursing Home"][option]:
+            if option == "US Fines (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
+                start = time.time()
 
                 if not "US" in dfs.keys():
                     dfs["US"] = pd.DataFrame(columns=(["Total"] + years))
@@ -148,10 +149,11 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                 # Change columns type back, add data to hash
                 df['survey_date'] = oldcol
                 dfs["US"].at["Fines", "Total"] = sum
-                print("Made US Fines sheet for Nursing Homes")
+                print(f"Made US Fines dataframe for Nursing Homes in {str(start - time.time())} seconds")
                     
                         
-            elif option == "US Violations" and frame.controller.options["Nursing Home"][option]:
+            elif option == "US Violations (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
+                start = time.time()
 
                 if not "US" in dfs.keys():
                     dfs["US"] = pd.DataFrame(columns=(["Total"] + years))
@@ -172,10 +174,11 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
 
                 # Add data to hash of dfs
                 dfs["US"].at["Violations", "Total"] = sum
-                print("Made US Violations sheet for Nursing Homes")
+                print(f"Made US Violations dataframe for Nursing Homes in {str(start - time.time())} seconds")
 
 
-            elif option == "Top fined organizations per state" and frame.controller.options["Nursing Home"][option]:
+            elif option == "Top fined organizations (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
+                start = time.time()
 
                 # dict[String, dict[String, List]]
                 state_orgs = {}
@@ -222,10 +225,10 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
 
                 # Finally, make the state the vertical index and make fines currency
                 dfs["Most Fined"] = dfs["Most Fined"].set_index(["State"])
-                print("Made Top fined organizations per state sheet for Nursing Homes")
+                print(f"Made Top fined organizations per state dataframe for Nursing Homes in {str(start - time.time())} seconds")
             
 
-            elif option == "Most severe organizations per state" and frame.controller.options["Nursing Home"][option]:
+            elif option == "Most severe organizations (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
 
                 # dict[String, dict[String, List]]
                 state_orgs = {}
@@ -274,7 +277,7 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                 dfs["Most Severe"] = dfs["Most Severe"].set_index(["State"])
                 print("Made Most severe organizations per state sheet for Nursing Homes")
 
-            elif option == "Sum of fines per state per year" and frame.controller.options["Nursing Home"][option]:
+            elif option == "Sum of fines per state (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
 
                 dfs["State Fines"] = pd.DataFrame(columns=(["Total"] + years))
 
@@ -293,7 +296,7 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                 print("Made sum of fines per state per year sheet for Nursing Homes")
                 
 
-            elif option == "Sum of violations per state per year" and frame.controller.options["Nursing Home"][option]:
+            elif option == "Sum of violations per state (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
 
                 dfs["State Violations"] = pd.DataFrame(columns=(["Total"] + years))
 
@@ -312,7 +315,7 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                 print("Made sum of violations per state per year sheet for Nursing Homes")
 
 
-            elif option == "Sum of fines per tag per year" and frame.controller.options["Nursing Home"][option]:
+            elif option == "Sum of fines per tag (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
 
                 dfs["Tag Fines"] = pd.DataFrame(columns=(["Total"] + years))
 
@@ -331,7 +334,7 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                 print("Made sum of fines per tag per year sheet for Nursing Homes")
                 
 
-            elif option == "Sum of violations per tag per year" and frame.controller.options["Nursing Home"][option]:
+            elif option == "Sum of violations per tag (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
 
                 dfs["Tag Violations"] = pd.DataFrame(columns=(["Total"] + years))
 
@@ -356,19 +359,15 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                 combined = pd.DataFrame()
                 for terr in tdfs.keys():
                     combined = pd.concat([combined, tdfs[terr]])
-                dfs["All Territories"] = combined.reset_index()
 
                 # Set indicies properly
+                dfs["All Territories"] = combined.reset_index()
                 dfs["All Territories"] = dfs["All Territories"].drop(["index"], axis=1)
-                dfs["All Territories"] = dfs["All Territories"].set_index(["territory", 'provider_state','provider_name', 'federal_provider_number', 
-                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
                 print("Made all territories combined sheet for Nursing Homes")
 
 
-            elif option == "All Violations" and frame.controller.options["Nursing Home"][option]:
+            elif option == "Create sheet for all violations without territories" and frame.controller.options["Nursing Home"][option]:
                 dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
-                dfs["All US States"] = dfs["All US States"].set_index(['provider_state','provider_name', 'federal_provider_number', 
-                'provider_city', 'provider_address', 'survey_date', 'survey_type'])
                 print("Made all violations sheet for Nursing Homes")
 
    
