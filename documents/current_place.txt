@@ -100,3 +100,6 @@ Going to add all territories and and all states to home health and make folders 
 
 Done. Now to test and rewrite read me...
 Added nursing_homes.py for download, need to test when I have wifi 
+
+7/20/22
+Going to test for tomorrow's demo with Justin. Making a test case file.
