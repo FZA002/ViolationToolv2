@@ -779,6 +779,9 @@ def save_csvs(territory_dfs, dfs, outpath, dataset):
         if not territory_dfs[terr].empty:
             # Sort alphabetically by provider name
             territory_dfs[terr] = territory_dfs[terr].sort_values(by=["provider_state", "provider_name", "provider_city"])
+            # Set indicies properly
+            territory_dfs[terr] = territory_dfs[terr].reset_index()
+            territory_dfs[terr] = territory_dfs[terr].drop(["index"], axis=1)
 
         territory_dfs[terr].to_csv(f"{outpath}/{terr}_{dataset}.csv")
         print(f"Made {terr}_{dataset}.csv: Wrote {str(len(territory_dfs[terr]))} rows to csv in {str(int(time.time() - start))} seconds")
