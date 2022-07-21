@@ -104,3 +104,9 @@ Added nursing_homes.py for download, need to test when I have wifi
 7/20/22
 Going to test for tomorrow's demo with Justin. Making a test case file.
 Fix the rest of nursing home print statements! Add time!
+Need to reset indeicies for optional sheets that I sort.
+
+7/21/22 
+Testing in prep for meeting with Justin today! 
+FOund bug for nursing home all states option - need to reset indicies and make state come first
+Tag filtering not working. Also, should sort the df at the beginning.

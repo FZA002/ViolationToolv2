@@ -53,7 +53,7 @@ class TagsPage(tk.Frame):
     ''' Choose which tags to include. '''
     def __init__(self, parent, controller):
         gui.PageLayout.__init__(self, parent)
-        self.controller = controller
+        self.controller: gui.tkinterApp = controller
         self.parent = parent
 
         # Instructions, Tags box, buttons
@@ -101,7 +101,7 @@ class TagsPage(tk.Frame):
         
         if len(lines) != 0:
             # List to hold the tags
-            global chosen_tags; chosen_tags = []
+            chosen_tags = []
             for tag in lines:
                 try:
                     tag = int(tag)
@@ -117,12 +117,13 @@ class TagsPage(tk.Frame):
             self.instructions.config(text="Please enter at least one valid tag")
             self.instructions2.grid_forget()
         else:
+            self.controller.add_tags(chosen_tags)
             self.show_tags()
     
 
     def set_all_tags(self):
         ''' For setting all tags. '''
-        global chosen_tags; chosen_tags = list(self.controller.tag_hash.keys())
+        self.controller.add_tags(list(self.controller.tag_hash.keys()))
         self.show_tags()
 
 
@@ -139,12 +140,11 @@ class TagsPage(tk.Frame):
         # Make a string of accepted tags that will fit within the screen without stretching it
         valid_tags = ""
         invalid_tags = ""
-        global chosen_tags
-        for i in range(len(chosen_tags)):
+        for i in range(len(self.controller.tags)):
             if i % 15 == 0:
                 valid_tags += "\n"
             
-            valid_tags += str(chosen_tags[i]) + " "
+            valid_tags += str(self.controller.tags[i]) + " "
 
         for i in range(len(self.rejected_tags)):
             if i % 15 == 0:
