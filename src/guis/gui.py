@@ -237,6 +237,9 @@ class TerritoriesPage(tk.Frame):
         self.instructions = ttk.Label(self, text="Enter territory names, each on their own line", font=("Times", 15))
         self.instructions.grid(column=1, row=1, columnspan=3, pady=20)
 
+        self.instructions2 = ttk.Label(self, text="", font=("Times", 15))
+        self.instructions2.grid(column=1, row=2, columnspan=3, pady=20)
+
         self.box = scrolledtext.ScrolledText(self, undo=True, width=40, height=10)
         self.box.grid(column=2, row=3, pady=10)
 

@@ -149,7 +149,7 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                 # Change columns type back, add data to hash
                 df['survey_date'] = oldcol
                 dfs["US"].at["Fines", "Total"] = sum
-                print(f"Made US Fines dataframe for Nursing Homes in {str(start - time.time())} seconds")
+                print(f"Made US Fines dataframe for Nursing Homes in {str(start)} seconds")
                     
                         
             elif option == "US Violations (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
@@ -174,7 +174,7 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
 
                 # Add data to hash of dfs
                 dfs["US"].at["Violations", "Total"] = sum
-                print(f"Made US Violations dataframe for Nursing Homes in {str(start - time.time())} seconds")
+                print(f"Made US Violations dataframe for Nursing Homes in {str(start)} seconds")
 
 
             elif option == "Top fined organizations (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
@@ -225,10 +225,11 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
 
                 # Finally, make the state the vertical index and make fines currency
                 dfs["Most Fined"] = dfs["Most Fined"].set_index(["State"])
-                print(f"Made Top fined organizations per state dataframe for Nursing Homes in {str(start - time.time())} seconds")
+                print(f"Made Top fined organizations per state dataframe for Nursing Homes in {str(start)} seconds")
             
 
             elif option == "Most severe organizations (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
+                start = time.time()
 
                 # dict[String, dict[String, List]]
                 state_orgs = {}
@@ -275,10 +276,10 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
 
                 # Finally, make the state the vertical index and make fines currency
                 dfs["Most Severe"] = dfs["Most Severe"].set_index(["State"])
-                print("Made Most severe organizations per state sheet for Nursing Homes")
+                print(f"Made Most severe organizations per state sheet for Nursing Homes in {str(start)} seconds")
 
             elif option == "Sum of fines per state (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
-
+                start = time.time()
                 dfs["State Fines"] = pd.DataFrame(columns=(["Total"] + years))
 
                 # Initialize indicies
@@ -293,11 +294,11 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                         row += [subdf2['fine_amount'].sum()]
                     
                     dfs["State Fines"].loc[state] = row
-                print("Made sum of fines per state per year sheet for Nursing Homes")
+                print(f"Made sum of fines per state per year sheet for Nursing Homes in {str(start)} seconds")
                 
 
             elif option == "Sum of violations per state (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
-
+                start = time.time()
                 dfs["State Violations"] = pd.DataFrame(columns=(["Total"] + years))
 
                 # Initialize indicies
@@ -312,11 +313,11 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                         row += [count_violations_df(subdf2)]
                     
                     dfs["State Violations"].loc[state] = row
-                print("Made sum of violations per state per year sheet for Nursing Homes")
+                print(f"Made sum of violations per state per year sheet for Nursing Homes in {str(start)} seconds")
 
 
             elif option == "Sum of fines per tag (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
-
+                start = time.time()
                 dfs["Tag Fines"] = pd.DataFrame(columns=(["Total"] + years))
 
                 # Initialize indicies
@@ -331,11 +332,11 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                         row += [subdf2['fine_amount'].sum()]
                     
                     dfs["Tag Fines"].loc[tag] = row
-                print("Made sum of fines per tag per year sheet for Nursing Homes")
+                print(f"Made sum of fines per tag per year sheet for Nursing Homes in {str(start)} seconds")
                 
 
             elif option == "Sum of violations per tag (Total, yearly)" and frame.controller.options["Nursing Home"][option]:
-
+                start = time.time()
                 dfs["Tag Violations"] = pd.DataFrame(columns=(["Total"] + years))
 
                 # Initialize indicies
@@ -354,6 +355,7 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
             
 
             elif option == "Create sheet with all territories combined" and frame.controller.options["Nursing Home"][option]:
+                start = time.time()
                 # Get a dict of dfs by territory
                 tdfs = sort_by_territories(df, frame.controller.territories)
                 combined = pd.DataFrame()
@@ -367,7 +369,17 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
 
 
             elif option == "Create sheet for all violations without territories" and frame.controller.options["Nursing Home"][option]:
-                dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name", "survey_date"])
+                start = time.time()
+                # Resort columns
+                dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name"])
+                dfs["All US States"] = dfs["All US States"][['provider_state', 'provider_name', 'provider_city', 
+                'provider_address', 'federal_provider_number', 'survey_date', 'survey_type',
+                'deficiency_prefix', 'deficiency_category', 'deficiency_tag_number',
+                'deficiency_description', 'scope_severity_code', 'deficiency_corrected',
+                'correction_date', 'fine_amount']]
+           
+                dfs["All US States"] = dfs["All US States"].reset_index()
+                dfs["All US States"] = dfs["All US States"].drop(["index"], axis=1)
                 print("Made all violations sheet for Nursing Homes")
 
    
