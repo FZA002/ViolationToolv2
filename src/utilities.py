@@ -359,7 +359,7 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                         row += [count_violations_df(subdf2)]
                     
                     dfs["Tag Violations"].loc[tag] = row
-                print("Made sum of violations per state per year sheet for Nursing Homes")
+                print(f"Made sum of violations per state per year sheet for Nursing Homes in {str(int(time.time() - start))} seconds")
             
 
             elif option == "Create sheet with all territories combined" and frame.controller.options["Nursing Home"][option]:
@@ -373,22 +373,13 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
                 # Set indicies properly
                 dfs["All Territories"] = combined.reset_index()
                 dfs["All Territories"] = dfs["All Territories"].drop(["index"], axis=1)
-                print("Made all territories combined sheet for Nursing Homes")
+                print(f"Made all territories combined sheet for Nursing Homes in {str(int(time.time() - start))} seconds")
 
 
             elif option == "Create sheet for all violations without territories" and frame.controller.options["Nursing Home"][option]:
                 start = time.time()
-                # Resort columns
-                dfs["All US States"] = df.sort_values(by=["provider_state", "provider_name"])
-                dfs["All US States"] = dfs["All US States"][['provider_state', 'provider_name', 'provider_city', 
-                'provider_address', 'federal_provider_number', 'survey_date', 'survey_type',
-                'deficiency_prefix', 'deficiency_category', 'deficiency_tag_number',
-                'deficiency_description', 'scope_severity_code', 'deficiency_corrected',
-                'correction_date', 'fine_amount']]
-           
-                dfs["All US States"] = dfs["All US States"].reset_index()
-                dfs["All US States"] = dfs["All US States"].drop(["index"], axis=1)
-                print("Made all violations sheet for Nursing Homes")
+                dfs["All US States"] = df
+                print(f"Made all violations sheet for Nursing Homes in {str(int(time.time() - start))} seconds")
 
    
     # Make and save sheets
