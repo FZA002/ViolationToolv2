@@ -110,3 +110,8 @@ Need to reset indeicies for optional sheets that I sort.
 Testing in prep for meeting with Justin today! 
 FOund bug for nursing home all states option - need to reset indicies and make state come first
 Tag filtering not working. Also, should sort the df at the beginning.
+
+7/22/22
+Sorted df at beginning. Testing to see which optional sheets need new indicies for nursing homes. Then go through and remove old
+sorting.
+Finished testing and nursing homes. Home health next.

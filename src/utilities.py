@@ -116,6 +116,8 @@ def make_nursing_home_sheets(frame: gui.SheetsPage, df, outpath):
     'deficiency_prefix', 'deficiency_category', 'deficiency_tag_number',
     'deficiency_description', 'scope_severity_code', 'deficiency_corrected',
     'correction_date', 'fine_amount']]
+    df = df.reset_index()
+    df = df.drop(["index"], axis=1)
     
     # Convert fine column to numeric
     df['fine_amount'] = df['fine_amount'].apply(lambda x: 0 if x == "" else x)
