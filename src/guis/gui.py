@@ -14,7 +14,6 @@ import info, utilities as util
 
 df = None
 territories = {}
-chosen_tags = []
 
 class TkWait:
     ''' Used to let program wait while also updating the UI. '''
