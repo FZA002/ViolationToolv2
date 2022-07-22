@@ -6,9 +6,12 @@ the latest Penalties and Health Deficiencies CSV's. It also contains
 various utility functions for back-end processes of gui.py.
 
 '''
-import pickle, sys, os, time, info, nursing_homes, home_health_care, long_term_care, guis.gui as gui
+import pickle, sys, os, time, info, nursing_homes, home_health_care, long_term_care
 import pandas as pd
 from datetime import datetime
+# Get imports from parent directory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import guis.gui as gui
 
 # This is where all the save data lies
 abs_home = os.path.abspath(os.path.expanduser("~"))
@@ -501,10 +504,6 @@ def make_home_long_term_care_sheets(frame: gui.SheetsPage, df, outpath):
     if "Long Term" in frame.controller.options:
         df = exclude_ownership_types_long_term_care(df, frame.controller.options["Long Term"])
         print("Filtered Long Term ownership types")
-
-    # Filter out MOBILE organizations if chosen by user
-    if "Long Term" in frame.controller.options and frame.controller.options["Long Term"]["Mobile"]:
-        df = exclude_mobile_organizations_long_term_care(df)
 
     df = get_inrange_long_term_care(df, frame.controller.startdate, frame.controller.enddate) # Get dates in range
     print("Filtered Dates")

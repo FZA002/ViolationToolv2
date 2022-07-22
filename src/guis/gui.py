@@ -37,13 +37,13 @@ class tkinterApp(tk.Tk):
 
         self.home_folder_path = ""
         # Contains tags and their descriptions
-        with open(util.resource_path("../assets/tag_hash.pkl"), 'rb') as inp:
+        with open(util.resource_path("assets/tag_hash.pkl"), 'rb') as inp:
             self.tag_hash = pickle.load(inp)
          
         # __init__ function for class Tk
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("NHI Scraper")
-        self.iconbitmap(util.resource_path("../images/icon.ico"))
+        self.iconbitmap(util.resource_path("images/icon.ico"))
     
         # Prevents user from stretching screen
         self.resizable(width=False, height=False)
@@ -135,7 +135,7 @@ class PageLayout(tk.Frame):
         tk.Frame.__init__(self, parent)
 
         # Logo
-        logo = Image.open(util.resource_path("../images/logo.png"))
+        logo = Image.open(util.resource_path("images/logo.png"))
         logo = ImageTk.PhotoImage(logo)
         logo_label = ttk.Label(self, image=logo)
         logo_label.image = logo
@@ -391,6 +391,7 @@ class DateRangePage(tk.Frame):
     def all_dates(self):
         ''' Sets start and end dates to None, this will make sure that min and max dates used when sheets are made. '''
         self.controller.add_dates(None, None)
+        print("All Dates in dataset chosen by user")
         self.controller.resize_optionspage()
         self.controller.show_frame(MainOptionsPage)
 
@@ -410,6 +411,7 @@ class DateRangePage(tk.Frame):
                 self.instructions.config(text="Dates cannot be in the future!")
             else:
                 self.controller.add_dates(stime, etime)
+                print(f"Chosen Date Range: {stext}-{etext}")
                 self.controller.resize_optionspage()
                 self.controller.show_frame(MainOptionsPage)
                 DateRangePage.destroy()

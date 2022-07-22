@@ -115,3 +115,9 @@ Tag filtering not working. Also, should sort the df at the beginning.
 Sorted df at beginning. Testing to see which optional sheets need new indicies for nursing homes. Then go through and remove old
 sorting.
 Finished testing and nursing homes. Home health next.
+Removing mobile. Not what I thought....
+
+Done all dataset testing! Now gonna do a bunch of filters and options and see what happens....
+Add an output file for user options, option to load options for testing
+
+First need to put this into exe again, then will do write up, then testing ease
