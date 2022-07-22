@@ -764,10 +764,6 @@ def exclude_ownership_types_long_term_care(df: pd.DataFrame, options):
 
     return df
 
-def exclude_mobile_organizations_long_term_care(df: pd.DataFrame):
-    ''' Returns a dataframe where organizations who's address is MOBILE are filtered out. '''
-    return df[df['provider_city'] != "MOBILE"]
-
 def get_organization_averages(df):
     ''' Returns a dataframe with averages for different measures for each home 
         health care organization in the dataset. '''

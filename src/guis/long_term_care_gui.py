@@ -169,7 +169,6 @@ class FormatPage(tk.Frame):
         ownership_types = list(ltc['ownership_type'].unique()) # List of the different ownership types organizations can have
         ownership_types = [type for type in ownership_types if not pd.isnull(type)] # Remove nan from the list and replace with "Undefined"
         ownership_types.append('Undefined')
-        ownership_types.append('Mobile') # Not an ownership type, but an option to exclude
 
         # Make a button to exclude each type of ownership and add it to options
         for type in ownership_types:
