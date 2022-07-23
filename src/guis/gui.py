@@ -10,11 +10,6 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import info, utilities as util
 
 
-# Global variables
-
-df = None
-territories = {}
-
 class TkWait:
     ''' Used to let program wait while also updating the UI. '''
     def __init__(self, master, milliseconds):
@@ -191,10 +186,6 @@ class StartPage(tk.Frame):
             with TkWait(thisframe.parent, 3000):
                 thisframe.instructions.config(text="Download finished")
         
-        global df
-        with open(thisframe.controller.home_folder_path + "dataframes/df.pkl", 'rb') as inp:
-            df = pickle.load(inp)
-
         thisframe.controller.resize_optionspage()
         thisframe.controller.show_frame(MainOptionsPage)
 
