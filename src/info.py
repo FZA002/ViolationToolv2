@@ -4,6 +4,12 @@ information relative to the data being processed by the Violation Tool.
 '''
 import pickle, utilities as util
 
+PRODUCTION = True
+if PRODUCTION:
+    STATE_CODES_PATH = "assets/state_codes_table.pkl"
+else:
+    STATE_CODES_PATH = "../assets/state_codes_table.pkl"
+
 severities = {
     "A - 0" : "Isolated - No actual harm with potential for minimal harm",
     "B - 0" : "Pattern - No actual harm with potential for minimal harm",
@@ -62,7 +68,7 @@ states_codes = [ 'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA
 # Creates hash map where key is two letter state code and value is full state
 def get_state_codes() -> dict:
     state_codes = {}
-    with open(util.resource_path("../assets/state_codes_table.pkl"), 'rb') as inp:
+    with open(util.resource_path("assets/state_codes_table.pkl"), 'rb') as inp:
         table = pickle.load(inp)
         
     rows = table.values.tolist()

@@ -9,6 +9,17 @@ import nursing_home_gui, home_health_gui, long_term_care_gui
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import info, utilities as util
 
+# Set up paths for either local testing or a production executable
+PRODUCTION = True
+if PRODUCTION:
+    TAG_HASH_PATH = "assets/tag_hash.pkl"
+    ICON_PATH = "images/icon.ico"
+    LOGO_PATH  = "images/logo.png"
+else:
+    TAG_HASH_PATH = "../assets/tag_hash.pkl"
+    ICON_PATH = "../images/icon.ico"
+    LOGO_PATH  = "../images/logo.png"
+
 
 class TkWait:
     ''' Used to let program wait while also updating the UI. '''
@@ -31,14 +42,15 @@ class tkinterApp(tk.Tk):
     def __init__(self, *args, **kwargs):
 
         self.home_folder_path = ""
+        global ICON_PATH, TAG_HASH_PATH
         # Contains tags and their descriptions
-        with open(util.resource_path("assets/tag_hash.pkl"), 'rb') as inp:
+        with open(util.resource_path(TAG_HASH_PATH), 'rb') as inp:
             self.tag_hash = pickle.load(inp)
          
         # __init__ function for class Tk
         tk.Tk.__init__(self, *args, **kwargs)
-        self.title("NHI Scraper")
-        self.iconbitmap(util.resource_path("images/icon.ico"))
+        self.title("Violation Tool")
+        self.iconbitmap(util.resource_path(ICON_PATH))
     
         # Prevents user from stretching screen
         self.resizable(width=False, height=False)
@@ -130,7 +142,8 @@ class PageLayout(tk.Frame):
         tk.Frame.__init__(self, parent)
 
         # Logo
-        logo = Image.open(util.resource_path("images/logo.png"))
+        global LOGO_PATH
+        logo = Image.open(util.resource_path(LOGO_PATH))
         logo = ImageTk.PhotoImage(logo)
         logo_label = ttk.Label(self, image=logo)
         logo_label.image = logo
