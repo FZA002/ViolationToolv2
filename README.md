@@ -23,49 +23,55 @@ For your first time running, please choose to download data. The program will al
 &nbsp;  
 &nbsp;  
 
-## **Breakdowns of Options and Filters, by Dataset** 
+# **Breakdowns of Options and Filters, by Dataset** 
+
+## All Datasets
 ---
 
 ## Filter by Territories
-A user is able to dynamically input territories of whatever name they choose. A territory is simply a group of states that the user gets to set. As mentioned above, a user will get one excel sheet per territory that they create. If a user skips this option, the default territories are East, West, and Central. The 52 states are divided amongst these.
+A user is able to dynamically input territories of whatever name they choose. A territory is simply a group of states that the user gets to set. As mentioned above, a user will get one CSV per territory that they create. If a user skips this option, the default territories are East, West, and Central. The 52 states are divided amongst these.
 
 ## Filter by Date Range
-A user is able to specify a range of dates for which they want to see data for. This date range is inclusive, meaning the start and end dates will be included. A user may choose to use the whole date range available, which, as mentioned above, is from 2015-2021. An important note on this date range: it will apply to other options. For example, one other option is to include data on the fines for the entire US. The total shown will only include data in a user's date range! This includes individual years. For example, consider if a user sets their date range as 01/10/2019-01/01/2021. The total produced for the US will include 01/10/2019-12/31/2019 (inclusive), all of 2020, and 01/01/2021. The total shown for 2019 and 2021 individually would abides by the same metrics
+A user is able to specify a range of dates for which they want to see data for. This date range is inclusive, meaning the start and end dates will be included. An important note on this date range: it will apply to other options. For example, one other option for Nursing Homes is to include data on the fines for the entire US. The total shown will only include data in a user's date range! This includes individual years. For example, consider if a user sets their date range as 01/10/2019-01/01/2021. The total produced for the US will include 01/10/2019-12/31/2019 (inclusive), all of 2020, and 01/01/2021. The total shown for 2019 and 2021 individually would abides by the same metrics. This date range only applies to Nursing Home and Long Term Care Hopsital data as of now. For Nursing Home data, the tool will use the "survey_date" column to filter dates. For Long Term Care Hospital data, it will use the "start_date" and "end_date" columns. If both the start_date and end_date are within the inclusive range provided by the user, the row of data will be included.
+
+## Format CSV Data
+This screen allows a user to pick what extra data and filters they would like included in the CSV files for a dataset.
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+## Nursing Homes
+---
 
 ## Filter by Tags
-Each violation recorded by Nursing Home Inspect has a corresponding tag. A tag is simply a way of categorizing a violation based on its nature. For example, tag F757's description is "Drug Regimen is Free From Unnecessary Drugs". A pdf of all F-Tags is included in this repo as "Ftags.pdf". All tags will also be listed in the "OptionalData" excel sheet that is made each time you run the program. Additionally, anything that you input that isn't a valid tag will not be used and will be displayed on the screen once you finish entering tags.
-
-## Format Excel Sheet
-This screen allows a user to pick what extra data they would like included in an excel file. This file will be separate from the individual files for each territory. Roughly each option gets its own sheet in a file titled "OptionalData.xlsx". All of the following options will be derived from the dataset AFTER it has been filtered by a user's chosen tags and date range! The options are described below.   
-
+Each violation has a violation corresponding tag. A tag is simply a way of categorizing a violation based on its nature. For example, tag F757's description is "Drug Regimen is Free From Unnecessary Drugs". A CSV with tag numbers and descriptions is included with the CSV's made by the tool. Additionally, anything that you input that isn't a valid tag will not be used and will be displayed on the screen once you finish entering tags. This filter will be used on the entire Nursing Home dataset, meaning that similar to the above described date range, any other Nursing Home options will be affected by this filter!
 
 ### Options
 1. **US Fines:**
-    This will include a total for each year in a given date range, as well as a total for that range. As described above in the "Filter by Date Range" section, the total shown and individual years will only include dates in the given range!
+    This will include a total for each year in a given date range, as well as a total for that range. As described above in the "Filter by Date Range" section, the total shown and individual years will only include dates and violation tags in the given range!
 
 2. **US Violations:**
-    This will include a total for each year in a given date range, as well as a total for that range. The same rules apply for dates in range as described throughout this document.
+    This will include a total for each year in a given date range, as well as a total for that range. The same rules apply for dates and violation tags in range as described throughout this document.
 
 3. **Top Fined Organizations:**
-    This will include a sheet that will include the top 3 most fined organizations per state, per year, and overall. The same rules apply for dates in range as described throughout this document.
+    This will include a sheet that will include the top 3 most fined organizations per state, per year, and overall. The same rules apply for dates and tags in range as described throughout this document.
 
 4. **Most Severe Organizations:**
-    This will include a sheet that will include the top 3 most severe organizations per state, per year, and overall. The same rules apply for dates in range as described throughout this document. An organization's severity is ranked via severity scores associated with each violation. The scores are calculated as described at the end of the document.
+    This will include a sheet that will include the top 3 most severe organizations per state, per year, and overall. The same rules apply for dates and tags in range as described throughout this document. An organization's severity is ranked via severity scores associated with each violation. The scores are calculated as described at the end of the document.
 
 5. **Sum of Fines and Violations per State:**
-    These will include sheets that will include the total number of violations and fines for each state, for each year in range, and a total for the date range. The same rules apply for dates in range as described throughout this document.
+    These will include sheets that will include the total number of violations and fines for each state, for each year in range, and a total for the date range. The same rules apply for dates and tags in range as described throughout this document.
 
 6. **Create Sheet with All Territories Combined**
-    This will include a sheet of all of the territories chosen by the user (or the defaults) combined. 
+    This will include a sheet of all of the territories chosen by the user (or the defaults) combined. The same rules apply for dates and tags in range as described throughout this document.
 
 7. **Create Sheet for All Violations without Territories**
-    This will create a sheet of all states, filtered by the given date range and tags. **This can take a long time!** The less filters used, the longer it will take. It could take around 20 minutes in my experience, if you include the entire date and tag range.  
+    This will create a sheet of all states, filtered by the given date range and tags. The states will not be grouped by territories.
 
-## Format of Data in the Excel Sheets
-The main excel sheets, which are the ones for the individual territories, combined territories, and without territories, are formatted the same way. Violations are grouped by territory (if relevant), then by state, then by organzation, then by date. Multiple violations may have taken place on the same date! This will be represented by multiple tags separated by commas in the "Tag" column. The number of violations on a date directly correlates to the number of tags in that rows "Tag" column. Tags will be listed without the leading "F". For example, tag F757 will be shown as just 757 in the excel sheets. Each tag and severity also match up. For example, if on 07/10/2021 the tag column has the tags, "757, 796, 869" and the severity column has the severities "D, E, B", then the pairs would be 757 and D, 796 and E, and 869 and B. This would mean that on 07/10/2021 there were 3 violations, one with tag 757 and severity D, etc. The severities' descriptions are included in the "OptionalData" excel file by default. 
 
 ## How Severity is Calculated for States and Organizations
 The scores are based off of CMS's "Design for Care Compare Nursing Home Five-Star Quality Rating System:
-Technical Users’ Guide", available at https://www.cms.gov/Medicare/Provider-Enrollment-and-Certification/CertificationandComplianc/downloads/usersguide.pdf. The specific numeric value associated with each scope severity code
-is included in the "OptionalData" excel file that is made each time any other excel sheets are made.
+Technical Users’ Guide", available at https://www.cms.gov/Medicare/Provider-Enrollment-and-Certification/CertificationandComplianc/downloads/usersguide.pdf, and included in this repo in the "documents" folder. The specific numeric value associated with each scope severity code
+is included in one of the CSV files that are made each time any other sheets are made.
 

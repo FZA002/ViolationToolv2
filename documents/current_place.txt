@@ -121,3 +121,6 @@ Done all dataset testing! Now gonna do a bunch of filters and options and see wh
 Add an output file for user options, option to load options for testing
 
 First need to put this into exe again, then will do write up, then testing ease
+
+7/23/22
+Working on README, need to fix buttons for Nursing Home gui
