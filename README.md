@@ -1,11 +1,10 @@
-# **Nursing Home Data Processor**
-The purpose of this program is to allow a user to easily filter and view data on nursing home violations from https://projects.propublica.org/nursing-homes/ in a clear and concise format via excel sheets that it creates. This repository includes all necessary data, in the form of pandas dataframes, that a user needs to be able to use the full functionality of this program. The data set includes all 50 states, plus Guam and District of Columbia.
+# **Violation Tool v2**
+Welcome! The purpose of this tool is to allow a user to easily view and filter datasets related to Healthcare. This version includes data on Nursing Home, Home Health Care, and Long Term Care Hospital organizations. The data is pulled from [cms.gov](https://data.cms.gov/provider-data/?redirect=true), which is refreshed monthly. After a  user chooses filters for the datasets, the final products are organized CSV files. As of now, the program is built on a Mac, which is reflected in the code's design.
 
-## A Quick Note to Start
-The data available spans from 2015-2021. It's a lot of data. It totals around 370,000 rows in an excel sheet, where each row represents a violation on a given date. Given the fact that this is a lot of data, if a user chooses to view all of it, the program will take significantly longer to make the excel sheets than if a user specifies what exactly they want out of that data. The different options that a user has are described below. The program will produce one excel sheet per territory, and an extra one for additional data.
-
-## How to Run the Program
+## How to run the program (As a user with an executable file)
 Please follow these steps, as Apple makes it hard to run a random program downloaded from the Internet (as they should). These steps will give the program permission to run.
+&nbsp;  
+&nbsp;  
 
 1. Download the file
 2. Drag it onto your desktop
@@ -15,12 +14,17 @@ Please follow these steps, as Apple makes it hard to run a random program downlo
 6. Now go to your desktop and click on the program. You should now get a pop up from Apple acting as the Warden between you and malicious actors. Just press "OK".
 7. Click on the apple logo at the top left of your screen. Then System Preferences -> Security & Privacy -> General. You should see a message about how ViolationTool was blocked. Allow it to open. You can trust me :)
 8. Be patient and the program will be at your service. A terminal will pop up and produce text on occasion. If the program doesn't work as expected, or at all, and text pops up in the terminal window, please copy it and send me it. You should be able to just click the program to run it from now on.
+&nbsp;  
+&nbsp;
 
-For your first time running, the program comes with pre-loaded data. The program will also create a folder in your User folder where it will store all necessary data that it downloads and updates. Do NOT move this folder or the program will not work! The very first screen of the program will tell you if this data is up to date with Nursing Home Inspect's data. If the program is up to date, there is no need to click yes on the first screen. This will not only take a long time, but is unnecessary.
+For your first time running, please choose to download data. The program will also create a folder in your User folder where it will store all necessary data that it downloads and updates. Do NOT move this folder or the program will not work! The very first screen of the program will tell you if this data is up to date with Nursing Home Inspect's data. If the program is up to date, there is no need to click yes on the first screen.
 
-## But if you do choose to redownload everything...
-You will first be asked for a location to save downloaded raw data to. The raw data will take a few minutes to download. The raw data will then be parsed, and the parsing progress will be shown on the screen. Afterwards, a user will be asked if they have any saved data. This question is relevant only if you have run the scraping part of this application before! If you haven't, click no, and choose a location to save the scraping data to. There will be a LOT of files produced, so an empty folder is preferrable. You may delete the files produced after a full scrape has been run if preferred. If you HAVE run the scraper before and have any save data, click yes, and choose the location of it. Whether you click yes or no, you will need an API key from WebScrapingApi.com. Once entered, you can begin the scrape, which will take a very long time, usually over an hour. The screen will let you know the scraper's progress throughout the process.
+&nbsp;  
+&nbsp;  
+&nbsp;  
 
+## **Breakdowns of Options and Filters, by Dataset** 
+---
 
 ## Filter by Territories
 A user is able to dynamically input territories of whatever name they choose. A territory is simply a group of states that the user gets to set. As mentioned above, a user will get one excel sheet per territory that they create. If a user skips this option, the default territories are East, West, and Central. The 52 states are divided amongst these.
