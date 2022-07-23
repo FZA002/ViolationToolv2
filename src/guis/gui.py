@@ -11,6 +11,7 @@ import info, utilities as util
 
 # Set up paths for either local testing or a production executable
 PRODUCTION = True
+OPTIONS_PAGE_SIZE = "500x320"
 if PRODUCTION:
     TAG_HASH_PATH = "assets/tag_hash.pkl"
     ICON_PATH = "images/icon.ico"
@@ -53,8 +54,9 @@ class tkinterApp(tk.Tk):
         self.iconbitmap(util.resource_path(ICON_PATH))
     
         # Prevents user from stretching screen
+        global OPTIONS_PAGE_SIZE
         self.resizable(width=False, height=False)
-        self.geometry("500x320")
+        self.geometry(OPTIONS_PAGE_SIZE)
          
         # creating a container
         self.container = tk.Frame(self) 
