@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import info, utilities as util
 
 # Set up paths for either local testing or a production executable
-PRODUCTION = False
+PRODUCTION = True
 OPTIONS_PAGE_SIZE = "500x320"
 if PRODUCTION:
     TAG_HASH_PATH = "assets/tag_hash.pkl"

@@ -612,15 +612,14 @@ def get_inrange_long_term_care(df, start, end):
     old_end = df['end_date']
     df['start_date'] =  pd.to_datetime(df['start_date'], format='%m/%d/%Y')
     df['end_date'] =  pd.to_datetime(df['end_date'], format='%m/%d/%Y')
-    # So rows included where either the start date is on or after the start date filter, same for end date filter
+    # So rows included where the start date is on or after the start date filter, same for end date filter
     new = df.loc[(df['start_date'] >= start) & (df['end_date'] <= end)] 
 
     # Then revert columns back to strings
     new['start_date'] = new['start_date'].dt.strftime('%m/%d/%Y')
     new['end_date'] = new['end_date'].dt.strftime('%m/%d/%Y')
-    df['start_date'] = old_start
-    df['end_date'] = old_end
-
+    df['start_date'], df['end_date'] = old_start, old_end
+    
     return new 
 
 def count_violations_df(df):

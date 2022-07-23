@@ -13,7 +13,7 @@ class OptionsPage(tk.Frame):
         self.instructions = ttk.Label(self, text="Choose your options for Home Health Care Data", font=("Times", 15))
         self.instructions.grid(column=1, row=1, columnspan=3, pady=30)
 
-        buttons = ["Choose Star Range", "Format Excel Data", "Done"]
+        buttons = ["Choose Star Range", "Format CSV Data", "Done"]
         pages = [StarRangePage, FormatPage, gui.MainOptionsPage]
         for idx, page in enumerate(pages):
             button = tk.Button(self, command=(lambda x=page: self.show_page(x)), text=buttons[idx], font="Times", bg="#000099", fg="#00ace6", height=1, width=30)

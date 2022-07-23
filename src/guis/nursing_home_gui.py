@@ -23,7 +23,7 @@ class OptionsPage(tk.Frame):
         self.tag_btn.grid(column=2, row=option_count, pady=30)
         option_count += 1
 
-        self.excel_btn = tk.Button(self, command=lambda:self.show_format(), text="Format Excel Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+        self.excel_btn = tk.Button(self, command=lambda:self.show_format(), text="Format CSV Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
         self.excel_btn.grid(column=2, row=option_count, pady=30)
         option_count += 1
 
