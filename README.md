@@ -43,6 +43,7 @@ This screen allows a user to pick what extra data and filters they would like in
 
 ## Nursing Homes
 ---
+The Nursing Homes dataset includes data on violations that Nursing Home organizations across the US have made. These violations each have an associated violation tag, date of the violation, fine amount, and other qualities associated with them.
 
 ## Filter by Tags
 Each violation has a violation corresponding tag. A tag is simply a way of categorizing a violation based on its nature. For example, tag F757's description is "Drug Regimen is Free From Unnecessary Drugs". A CSV with tag numbers and descriptions is included with the CSV's made by the tool. Additionally, anything that you input that isn't a valid tag will not be used and will be displayed on the screen once you finish entering tags. This filter will be used on the entire Nursing Home dataset, meaning that similar to the above described date range, any other Nursing Home options will be affected by this filter!
@@ -69,9 +70,84 @@ Each violation has a violation corresponding tag. A tag is simply a way of categ
 7. **Create Sheet for All Violations without Territories**
     This will create a sheet of all states, filtered by the given date range and tags. The states will not be grouped by territories.
 
+&nbsp; 
 
 ## How Severity is Calculated for States and Organizations
-The scores are based off of CMS's "Design for Care Compare Nursing Home Five-Star Quality Rating System:
-Technical Users’ Guide", available at https://www.cms.gov/Medicare/Provider-Enrollment-and-Certification/CertificationandComplianc/downloads/usersguide.pdf, and included in this repo in the "documents" folder. The specific numeric value associated with each scope severity code
-is included in one of the CSV files that are made each time any other sheets are made.
+The scores included in some of the optional sheets are based off of CMS's "Design for Care Compare Nursing Home Five-Star Quality Rating System: Technical Users’ Guide", available [here](https://www.cms.gov/Medicare/Provider-Enrollment-and-Certification/CertificationandComplianc/downloads/usersguide.pdf), and included in this repo in the "documents" folder. The specific numeric value associated with each scope severity code is included in one of the CSV files that are made each time any other sheets are made.
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+## Home Health Care
+---
+The Home Healthcare dataset includes different measures of quality for Home Healthcare organizations across the US. The different quality measures have associated date ranges for when these measures are relevant to, and are included in a CSV made by the tool each time it is ran.
+
+&nbsp; 
+
+## Filter by Star Range
+Each Home Health care organization has an associated "quality_of_patient_care_star_rating". Filtering by star range allows a user to include only organizations within their chosen star range, which can be any decimal between 0 and 5. Similar to date and tag filters for the Nursing Home dataset, the star range filtered dataset will be used for the rest of the options!
+
+### Options
+1. **US Fines:**
+    This will include a total for each year in a given date range, as well as a total for that range. As described above in the "Filter by Date Range" section, the total shown and individual years will only include dates and violation tags in the given range!
+
+2. **US Violations:**
+    This will include a total for each year in a given date range, as well as a total for that range. The same rules apply for dates and violation tags in range as described throughout this document.
+
+3. **Top Fined Organizations:**
+    This will include a sheet that will include the top 3 most fined organizations per state, per year, and overall. The same rules apply for dates and tags in range as described throughout this document.
+
+4. **Most Severe Organizations:**
+    This will include a sheet that will include the top 3 most severe organizations per state, per year, and overall. The same rules apply for dates and tags in range as described throughout this document. An organization's severity is ranked via severity scores associated with each violation. The scores are calculated as described at the end of the document.
+
+5. **Sum of Fines and Violations per State:**
+    These will include sheets that will include the total number of violations and fines for each state, for each year in range, and a total for the date range. The same rules apply for dates and tags in range as described throughout this document.
+
+6. **Create Sheet with All Territories Combined**
+    This will include a sheet of all of the territories chosen by the user (or the defaults) combined. The same rules apply for dates and tags in range as described throughout this document.
+
+7. **Create Sheet for All Violations without Territories**
+    This will create a sheet of all states, filtered by the given date range and tags. The states will not be grouped by territories.
+
+&nbsp; 
+
+## How Severity is Calculated for States and Organizations
+The scores included in some of the optional sheets are based off of CMS's "Design for Care Compare Nursing Home Five-Star Quality Rating System: Technical Users’ Guide", available [here](https://www.cms.gov/Medicare/Provider-Enrollment-and-Certification/CertificationandComplianc/downloads/usersguide.pdf), and included in this repo in the "documents" folder. The specific numeric value associated with each scope severity code is included in one of the CSV files that are made each time any other sheets are made.
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+## Long Term Care Hospitals
+---
+
+## Filter by Bed Range
+Each violation has a violation corresponding tag. A tag is simply a way of categorizing a violation based on its nature. For example, tag F757's description is "Drug Regimen is Free From Unnecessary Drugs". A CSV with tag numbers and descriptions is included with the CSV's made by the tool. Additionally, anything that you input that isn't a valid tag will not be used and will be displayed on the screen once you finish entering tags. This filter will be used on the entire Nursing Home dataset, meaning that similar to the above described date range, any other Nursing Home options will be affected by this filter!
+
+### Options
+1. **US Fines:**
+    This will include a total for each year in a given date range, as well as a total for that range. As described above in the "Filter by Date Range" section, the total shown and individual years will only include dates and violation tags in the given range!
+
+2. **US Violations:**
+    This will include a total for each year in a given date range, as well as a total for that range. The same rules apply for dates and violation tags in range as described throughout this document.
+
+3. **Top Fined Organizations:**
+    This will include a sheet that will include the top 3 most fined organizations per state, per year, and overall. The same rules apply for dates and tags in range as described throughout this document.
+
+4. **Most Severe Organizations:**
+    This will include a sheet that will include the top 3 most severe organizations per state, per year, and overall. The same rules apply for dates and tags in range as described throughout this document. An organization's severity is ranked via severity scores associated with each violation. The scores are calculated as described at the end of the document.
+
+5. **Sum of Fines and Violations per State:**
+    These will include sheets that will include the total number of violations and fines for each state, for each year in range, and a total for the date range. The same rules apply for dates and tags in range as described throughout this document.
+
+6. **Create Sheet with All Territories Combined**
+    This will include a sheet of all of the territories chosen by the user (or the defaults) combined. The same rules apply for dates and tags in range as described throughout this document.
+
+7. **Create Sheet for All Violations without Territories**
+    This will create a sheet of all states, filtered by the given date range and tags. The states will not be grouped by territories.
+
+
+## How Severity is Calculated for States and Organizations
+The scores included in some of the optional sheets are based off of CMS's "Design for Care Compare Nursing Home Five-Star Quality Rating System: Technical Users’ Guide", available [here](https://www.cms.gov/Medicare/Provider-Enrollment-and-Certification/CertificationandComplianc/downloads/usersguide.pdf), and included in this repo in the "documents" folder. The specific numeric value associated with each scope severity code is included in one of the CSV files that are made each time any other sheets are made.
 
