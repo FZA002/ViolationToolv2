@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import info, utilities as util
 
 # Set up paths for either local testing or a production executable
-PRODUCTION = True
+PRODUCTION = False
 OPTIONS_PAGE_SIZE = "500x320"
 if PRODUCTION:
     TAG_HASH_PATH = "assets/tag_hash.pkl"
@@ -57,6 +57,9 @@ class tkinterApp(tk.Tk):
         global OPTIONS_PAGE_SIZE
         self.resizable(width=False, height=False)
         self.geometry(OPTIONS_PAGE_SIZE)
+
+        # Will create a folder at the User's home folder for this programs data
+        self.download = self.setup_savedata()
          
         # creating a container
         self.container = tk.Frame(self) 
@@ -66,9 +69,6 @@ class tkinterApp(tk.Tk):
   
         # Initializing frames to an empty dict so that we can access pages by their name
         self.frames = {}
-
-         # Will create a folder at the User's home folder for this programs data
-        self.setup_savedata()
         self.add_frames([StartPage, MainOptionsPage])
         self.show_frame(StartPage)
 
@@ -99,7 +99,8 @@ class tkinterApp(tk.Tk):
         self.geometry("500x650")
     
     def setup_savedata(self):
-        ''' Creates a folder for this program's data. '''
+        ''' Creates a folder for this program's data. Will return True if data needs to be downloaded,
+            False if data is already present. '''
         abs_home = os.path.abspath(os.path.expanduser("~"))
         self.home_folder_path = abs_home + "/ViolationToolv2/"
 
@@ -113,6 +114,13 @@ class tkinterApp(tk.Tk):
             if not os.path.exists(self.home_folder_path + folder):
                 os.mkdir(self.home_folder_path + folder)
 
+        # Force a download of data for first time
+        if not os.path.exists(self.home_folder_path + "assets/lastupdate.pkl"):
+            with open(self.home_folder_path + "assets/lastupdate.pkl", 'wb') as outp:
+                pickle.dump("NA", outp, pickle.HIGHEST_PROTOCOL)
+            return True
+        return False
+    
     def add_tags(self, tags: List[str]):
         ''' Save tags that are chosen by the user for nursing homes. '''
         self.tags = tags
@@ -160,6 +168,7 @@ class StartPage(tk.Frame):
         thisframe.parent = parent
          
         # Instructions and Buttons
+        
         thisframe.instructions = ttk.Label(thisframe, text="Welcome! Do you want to download the most recent data?", font=("Times", 15))
         thisframe.instructions.grid(column=1, row=1, columnspan=3, pady=10)
 
@@ -175,6 +184,9 @@ class StartPage(tk.Frame):
 
         thisframe.no_btn = tk.Button(thisframe, text="No", command=lambda:thisframe.show_options(False), font="Times", bg="#000099", fg="#00ace6", height=2, width=15)
         thisframe.no_btn.grid(column=3, row=4, pady=10)
+
+        if thisframe.controller.download: # If no data has been saved yet, force a download
+            thisframe.download_data()
 
 
     def download_data(thisframe):
