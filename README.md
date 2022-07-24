@@ -17,7 +17,7 @@ Please follow these steps, as Apple makes it hard to run a random program downlo
 &nbsp;  
 &nbsp;
 
-The program will create a folder in your User folder where it will store all necessary data that it downloads and updates. The first time the program is run on your machine (or if the auto-created folder is moved or deleted), it will automatically download the lastest data. The very first screen of the program will tell you if this data is up to date with Nursing Home Inspect's data. If the program is up to date, there is no need to click yes on the first screen.
+The program will create a folder in your User folder where it will store all necessary data that it downloads and updates. The first time the program is run on your machine (or if the auto-created folder is moved or deleted), it will automatically download the lastest data. The very first screen of the program will tell you if this data is up to date. If the program is up to date, there is no need to click yes on the first screen.
 
 &nbsp;  
 &nbsp;  
@@ -34,8 +34,6 @@ A user is able to dynamically input territories of whatever name they choose. A 
 ## Filter by Date Range
 A user is able to specify a range of dates for which they want to see data for. This date range is inclusive, meaning the start and end dates will be included. An important note on this date range: it will apply to other options. For example, one other option for Nursing Homes is to include data on the fines for the entire US. The total shown will only include data in a user's date range! This includes individual years. For example, consider if a user sets their date range as 01/10/2019-01/01/2021. The total produced for the US will include 01/10/2019-12/31/2019 (inclusive), all of 2020, and 01/01/2021. The total shown for 2019 and 2021 individually would abides by the same metrics. This date range only applies to Nursing Home and Long Term Care Hopsital data as of now. For Nursing Home data, the tool will use the "survey_date" column to filter dates. For Long Term Care Hospital data, it will use the "start_date" and "end_date" columns. If both the start_date and end_date are within the inclusive range provided by the user, the row of data will be included.
 
-## Format CSV Data
-This screen allows a user to pick what extra data and filters they would like included in the CSV files for a dataset.
 
 &nbsp;  
 &nbsp;  
@@ -107,7 +105,7 @@ Each Home Healthcare organization has an associated "type_of_ownership". On the 
 &nbsp; 
 
 ## Additional Information about the Home Healthcare Dataset
-More information about the dataset is included [here](https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/home_health/HHS_Data_Dictionary.pdf), which is also included as a pdf in the "documents" folder of this repo.
+More information about the dataset is included [here](https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/home_health/HHS_Data_Dictionary.pdf), which is also included as a pdf named "HomeHealthcare_Data_Dictionary" in the "documents" folder of this repo.
 
 &nbsp;  
 &nbsp;  
@@ -115,7 +113,7 @@ More information about the dataset is included [here](https://data.cms.gov/provi
 
 ## Long Term Care Hospitals
 ---
-The Long Term Care Hospital dataset is made up of measure codes, which correspond to different quality measures for Long Term Care Hospital's. Each row of the dataset is made up of an organization, a measure code, and a score for that measure code, along with columns with other attributes. The measure codes are described [here](https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/long_term_care_hospital/LTCH-Data-Dictionary.pdf), as well as in the "LongTermCareHospital-Data-Dictionary" pdf in the "documents" folder of this repo.
+The Long Term Care Hospital dataset is made up of measure codes, which correspond to different quality measures for Long Term Care Hospitals. Each row of the dataset is made up of an organization, a measure code, and a score for that measure code, along with other attribute columns. The measure codes are described [here](https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/long_term_care_hospital/LTCH-Data-Dictionary.pdf), as well as in the "LongTermCareHospital-Data-Dictionary" pdf in the "documents" folder of this repo.
 
 &nbsp;  
 
@@ -136,7 +134,7 @@ Each Long Term Care Hospital organization has an associated "ownership_type". On
 &nbsp; 
 
 ## Additional Information about the Long Term Care Hospital Dataset
-More information about the dataset is included [here](https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/long_term_care_hospital/LTCH-Data-Dictionary.pdf), which is also included as a pdf in the "documents" folder of this repo.
+More information about the dataset is included [here](https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/long_term_care_hospital/LTCH-Data-Dictionary.pdf), which is also included as a pdf named "LongTermCareHospital-Data-Dictionary" in the "documents" folder of this repo.
 
 &nbsp;  
 &nbsp;  
