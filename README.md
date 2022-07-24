@@ -17,7 +17,7 @@ Please follow these steps, as Apple makes it hard to run a random program downlo
 &nbsp;  
 &nbsp;
 
-For your first time running, please choose to download data. The program will also create a folder in your User folder where it will store all necessary data that it downloads and updates. Do NOT move this folder or the program will not work! The very first screen of the program will tell you if this data is up to date with Nursing Home Inspect's data. If the program is up to date, there is no need to click yes on the first screen.
+The program will create a folder in your User folder where it will store all necessary data that it downloads and updates. The first time the program is run on your machine (or if the auto-created folder is moved or deleted), it will automatically download the lastest data. The very first screen of the program will tell you if this data is up to date with Nursing Home Inspect's data. If the program is up to date, there is no need to click yes on the first screen.
 
 &nbsp;  
 &nbsp;  
@@ -141,5 +141,3 @@ More information about the dataset is included [here](https://data.cms.gov/provi
 &nbsp;  
 &nbsp;  
 &nbsp; 
-
-# **In Conclusion...** 
