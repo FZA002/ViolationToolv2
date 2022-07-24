@@ -44,18 +44,12 @@ def download(frame):
     hhq, hhs, mdr = home_health_frames['hhq'], home_health_frames['hhs'], home_health_frames['mdr'] # Home Health Care
     
     # Save the new dataframes
-    with open(home_folder_path + "assets/tag_hash.pkl", 'wb') as outp:
-        pickle.dump(tags, outp, pickle.HIGHEST_PROTOCOL)
-    with open(home_folder_path + "dataframes/df.pkl", 'wb') as outp:
-        pickle.dump(hdf, outp, pickle.HIGHEST_PROTOCOL)
-    with open(home_folder_path + "dataframes/hhc_df.pkl", 'wb') as outp:
-        pickle.dump(hhq, outp, pickle.HIGHEST_PROTOCOL)
-    with open(home_folder_path + "dataframes/hhc_state_by_state_df.pkl", 'wb') as outp:
-        pickle.dump(hhs, outp, pickle.HIGHEST_PROTOCOL)
-    with open(home_folder_path + "dataframes/hhc_date_range_df.pkl", 'wb') as outp:
-        pickle.dump(mdr, outp, pickle.HIGHEST_PROTOCOL)
-    with open(home_folder_path + "dataframes/ltch_df.pkl", 'wb') as outp:
-        pickle.dump(ldf, outp, pickle.HIGHEST_PROTOCOL)
+    paths = ["assets/tag_hash.pkl", "dataframes/df.pkl", "dataframes/hhc_df.pkl",
+            "dataframes/hhc_state_by_state_df.pkl", "dataframes/hhc_date_range_df.pkl", "dataframes/ltch_df.pkl"]
+    dataframes = [tags, hdf, hhq, hhs, mdr, ldf]
+    for idx, path in enumerate(paths):
+        with open(f"{home_folder_path}{path}", 'wb') as outp:
+            pickle.dump(dataframes[idx], outp, pickle.HIGHEST_PROTOCOL)
     
     # Save the date of this download
     today = datetime.now()
