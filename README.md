@@ -88,32 +88,26 @@ The Home Healthcare dataset includes different measures of quality for Home Heal
 ## Filter by Star Range
 Each Home Health care organization has an associated "quality_of_patient_care_star_rating". Filtering by star range allows a user to include only organizations within their chosen star range, which can be any decimal between 0 and 5. Similar to date and tag filters for the Nursing Home dataset, the star range filtered dataset will be used for the rest of the options!
 
+## Exclude ownership types
+Each Home Healthcare organization has an associated "type_of_ownership". On the "Format Excel Data" screen for Home Health, the user can choose to exclude organizations with certain types of ownership. "Undefined" organizations are organizations that have a blank value for "type_of_ownership" in the dataset. Similar to star range, the organization type filtered dataset will be used for the rest of the options!
+
 ### Options
-1. **US Fines:**
-    This will include a total for each year in a given date range, as well as a total for that range. As described above in the "Filter by Date Range" section, the total shown and individual years will only include dates and violation tags in the given range!
+1. **Include State Statistics:**
+    This will include many of the same quality measures used for Home Healthcare organizations, but for each US state. The same rules apply for stars and ownership types that have been filtered as described throughout this document.
 
-2. **US Violations:**
-    This will include a total for each year in a given date range, as well as a total for that range. The same rules apply for dates and violation tags in range as described throughout this document.
+2. **Include Measure Averages per Organization:**
+    This will include an average for each Home Healthcare organization's different quality measures, grouping together organzations with the same name, regardless of their location. The same rules apply for stars and ownership types that have been filtered as described throughout this document.
 
-3. **Top Fined Organizations:**
-    This will include a sheet that will include the top 3 most fined organizations per state, per year, and overall. The same rules apply for dates and tags in range as described throughout this document.
+3. **Create Sheet with All Territories Combined**
+    This will include a sheet of all of the territories chosen by the user (or the defaults) combined. The same rules apply for stars and ownership types that have been filtered as described throughout this document.
 
-4. **Most Severe Organizations:**
-    This will include a sheet that will include the top 3 most severe organizations per state, per year, and overall. The same rules apply for dates and tags in range as described throughout this document. An organization's severity is ranked via severity scores associated with each violation. The scores are calculated as described at the end of the document.
-
-5. **Sum of Fines and Violations per State:**
-    These will include sheets that will include the total number of violations and fines for each state, for each year in range, and a total for the date range. The same rules apply for dates and tags in range as described throughout this document.
-
-6. **Create Sheet with All Territories Combined**
-    This will include a sheet of all of the territories chosen by the user (or the defaults) combined. The same rules apply for dates and tags in range as described throughout this document.
-
-7. **Create Sheet for All Violations without Territories**
-    This will create a sheet of all states, filtered by the given date range and tags. The states will not be grouped by territories.
+4. **Create Sheet for All Violations without Territories**
+    This will create a sheet of all states, filtered by the given star range and ownership types. The states will not be grouped by territories.
 
 &nbsp; 
 
-## How Severity is Calculated for States and Organizations
-The scores included in some of the optional sheets are based off of CMS's "Design for Care Compare Nursing Home Five-Star Quality Rating System: Technical Users’ Guide", available [here](https://www.cms.gov/Medicare/Provider-Enrollment-and-Certification/CertificationandComplianc/downloads/usersguide.pdf), and included in this repo in the "documents" folder. The specific numeric value associated with each scope severity code is included in one of the CSV files that are made each time any other sheets are made.
+## Additional Information about the Home Healthcare Dataset
+More information about the dataset is included [here](https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/home_health/HHS_Data_Dictionary.pdf), which is also included as a pdf in the "documents" folder of this repo.
 
 &nbsp;  
 &nbsp;  

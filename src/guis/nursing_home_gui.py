@@ -10,44 +10,23 @@ class OptionsPage(tk.Frame):
         self.controller = controller
 
         # Instructions, Buttons for options
-        option_count = 1
         self.instructions = ttk.Label(self, text="Choose your options for Nursing Home Data", font=("Times", 15))
-        self.instructions.grid(column=1, row=option_count, columnspan=3, pady=15)
-        option_count += 1 
+        self.instructions.grid(column=1, row=1, columnspan=3, pady=30)
 
-        self.instructions2 = ttk.Label(self, text="", font=("Times", 15))
-        self.instructions2.grid(column=1, row=option_count, columnspan=3)
-        option_count += 1 
+        labels = ["Choose Tags to Include", "Format CSV Data", "Done"]
+        pages = [TagsPage, FormatPage, gui.MainOptionsPage]
+        for idx, page in enumerate(pages):
+            button = tk.Button(self, command=(lambda x=page: self.show_page(x)), text=labels[idx], font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
+            button.grid(column=2, row=idx+2, pady=30)
 
-        self.tag_btn = tk.Button(self, command=lambda:self.show_tags(), text="Choose Tags to Include", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.tag_btn.grid(column=2, row=option_count, pady=30)
-        option_count += 1
-
-        self.excel_btn = tk.Button(self, command=lambda:self.show_format(), text="Format CSV Data", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.excel_btn.grid(column=2, row=option_count, pady=30)
-        option_count += 1
-
-        self.done_btn = tk.Button(self, command=lambda:self.show_main_options(), text="Done", font="Times", bg="#000099", fg="#00ace6", height=1, width=30)
-        self.done_btn.grid(column=2, row=option_count, pady=30)
-        option_count += 1
-
-    # Functions to show appropriate screens and disable buttons after press    
-    def show_tags(self):
-        self.controller.add_frames([TagsPage])
-        self.controller.geometry("500x520")
-        self.controller.show_frame(TagsPage)
-
-    def show_format(self):
+    # Functions to show appropriate screens and disable buttons after press
+    def show_page(self, page):
+        ''' Show the appropriate page after a button is pressed. '''
         self.controller.resize_optionspage()
-        self.controller.add_frames([FormatPage])
-        self.controller.show_frame(FormatPage)
-
-    def show_main_options(self):
-        self.controller.resize_optionspage()
-        self.controller.add_frames([gui.MainOptionsPage])
-        self.controller.show_frame(gui.MainOptionsPage)
-
-
+        self.controller.add_frames([page])
+        self.controller.show_frame(page)
+    
+    
 
 class TagsPage(tk.Frame):
     ''' Choose which tags to include. '''
