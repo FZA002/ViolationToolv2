@@ -12,6 +12,8 @@ from datetime import datetime
 # Get imports from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import guis.gui as gui
+import warnings
+warnings.filterwarnings('ignore')
 
 # This is where all the save data lies
 abs_home = os.path.abspath(os.path.expanduser("~"))

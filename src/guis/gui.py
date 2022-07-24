@@ -8,6 +8,8 @@ import nursing_home_gui, home_health_gui, long_term_care_gui
 # Get imports from parent directory
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import info, utilities as util
+import warnings
+warnings.filterwarnings('ignore')
 
 # Set up paths for either local testing or a production executable
 PRODUCTION = True
