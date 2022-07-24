@@ -496,7 +496,6 @@ class SheetsPage(tk.Frame):
                 self.func = func
         
             def run(self):
-                global options
                 self.func(thisframe, nursing_home_df, home_health_df, long_term_care_df, outpath)
 
         thisframe.cancel_btn.grid_forget()
