@@ -1,6 +1,5 @@
 import pandas as pd
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
+
 
 def download_data():
     ''' Downloads data related to Home Health Care organizations and returns the dataframes to be saved
