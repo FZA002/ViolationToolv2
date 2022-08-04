@@ -10,7 +10,7 @@ Please follow these steps, as Apple makes it hard to run a random program downlo
 2. Drag it onto your desktop
 3. Open up your terminal (you can do this via command + space and then searching "Terminal")
 4. In the terminal, type "cd ~/Desktop"
-5. In the terminal, type "chmod +x ./ViolationTool". 
+5. In the terminal, type "chmod +x ./ViolationTool". You can now close the terminal.
 6. Now go to your desktop and click on the program. You should now get a pop up from Apple acting as the Warden between you and malicious actors. Just press "OK".
 7. Click on the apple logo at the top left of your screen. Then System Preferences -> Security & Privacy -> General. You should see a message about how ViolationTool was blocked. Allow it to open. You can trust me :)
 8. Be patient and the program will be at your service. A terminal will pop up and produce text on occasion. If the program doesn't work as expected, or at all, and text pops up in the terminal window, please copy it and send me it. You should be able to just click the program to run it from now on.
